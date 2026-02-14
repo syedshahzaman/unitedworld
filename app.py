@@ -2673,7 +2673,11 @@ if __name__ == "__main__":
     print("   • NO tax on withdrawals")
     print("   • Maximum single order: ₹1,000")
     print("=" * 80)
-    print("🚀 Starting server on http://127.0.0.1:8080")
+    
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    
+    print(f"🚀 Starting server on http://0.0.0.0:{port}")
     print("=" * 80)
 
-    app.run(host="0.0.0.0", port=8080, debug=True)
+    app.run(host="0.0.0.0", port=port)
