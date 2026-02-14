@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNITED WORLD | Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS VARIABLES & RESET ===== */
+        :root {
+            /* Color Palette - Institutional Fintech */
+            --black-900: #05050A;
+            --black-800: #0A0A14;
+            --black-700: #10101E;
+            --black-600: #1A1A2E;
+            --navy-900: #0C1220;
+            --navy-800: #121B30;
+            --navy-700: #1A2640;
+            --navy-600: #223354;
+            
+            /* Accent Colors */
+            --primary-500: #2D8CFF;
+            --primary-400: #5AA5FF;
+            --primary-300: #89C2FF;
+            --teal-500: #0DC9C9;
+            --cyan-500: #00E0FF;
+            
+            /* Status Colors */
+            --success-500: #10B981;
+            --success-300: #34D399;
+            --warning-500: #F59E0B;
+            --warning-300: #FBBF24;
+            --danger-500: #EF4444;
+            --danger-300: #F87171;
+            
+            /* Text & UI */
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-tertiary: #64748B;
+            --text-disabled: #475569;
+            
+            --bg-card: rgba(26, 38, 64, 0.6);
+            --bg-card-hover: rgba(37, 99, 235, 0.05);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(45, 140, 255, 0.3);
+            
+            /* Glass Effects */
+            --glass-bg: rgba(26, 38, 64, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(20px);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 0.75rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--black-900) 0%, var(--navy-900) 100%);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== LAYOUT CONTAINER ===== */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            grid-column: 1;
+            grid-row: 1 / -1;
+            background: var(--navy-800);
+            border-right: 1px solid var(--border-color);
+            padding: var(--space-xl) 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                z-index: 1000;
+                width: 280px;
+                transition: left var(--transition-base);
+                height: 100vh;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 999;
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 0 var(--space-xl) var(--space-xl);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: var(--space-xl);
+        }
+
+        .logo-img {
+            height: 32px;
+            width: auto;
+            filter: brightness(1.1);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-primary);
+            font-family: 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .logo-text span {
+            background: linear-gradient(135deg, var(--primary-400), var(--cyan-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 var(--space-md);
+        }
+
+        .nav-item {
+            margin-bottom: var(--space-xs);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            font-weight: 500;
+            font-size: 0.9375rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+            border-left: 3px solid var(--primary-400);
+        }
+
+        .nav-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .nav-link.disabled::after {
+            content: '\f023';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.75rem;
+            margin-left: auto;
+            color: var(--text-disabled);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            grid-column: 2;
+            grid-row: 1;
+            background: var(--navy-800);
+            border-bottom: 1px solid var(--border-color);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                grid-column: 1;
+            }
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: var(--space-xs);
+            border-radius: var(--radius-sm);
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-xs);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-400), var(--cyan-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .admin-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .admin-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+        }
+
+        .admin-badge {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-300);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            grid-column: 2;
+            grid-row: 2;
+            padding: var(--space-xl);
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-column: 1;
+                padding: var(--space-lg);
+            }
+        }
+
+        /* ===== STATS GRID ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary-300), transparent);
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-hover);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.users {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+        }
+
+        .stat-icon.rupee {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-500);
+        }
+
+        .stat-icon.coins {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-500);
+        }
+
+        .stat-icon.chart {
+            background: rgba(13, 201, 201, 0.1);
+            color: var(--teal-500);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+            color: var(--text-primary);
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .stat-trend {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-xs);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .stat-trend .positive {
+            color: var(--success-300);
+        }
+
+        .stat-trend .negative {
+            color: var(--danger-300);
+        }
+
+        .loading {
+            opacity: 0.7;
+        }
+
+        .loading::after {
+            content: '...';
+            animation: loadingDots 1.5s infinite;
+        }
+
+        @keyframes loadingDots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* ===== MARKET STATUS GRID ===== */
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        @media (max-width: 1024px) {
+            .market-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .market-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .market-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+        }
+
+        .market-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+        }
+
+        .market-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-dot.healthy {
+            background: var(--success-500);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        .status-dot.warning {
+            background: var(--warning-500);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        .status-dot.critical {
+            background: var(--danger-500);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+        }
+
+        .status-text {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-text.healthy {
+            color: var(--success-300);
+        }
+
+        .status-text.warning {
+            color: var(--warning-300);
+        }
+
+        .status-text.critical {
+            color: var(--danger-300);
+        }
+
+        .market-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .market-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .market-change.positive {
+            color: var(--success-300);
+        }
+
+        .market-change.negative {
+            color: var(--danger-300);
+        }
+
+        .market-change.neutral {
+            color: var(--text-tertiary);
+        }
+
+        /* ===== REQUEST QUEUE ===== */
+        .request-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-lg);
+            margin-bottom: var(--space-2xl);
+        }
+
+        @media (max-width: 768px) {
+            .request-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .request-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            transition: all var(--transition-base);
+        }
+
+        .request-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .request-card.pending {
+            border-left: 4px solid var(--warning-500);
+        }
+
+        .request-card.withdrawal {
+            border-left: 4px solid var(--danger-500);
+        }
+
+        .request-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+        }
+
+        .request-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .request-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .request-badge.manual {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-500);
+        }
+
+        .request-badge.review {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-500);
+        }
+
+        .request-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: var(--space-sm);
+            font-feature-settings: "tnum";
+        }
+
+        .request-count.pending {
+            color: var(--warning-500);
+        }
+
+        .request-count.withdrawal {
+            color: var(--danger-500);
+        }
+
+        .request-desc {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-md);
+        }
+
+        .request-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .action-btn {
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.primary {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+            border-color: rgba(45, 140, 255, 0.2);
+        }
+
+        .action-btn.primary:hover {
+            background: rgba(45, 140, 255, 0.2);
+        }
+
+        /* ===== SYSTEM NOTES ===== */
+        .system-notes {
+            background: rgba(26, 38, 64, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            margin-top: var(--space-2xl);
+        }
+
+        .notes-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .notes-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .notes-list {
+            list-style: none;
+            margin-top: var(--space-md);
+        }
+
+        .notes-item {
+            padding: var(--space-sm) 0;
+            padding-left: var(--space-xl);
+            position: relative;
+            color: var(--text-tertiary);
+        }
+
+        .notes-item::before {
+            content: '•';
+            color: var(--primary-400);
+            position: absolute;
+            left: 0;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; }
+        .delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--navy-800);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--navy-600);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--navy-700);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header-right {
+                gap: var(--space-md);
+            }
+            
+            .admin-details {
+                display: none;
+            }
+            
+            .logout-btn span {
+                display: none;
+            }
+            
+            .logout-btn {
+                padding: var(--space-sm);
+                border-radius: var(--radius-md);
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --space-xl: 1.5rem;
+                --space-2xl: 2rem;
+            }
+            
+            .main-content {
+                padding: var(--space-md);
+            }
+            
+            .stat-card,
+            .market-card,
+            .request-card,
+            .system-notes {
+                padding: var(--space-lg);
+            }
+            
+            .stat-value {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* ===== LOADING STATES ===== */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-400);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-500);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(45, 140, 255, 0.3);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .refresh-btn:hover {
+            background: var(--primary-400);
+            transform: rotate(180deg);
+            box-shadow: 0 6px 20px rgba(45, 140, 255, 0.4);
+        }
+
+        .refresh-btn.loading {
+            background: var(--primary-300);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Overlay (Mobile Only) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/uwblank.png" alt="UNITED WORLD Logo" class="logo-img">
+                <div class="logo-text">UNITED <span>WORLD</span></div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/admin" class="nav-link active">
+                        <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/users" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/deposits" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
+                        <span>Deposits</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/withdrawals" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-wallet"></i></span>
+                        <span>Withdrawals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link disabled">
+                        <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                        <span>Market</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="page-title">Admin Dashboard</h1>
+                    <p class="page-subtitle">System overview & market health</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="admin-info">
+                    <div class="admin-avatar" id="adminAvatar">AW</div>
+                    <div class="admin-details">
+                        <div class="admin-name" id="adminName">Admin Wilson</div>
+                        <div class="admin-badge">ADMIN</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="window.location.href='/logout'">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- System Overview Stats -->
+            <section class="stats-grid">
+                <div class="stat-card fade-in-up">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value" id="totalUsers">Loading<span class="loading"></span></div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-trend">
+                        <span class="trend-text" id="userTrend">Registered accounts</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card fade-in-up delay-1">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value" id="totalINR">Loading<span class="loading"></span></div>
+                            <div class="stat-label">Total INR in System</div>
+                        </div>
+                        <div class="stat-icon rupee">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                    </div>
+                    <div class="stat-trend">
+                        <span class="trend-text" id="inrTrend">User balances</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card fade-in-up delay-2">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value" id="totalMRX">Loading<span class="loading"></span></div>
+                            <div class="stat-label">Total MRX in Circulation</div>
+                        </div>
+                        <div class="stat-icon coins">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                    </div>
+                    <div class="stat-trend">
+                        <span class="trend-text" id="mrxTrend">Held by users</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card fade-in-up delay-3">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value" id="currentPrice">Loading<span class="loading"></span></div>
+                            <div class="stat-label">Current MRX Price</div>
+                        </div>
+                        <div class="stat-icon chart">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="stat-trend">
+                        <span class="trend-text positive" id="priceTrend">Based on liquidity pools</span>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Market Status -->
+            <section class="market-grid">
+                <div class="market-card fade-in-up">
+                    <div class="market-card-header">
+                        <h3 class="market-title">INR Pool</h3>
+                        <div class="status-indicator">
+                            <div class="status-dot healthy"></div>
+                            <span class="status-text healthy">Healthy</span>
+                        </div>
+                    </div>
+                    <div class="market-value" id="inrPool">₹ 18.4M</div>
+                    <div class="market-change positive" id="inrPoolChange">Market liquidity</div>
+                </div>
+                
+                <div class="market-card fade-in-up delay-1">
+                    <div class="market-card-header">
+                        <h3 class="market-title">MRX Pool</h3>
+                        <div class="status-indicator">
+                            <div class="status-dot healthy"></div>
+                            <span class="status-text healthy">Healthy</span>
+                        </div>
+                    </div>
+                    <div class="market-value" id="mrxPool">3.62M MRX</div>
+                    <div class="market-change neutral" id="mrxPoolChange">Token supply</div>
+                </div>
+                
+                <div class="market-card fade-in-up delay-2">
+                    <div class="market-card-header">
+                        <h3 class="market-title">Liquidity Health</h3>
+                        <div class="status-indicator">
+                            <div class="status-dot healthy"></div>
+                            <span class="status-text healthy">Optimal</span>
+                        </div>
+                    </div>
+                    <div class="market-value" id="liquidityHealth">94.2%</div>
+                    <div class="market-change positive" id="liquidityTrend">System stable</div>
+                </div>
+            </section>
+            
+            <!-- Request Queue -->
+            <section class="request-grid">
+                <div class="request-card pending fade-in-up">
+                    <div class="request-header">
+                        <h3 class="request-title">
+                            <i class="fas fa-clock"></i>
+                            Pending Deposits
+                        </h3>
+                        <span class="request-badge manual">Manual Approval</span>
+                    </div>
+                    <div class="request-count pending" id="pendingDeposits">47</div>
+                    <p class="request-desc">Deposit requests awaiting manual verification and approval.</p>
+                    <div class="request-actions">
+                        <button class="action-btn primary" onclick="window.location.href='/admin/deposits'">
+                            <i class="fas fa-eye"></i>
+                            Review All
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='/admin/deposits?status=pending'">
+                            <i class="fas fa-filter"></i>
+                            Filter
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="request-card withdrawal fade-in-up delay-1">
+                    <div class="request-header">
+                        <h3 class="request-title">
+                            <i class="fas fa-exclamation-circle"></i>
+                            Pending Withdrawals
+                        </h3>
+                        <span class="request-badge review">Review Required</span>
+                    </div>
+                    <div class="request-count withdrawal" id="pendingWithdrawals">23</div>
+                    <p class="request-desc">Withdrawal requests pending review and manual processing.</p>
+                    <div class="request-actions">
+                        <button class="action-btn primary" onclick="window.location.href='/admin/withdrawals'">
+                            <i class="fas fa-check-circle"></i>
+                            Process Queue
+                        </button>
+                        <button class="action-btn" onclick="window.location.href='/admin/withdrawals?status=pending'">
+                            <i class="fas fa-sort-amount-down"></i>
+                            Sort
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- System Notes -->
+            <section class="system-notes fade-in-up delay-2">
+                <h3 class="notes-title">
+                    <i class="fas fa-info-circle"></i>
+                    System Notes & Guidelines
+                </h3>
+                <div class="notes-content">
+                    <p>All deposits and withdrawals are processed manually to ensure compliance and security. Market price is auto-calculated using pool ratio. Admin approvals directly impact liquidity and should be handled with care.</p>
+                    <ul class="notes-list">
+                        <li class="notes-item">Deposits typically process within 2-6 business hours</li>
+                        <li class="notes-item">Withdrawals require additional verification (24-48 hours)</li>
+                        <li class="notes-item">Price updates automatically based on pool ratios</li>
+                        <li class="notes-item">Liquidity health should remain above 85%</li>
+                        <li class="notes-item">Last updated: <span id="lastUpdated">Just now</span></li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <!-- Refresh Button -->
+        <button class="refresh-btn" id="refreshBtn" title="Refresh Data">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+        
+        // Close sidebar when clicking overlay
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // Load user data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load admin user info
+            fetchUserData();
+            
+            // Load dashboard stats
+            loadDashboardData();
+            
+            // Set up auto-refresh every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
+
+        // Format numbers
+        function formatNumber(num, decimals = 0) {
+            if (num === null || num === undefined) return '0';
+            
+            if (num >= 1000000000) {
+                return (num / 1000000000).toFixed(1) + 'B';
+            }
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toLocaleString('en-IN', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatINR(amount) {
+            if (amount === null || amount === undefined) return '₹ 0';
+            return '₹ ' + formatNumber(amount, amount < 1000 ? 2 : 0);
+        }
+
+        function formatMRX(amount) {
+            if (amount === null || amount === undefined) return '0 MRX';
+            return formatNumber(amount, 6) + ' MRX';
+        }
+
+        // Fetch admin user data
+        async function fetchUserData() {
+            try {
+                const response = await fetch('/api/user/data');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user data');
+                }
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Update admin info
+                    const adminAvatar = document.getElementById('adminAvatar');
+                    const adminName = document.getElementById('adminName');
+                    
+                    adminAvatar.textContent = data.avatar_initials || 'AW';
+                    adminName.textContent = data.full_name || 'Admin User';
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+
+        // Load dashboard statistics
+        async function loadDashboardData() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.classList.add('loading');
+            
+            try {
+                // Fetch dashboard stats from API
+                const response = await fetch('/api/admin/dashboard-stats');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch dashboard stats');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateDashboardUI(data.stats);
+                    updateLastUpdated();
+                } else {
+                    console.error('API Error:', data.error);
+                    showErrorState();
+                }
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                showErrorState();
+            } finally {
+                refreshBtn.classList.remove('loading');
+            }
+        }
+
+        // Update dashboard UI with fetched data
+        function updateDashboardUI(stats) {
+            // Update main stats
+            document.getElementById('totalUsers').textContent = formatNumber(stats.total_users);
+            document.getElementById('userTrend').textContent = `${stats.active_users} active users`;
+            
+            document.getElementById('totalINR').textContent = formatINR(stats.total_inr);
+            document.getElementById('inrTrend').textContent = 'Total user balances';
+            
+            document.getElementById('totalMRX').textContent = formatMRX(stats.total_mrx);
+            document.getElementById('mrxTrend').textContent = 'Total MRX in circulation';
+            
+            document.getElementById('currentPrice').textContent = `₹ ${stats.current_price.toFixed(4)}`;
+            document.getElementById('priceTrend').textContent = 'Based on liquidity pools';
+            
+            // Update market data
+            document.getElementById('inrPool').textContent = formatINR(stats.inr_pool);
+            document.getElementById('mrxPool').textContent = formatMRX(stats.mrx_pool);
+            
+            // Update liquidity health
+            const liquidityElement = document.getElementById('liquidityHealth');
+            const statusDot = document.querySelector('.market-card:nth-child(3) .status-dot');
+            const statusText = document.querySelector('.market-card:nth-child(3) .status-text');
+            
+            if (stats.liquidity_health === 'healthy') {
+                liquidityElement.textContent = '94.2%';
+                statusDot.className = 'status-dot healthy';
+                statusText.textContent = 'Healthy';
+                statusText.className = 'status-text healthy';
+                document.getElementById('liquidityTrend').textContent = 'System stable';
+                document.getElementById('liquidityTrend').className = 'market-change positive';
+            } else if (stats.liquidity_health === 'warning') {
+                liquidityElement.textContent = '65.8%';
+                statusDot.className = 'status-dot warning';
+                statusText.textContent = 'Warning';
+                statusText.className = 'status-text warning';
+                document.getElementById('liquidityTrend').textContent = 'Monitor closely';
+                document.getElementById('liquidityTrend').className = 'market-change negative';
+            } else {
+                liquidityElement.textContent = '42.1%';
+                statusDot.className = 'status-dot critical';
+                statusText.textContent = 'Critical';
+                statusText.className = 'status-text critical';
+                document.getElementById('liquidityTrend').textContent = 'Attention required';
+                document.getElementById('liquidityTrend').className = 'market-change negative';
+            }
+            
+            // Update request counts
+            document.getElementById('pendingDeposits').textContent = stats.pending_deposits;
+            document.getElementById('pendingWithdrawals').textContent = stats.pending_withdrawals;
+            
+            // Add animation to updated values
+            animateValueUpdate();
+        }
+
+        // Show error state
+        function showErrorState() {
+            const elements = [
+                'totalUsers', 'totalINR', 'totalMRX', 'currentPrice',
+                'pendingDeposits', 'pendingWithdrawals'
+            ];
+            
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = 'Error';
+                    element.style.color = 'var(--danger-300)';
+                }
+            });
+        }
+
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            const lastUpdatedElement = document.getElementById('lastUpdated');
+            
+            const timeString = now.toLocaleTimeString('en-IN', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            lastUpdatedElement.textContent = timeString;
+        }
+
+        // Add animation to updated values
+        function animateValueUpdate() {
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(value => {
+                value.classList.add('value-updated');
+                setTimeout(() => {
+                    value.classList.remove('value-updated');
+                }, 1000);
+            });
+        }
+
+        // Add CSS for value update animation
+        const style = document.createElement('style');
+        style.textContent = `
+            .value-updated {
+                animation: valuePulse 0.5s ease-in-out;
+            }
+            
+            @keyframes valuePulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Refresh button click handler
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            loadDashboardData();
+        });
+
+        // Simulate loading animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const animatedElements = document.querySelectorAll('.fade-in-up');
+            
+            // Trigger animations after page load
+            setTimeout(() => {
+                animatedElements.forEach(el => {
+                    el.style.opacity = '1';
+                });
+            }, 100);
+        });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                loadDashboardData();
+            }
+        });
+
+        // Error handling for API calls
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            showErrorState();
+        });
+    </script>
+</body>
+</html>

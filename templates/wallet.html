@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNITED WORLD | Wallet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS VARIABLES & RESET ===== */
+        :root {
+            /* Color Palette */
+            --black-900: #05050A;
+            --black-800: #0A0A14;
+            --black-700: #10101E;
+            --black-600: #1A1A2E;
+
+            --navy-900: #0C1220;
+            --navy-800: #121B30;
+            --navy-700: #1A2640;
+            --navy-600: #223354;
+
+            --neon-blue: #00D4FF;
+            --neon-cyan: #00F5FF;
+            --electric-blue: #0066FF;
+            --gold-accent: #FFD700;
+            --success-green: #10B981;
+            --warning-orange: #F59E0B;
+
+            --gray-100: #F8FAFC;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-500: #64748B;
+            --gray-700: #334155;
+            --gray-900: #0F172A;
+
+            --glass-bg: rgba(26, 38, 64, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(20px);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'SF Mono', 'Roboto Mono', monospace;
+
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 0.75rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--black-900) 0%, var(--navy-900) 100%);
+            color: var(--gray-100);
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+
+        /* ===== ANIMATION KEYFRAMES ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(0, 212, 255, 0.4);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes neonGlow {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(0, 212, 255, 0.7),
+                             0 0 20px rgba(0, 212, 255, 0.5),
+                             0 0 30px rgba(0, 212, 255, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(0, 212, 255, 0.8),
+                             0 0 30px rgba(0, 212, 255, 0.6),
+                             0 0 40px rgba(0, 212, 255, 0.4);
+            }
+        }
+
+        /* ===== HEADER / TOP BAR ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(12, 18, 32, 0.95);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 1000;
+            padding: var(--space-md) 0;
+            height: 70px;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--gray-100), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .mode-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--neon-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: var(--space-xs) var(--space-sm);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 4px;
+            animation: fadeIn 1s ease-out 0.2s both;
+        }
+
+        /* Navigation */
+        .nav-links {
+            display: flex;
+            gap: var(--space-xl);
+            margin-left: auto;
+        }
+
+        .nav-link {
+            color: var(--gray-500);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9375rem;
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            transition: color var(--transition-fast);
+            position: relative;
+            padding: var(--space-xs) 0;
+        }
+
+        .nav-link:hover {
+            color: var(--neon-blue);
+        }
+
+        .nav-link.active {
+            color: var(--neon-blue);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--neon-blue), transparent);
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            padding: var(--space-3xl) 0 var(--space-xl);
+            text-align: center;
+            position: relative;
+            overflow: visible;
+            margin-top: 100px;
+            min-height: auto;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%,
+                        rgba(0, 212, 255, 0.05) 0%,
+                        transparent 70%);
+            animation: gradientShift 15s ease infinite;
+            background-size: 200% 200%;
+            z-index: -1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: var(--space-xl) 0;
+            animation: scaleIn 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: var(--space-md);
+            background: linear-gradient(135deg, var(--gray-200), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: neonGlow 3s infinite;
+            line-height: 1.1;
+            letter-spacing: 2px;
+            padding: 0 var(--space-md);
+            text-align: center;
+            overflow: visible;
+            text-transform: uppercase;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.25rem, 3vw, 1.5rem);
+            color: var(--gray-300);
+            max-width: 700px;
+            margin: 0 auto var(--space-xl);
+            font-weight: 300;
+            animation: fadeIn 1s ease-out 0.3s both;
+            padding: 0 var(--space-lg);
+            line-height: 1.4;
+        }
+
+        /* ===== WALLET OVERVIEW ===== */
+        .wallet-overview {
+            padding: var(--space-xl) 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .balance-card {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: var(--space-xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out 0.4s both;
+            transition: transform var(--transition-base);
+        }
+
+        .balance-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .balance-card:nth-child(1) {
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+
+        .balance-card:nth-child(2) {
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .balance-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--space-md);
+            color: var(--neon-blue);
+        }
+
+        .balance-card:nth-child(2) .balance-icon {
+            color: var(--success-green);
+        }
+
+        .balance-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gray-500);
+            margin-bottom: var(--space-sm);
+            font-weight: 600;
+        }
+
+        .balance-value {
+            font-size: clamp(2.5rem, 6vw, 3rem);
+            font-weight: 800;
+            font-family: var(--font-mono);
+            margin-bottom: var(--space-sm);
+            line-height: 1;
+        }
+
+        .balance-card:nth-child(1) .balance-value {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .balance-card:nth-child(2) .balance-value {
+            color: var(--success-green);
+        }
+
+        .balance-subtext {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-top: var(--space-sm);
+        }
+
+        /* ===== QUICK ACTIONS ===== */
+        .quick-actions {
+            padding: var(--space-xl) 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-300);
+            margin-bottom: var(--space-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-lg);
+        }
+
+        .action-button {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: var(--space-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            animation: slideUp 0.8s ease-out 0.5s both;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-md);
+            height: 100%;
+        }
+
+        .action-button:hover {
+            border-color: var(--neon-blue);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .action-icon {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            margin-bottom: var(--space-sm);
+        }
+
+        .action-label {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-100);
+            margin-bottom: var(--space-xs);
+        }
+
+        .action-description {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            line-height: 1.4;
+        }
+
+        /* ===== TRANSACTION HISTORY ===== */
+        .transaction-history {
+            padding: var(--space-xl) 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .history-container {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: var(--space-xl);
+            animation: slideUp 0.8s ease-out 0.6s both;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: var(--space-lg);
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transaction-table th {
+            text-align: left;
+            padding: var(--space-md);
+            color: var(--gray-500);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.875rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .transaction-table td {
+            padding: var(--space-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--gray-300);
+        }
+
+        .transaction-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .transaction-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .txn-type {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .txn-type.deposit {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .txn-type.withdrawal {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+
+        .txn-type.conversion {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--neon-blue);
+        }
+
+        .txn-type.interest {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .txn-amount {
+            font-family: var(--font-mono);
+            font-weight: 600;
+        }
+
+        .txn-amount.positive {
+            color: var(--success-green);
+        }
+
+        .txn-amount.negative {
+            color: #EF4444;
+        }
+
+        .txn-status {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .txn-status.completed {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+        }
+
+        .txn-status.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-orange);
+        }
+
+        .txn-status.failed {
+            background: rgba(239, 68, 68, 0.1);
+            color: #EF4444;
+        }
+
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-md);
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: var(--navy-800);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 500px;
+            padding: var(--space-xl);
+            position: relative;
+            animation: scaleIn 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-100);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color var(--transition-fast);
+            padding: var(--space-xs);
+        }
+
+        .modal-close:hover {
+            color: var(--gray-300);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-bottom: var(--space-xs);
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: var(--space-md);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--gray-100);
+            font-size: 1rem;
+            transition: all var(--transition-base);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: var(--space-md);
+            align-items: end;
+        }
+
+        .max-button {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: var(--neon-blue);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all var(--transition-base);
+            white-space: nowrap;
+        }
+
+        .max-button:hover {
+            background: rgba(0, 212, 255, 0.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: var(--space-md);
+            margin-top: var(--space-xl);
+        }
+
+        .btn-primary {
+            flex: 1;
+            padding: var(--space-md);
+            background: linear-gradient(135deg, var(--electric-blue), var(--neon-blue));
+            border: none;
+            border-radius: 12px;
+            color: var(--gray-100);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.25);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            padding: var(--space-md);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--gray-300);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: var(--space-xl) 0 var(--space-lg);
+            margin-top: var(--space-xl);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-lg);
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, var(--gray-100), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: var(--space-xl);
+        }
+
+        .footer-link {
+            color: var(--gray-500);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color var(--transition-fast);
+        }
+
+        .footer-link:hover {
+            color: var(--gray-300);
+        }
+
+        .copyright {
+            text-align: center;
+            color: var(--gray-700);
+            font-size: 0.8125rem;
+            margin-top: var(--space-lg);
+            padding-top: var(--space-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 768px) {
+            .hero {
+                margin-top: 90px;
+                padding: var(--space-xl) 0;
+            }
+
+            .hero-title {
+                font-size: clamp(2rem, 8vw, 2.5rem);
+                padding: 0 var(--space-sm);
+            }
+
+            .hero-subtitle {
+                padding: 0 var(--space-md);
+                font-size: 1.125rem;
+            }
+
+            .logo-container {
+                position: static;
+                transform: none;
+                justify-content: center;
+                margin: 0 auto;
+            }
+
+            .header-container {
+                flex-direction: column;
+                gap: var(--space-sm);
+                padding: var(--space-sm) 0;
+            }
+
+            .nav-links {
+                margin: var(--space-md) 0 0 0;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .header {
+                height: auto;
+                min-height: 70px;
+            }
+
+            .balance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .transaction-table th,
+            .transaction-table td {
+                padding: var(--space-sm);
+                font-size: 0.875rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: var(--space-md);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 var(--space-md);
+            }
+
+            .hero-title {
+                font-size: 2rem;
+                letter-spacing: 1px;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .balance-card {
+                padding: var(--space-lg);
+            }
+
+            .balance-value {
+                font-size: 2.5rem;
+            }
+
+            .modal-content {
+                padding: var(--space-lg);
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mb-sm { margin-bottom: var(--space-sm); }
+        .mb-md { margin-bottom: var(--space-md); }
+        .mb-lg { margin-bottom: var(--space-lg); }
+        .mb-xl { margin-bottom: var(--space-xl); }
+
+        .mt-sm { margin-top: var(--space-sm); }
+        .mt-md { margin-top: var(--space-md); }
+        .mt-lg { margin-top: var(--space-lg); }
+        .mt-xl { margin-top: var(--space-xl); }
+
+        /* ===== RIPPLE EFFECT ===== */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* ===== SCROLLBAR STYLING ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--black-700);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--navy-700);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--navy-800);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <!-- Logo centered -->
+            <div class="logo-container">
+                <div class="logo">UNITED WORLD</div>
+                <div class="mode-label">Wallet</div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="nav-links">
+                <a href="/accelerate" class="nav-link">
+                    <i class="fas fa-rocket"></i>
+                    Accelerate
+                </a>
+                <a href="/trade" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Trade
+                </a>
+                <a href="/wallet" class="nav-link active">
+                    <i class="fas fa-wallet"></i>
+                    Wallet
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h1 class="hero-title">DIGITAL WALLET</h1>
+            <p class="hero-subtitle">Secure management for your MRX and INR holdings</p>
+        </div>
+    </section>
+
+    <!-- Wallet Overview -->
+    <section class="wallet-overview">
+        <div class="container">
+            <div class="balance-grid">
+                <!-- MRX Balance -->
+                <div class="balance-card">
+                    <i class="fas fa-coins balance-icon"></i>
+                    <div class="balance-label">MRX Balance</div>
+                    <div class="balance-value" id="mrxBalance">{{ mrx_balance }}</div>
+                    <div class="balance-subtext">≈ ₹ <span id="mrxValue">--</span></div>
+                </div>
+
+                <!-- INR Balance -->
+                <div class="balance-card">
+                    <i class="fas fa-rupee-sign balance-icon"></i>
+                    <div class="balance-label">INR Balance</div>
+                    <div class="balance-value">₹ <span id="inrBalance">{{ inr_balance }}</span></div>
+                    <div class="balance-subtext">Available for allocation</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-bolt"></i>
+                Quick Actions
+            </h2>
+            <div class="actions-grid">
+                <div class="action-button" data-action="deposit">
+                    <i class="fas fa-arrow-down action-icon"></i>
+                    <div class="action-label">Deposit INR</div>
+                    <div class="action-description">Add funds to your wallet</div>
+                </div>
+                <div class="action-button" data-action="withdraw">
+                    <i class="fas fa-arrow-up action-icon"></i>
+                    <div class="action-label">Withdraw INR</div>
+                    <div class="action-description">Transfer to bank account</div>
+                </div>
+                <div class="action-button" data-action="convert">
+                    <i class="fas fa-exchange-alt action-icon"></i>
+                    <div class="action-label">Convert</div>
+                    <div class="action-description">Swap between MRX and INR</div>
+                </div>
+                <div class="action-button" data-action="history">
+                    <i class="fas fa-history action-icon"></i>
+                    <div class="action-label">History</div>
+                    <div class="action-description">View all transactions</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transaction History -->
+    <section class="transaction-history">
+        <div class="container">
+            <h2 class="section-title">
+                <i class="fas fa-list-alt"></i>
+                Recent Transactions
+            </h2>
+            <div class="history-container">
+                <div class="table-container">
+                    <table class="transaction-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                                <th>Transaction ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionList">
+                            <!-- No transactions shown until backend provides them -->
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: var(--space-xl); color: var(--gray-500);">
+                                    No transactions available
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Deposit Modal -->
+    <div class="modal" id="depositModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-arrow-down"></i>
+                    Deposit INR
+                </h3>
+                <button class="modal-close" data-modal="depositModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Amount (₹)</label>
+                    <div class="form-row">
+                        <input type="number" class="form-control" id="depositAmount" placeholder="0.00" min="100" step="100">
+                        <button class="max-button" id="depositMax">MAX</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-control" id="depositMethod">
+                        <option value="upi">UPI</option>
+                        <option value="netbanking">Net Banking</option>
+                        <option value="card">Credit/Debit Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">UPI ID / Bank Details</label>
+                    <input type="text" class="form-control" id="depositDetails" placeholder="Enter UPI ID or select bank">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" id="confirmDeposit">Proceed to Deposit</button>
+                    <button class="btn-secondary" data-modal="depositModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawal Modal -->
+    <div class="modal" id="withdrawModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-arrow-up"></i>
+                    Withdraw INR
+                </h3>
+                <button class="modal-close" data-modal="withdrawModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Amount (₹)</label>
+                    <div class="form-row">
+                        <input type="number" class="form-control" id="withdrawAmount" placeholder="0.00" min="100" step="100">
+                        <button class="max-button" id="withdrawMax">MAX</button>
+                    </div>
+                    <div class="balance-subtext mt-sm">Available: ₹ <span id="availableBalance">{{ inr_balance }}</span></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Bank Account</label>
+                    <select class="form-control" id="withdrawAccount">
+                        <option value="hdfc1234">HDFC Bank ****1234</option>
+                        <option value="icici5678">ICICI Bank ****5678</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Estimated Processing Time</label>
+                    <div class="form-control" style="background: rgba(245, 158, 11, 0.1); color: var(--warning-orange);">
+                        1-2 Business Days
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" id="confirmWithdraw">Initiate Withdrawal</button>
+                    <button class="btn-secondary" data-modal="withdrawModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Modal -->
+    <div class="modal" id="convertModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <i class="fas fa-exchange-alt"></i>
+                    Convert Assets
+                </h3>
+                <button class="modal-close" data-modal="convertModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">From</label>
+                    <div class="form-row">
+                        <select class="form-control" id="convertFrom">
+                            <option value="inr">INR (Indian Rupee)</option>
+                            <option value="mrx">MRX</option>
+                        </select>
+                        <input type="number" class="form-control" id="convertFromAmount" placeholder="0.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">To</label>
+                    <div class="form-row">
+                        <select class="form-control" id="convertTo">
+                            <option value="mrx">MRX</option>
+                            <option value="inr">INR (Indian Rupee)</option>
+                        </select>
+                        <input type="number" class="form-control" id="convertToAmount" placeholder="0.00" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Exchange Rate</label>
+                    <div class="form-control" style="text-align: center; font-family: var(--font-mono);">
+                        1 MRX = ₹ <span id="exchangeRate">--</span>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" id="confirmConvert">Convert Now</button>
+                    <button class="btn-secondary" data-modal="convertModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Message -->
+    <div class="confirmation-message" id="confirmationMessage" style="display: none; position: fixed; top: 20px; right: 20px; background: var(--navy-800); border: 1px solid var(--neon-blue); border-radius: 12px; padding: var(--space-lg); z-index: 3000; max-width: 350px; box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);">
+        <div class="message-title" style="display: flex; align-items: center; gap: var(--space-sm); color: var(--neon-blue); font-weight: 600; margin-bottom: var(--space-sm);">
+            <i class="fas fa-check-circle"></i>
+            Transaction Successful
+        </div>
+        <div class="message-text" style="color: var(--gray-300); font-size: 0.875rem;">
+            Your transaction has been processed successfully.
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">UNITED WORLD</div>
+                <div class="footer-links">
+                    <a href="#" class="footer-link">About</a>
+                    <a href="#" class="footer-link">Platform</a>
+                    <a href="#" class="footer-link">Terms</a>
+                    <a href="#" class="footer-link">Contact</a>
+                </div>
+            </div>
+            <div class="copyright">
+                © UNITED WORLD – All rights reserved
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript - UI Only -->
+    <script>
+        // ===== DOM ELEMENTS =====
+        const depositModal = document.getElementById('depositModal');
+        const withdrawModal = document.getElementById('withdrawModal');
+        const convertModal = document.getElementById('convertModal');
+        const confirmationMessage = document.getElementById('confirmationMessage');
+
+        // ===== FETCH CURRENT PRICE FROM BACKEND =====
+        async function fetchCurrentPrice() {
+            try {
+                const response = await fetch('/api/price');
+                const data = await response.json();
+                return data.price;
+            } catch (error) {
+                console.error('Error fetching price:', error);
+                return null;
+            }
+        }
+
+        // ===== INITIALIZE UI =====
+        document.addEventListener('DOMContentLoaded', async () => {
+            setupEventListeners();
+
+            // Fetch and display current price if needed
+            const price = await fetchCurrentPrice();
+            if (price) {
+                updateMRXValue(price);
+                updateExchangeRate(price);
+            }
+        });
+
+        // ===== UPDATE MRX VALUE IN INR =====
+        function updateMRXValue(price) {
+            const mrxBalanceElement = document.getElementById('mrxBalance');
+            const mrxValueElement = document.getElementById('mrxValue');
+
+            try {
+                const mrxBalance = parseFloat(mrxBalanceElement.textContent);
+                if (!isNaN(mrxBalance) && price) {
+                    const mrxValue = mrxBalance * price;
+                    mrxValueElement.textContent = mrxValue.toFixed(2);
+                }
+            } catch (error) {
+                console.error('Error calculating MRX value:', error);
+            }
+        }
+
+        // ===== UPDATE EXCHANGE RATE =====
+        function updateExchangeRate(price) {
+            const exchangeRateElement = document.getElementById('exchangeRate');
+            if (price && exchangeRateElement) {
+                exchangeRateElement.textContent = price.toFixed(2);
+            }
+        }
+
+        // ===== SHOW CONFIRMATION MESSAGE (UI ONLY) =====
+        function showConfirmation(message) {
+            if (message && confirmationMessage.querySelector('.message-text')) {
+                confirmationMessage.querySelector('.message-text').textContent = message;
+            }
+
+            confirmationMessage.style.display = 'block';
+            confirmationMessage.style.opacity = '0';
+            confirmationMessage.style.transform = 'translateX(100%)';
+
+            setTimeout(() => {
+                confirmationMessage.style.transition = 'all 0.3s ease';
+                confirmationMessage.style.opacity = '1';
+                confirmationMessage.style.transform = 'translateX(0)';
+            }, 10);
+
+            setTimeout(() => {
+                confirmationMessage.style.opacity = '0';
+                confirmationMessage.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    confirmationMessage.style.display = 'none';
+                }, 300);
+            }, 3000);
+        }
+
+        // ===== MODAL FUNCTIONS =====
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            // Reset form values
+            const inputs = modal.querySelectorAll('input');
+            inputs.forEach(input => {
+                if (input.type !== 'select') {
+                    input.value = '';
+                }
+            });
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // ===== EVENT HANDLERS =====
+        function setupEventListeners() {
+            // Quick action buttons
+            document.querySelectorAll('.action-button').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const action = button.dataset.action;
+
+                    // Ripple effect
+                    createRipple(e);
+
+                    switch(action) {
+                        case 'deposit':
+                            openModal('depositModal');
+                            break;
+                        case 'withdraw':
+                            openModal('withdrawModal');
+                            break;
+                        case 'convert':
+                            openModal('convertModal');
+                            setupConversionModal();
+                            break;
+                        case 'history':
+                            document.querySelector('.transaction-history').scrollIntoView({
+                                behavior: 'smooth'
+                            });
+                            break;
+                    }
+                });
+            });
+
+            // Close modal buttons
+            document.querySelectorAll('.modal-close, .btn-secondary').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const modalId = button.dataset.modal;
+                    if (modalId) {
+                        closeModal(modalId);
+                    }
+                });
+            });
+
+            // Click outside modal to close
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        closeModal(modal.id);
+                    }
+                });
+            });
+
+            // Deposit functionality (UI only)
+            document.getElementById('depositMax')?.addEventListener('click', () => {
+                document.getElementById('depositAmount').value = '50000';
+            });
+
+            document.getElementById('confirmDeposit')?.addEventListener('click', () => {
+                const amount = document.getElementById('depositAmount').value;
+
+                if (!amount || parseFloat(amount) < 100) {
+                    alert('Please enter a valid amount (minimum ₹100)');
+                    return;
+                }
+
+                // UI feedback only - actual deposit would be handled by backend
+                closeModal('depositModal');
+                showConfirmation(`Deposit request for ₹${amount} has been recorded`);
+            });
+
+            // Withdrawal functionality (UI only)
+            document.getElementById('withdrawMax')?.addEventListener('click', () => {
+                const availableBalance = document.getElementById('availableBalance').textContent;
+                document.getElementById('withdrawAmount').value = parseFloat(availableBalance.replace(/,/g, ''));
+            });
+
+            document.getElementById('confirmWithdraw')?.addEventListener('click', () => {
+                const amount = document.getElementById('withdrawAmount').value;
+                const availableBalance = parseFloat(document.getElementById('availableBalance').textContent.replace(/,/g, ''));
+
+                if (!amount || parseFloat(amount) < 100) {
+                    alert('Please enter a valid amount (minimum ₹100)');
+                    return;
+                }
+
+                if (parseFloat(amount) > availableBalance) {
+                    alert('Insufficient balance');
+                    return;
+                }
+
+                // UI feedback only - actual withdrawal would be handled by backend
+                closeModal('withdrawModal');
+                showConfirmation(`Withdrawal request for ₹${amount} has been initiated`);
+            });
+
+            // Conversion functionality (UI only)
+            const convertFrom = document.getElementById('convertFrom');
+            const convertTo = document.getElementById('convertTo');
+            const convertFromAmount = document.getElementById('convertFromAmount');
+            const convertToAmount = document.getElementById('convertToAmount');
+
+            if (convertFrom && convertTo && convertFromAmount && convertToAmount) {
+                convertFrom.addEventListener('change', updateConversionUI);
+                convertTo.addEventListener('change', updateConversionUI);
+                convertFromAmount.addEventListener('input', updateConversionUI);
+            }
+
+            document.getElementById('confirmConvert')?.addEventListener('click', () => {
+                const fromAmount = document.getElementById('convertFromAmount').value;
+
+                if (!fromAmount || parseFloat(fromAmount) <= 0) {
+                    alert('Please enter a valid amount');
+                    return;
+                }
+
+                // UI feedback only - actual conversion would be handled by backend
+                closeModal('convertModal');
+                showConfirmation('Conversion request has been submitted');
+            });
+        }
+
+        // ===== SETUP CONVERSION MODAL =====
+        async function setupConversionModal() {
+            const price = await fetchCurrentPrice();
+            if (price) {
+                updateExchangeRate(price);
+            }
+            updateConversionUI();
+        }
+
+        // ===== UPDATE CONVERSION UI =====
+        function updateConversionUI() {
+            const fromAmount = parseFloat(document.getElementById('convertFromAmount').value) || 0;
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').textContent);
+
+            if (!exchangeRate || isNaN(exchangeRate)) return;
+
+            const convertFrom = document.getElementById('convertFrom').value;
+            const convertTo = document.getElementById('convertTo').value;
+            const convertToAmount = document.getElementById('convertToAmount');
+
+            if (convertFrom === 'inr' && convertTo === 'mrx') {
+                convertToAmount.value = fromAmount ? (fromAmount / exchangeRate).toFixed(4) : '';
+            } else if (convertFrom === 'mrx' && convertTo === 'inr') {
+                convertToAmount.value = fromAmount ? (fromAmount * exchangeRate).toFixed(2) : '';
+            }
+        }
+
+        // ===== RIPPLE EFFECT FOR BUTTONS =====
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+
+            const ripple = button.querySelector('.ripple');
+            if (ripple) ripple.remove();
+
+            button.appendChild(circle);
+
+            setTimeout(() => {
+                if (circle.parentNode === button) {
+                    button.removeChild(circle);
+                }
+            }, 600);
+        }
+    </script>
+</body>
+</html>

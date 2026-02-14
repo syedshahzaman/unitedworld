@@ -1,0 +1,3475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UNITED WORLD | Accelerate Mode</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== ENHANCED CSS VARIABLES ===== */
+        :root {
+            /* Enhanced Color Palette - More Vibrant */
+            --black-900: #05050A;
+            --black-800: #0A0A14;
+            --black-700: #10101E;
+            --black-600: #1A1A2E;
+            --navy-900: #0C1220;
+            --navy-800: #121B30;
+            --navy-700: #1A2640;
+            --navy-600: #223354;
+            
+            /* Enhanced Gradient Colors */
+            --gradient-primary: linear-gradient(135deg, #0066FF 0%, #00D4FF 50%, #00F5FF 100%);
+            --gradient-success: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            --gradient-danger: linear-gradient(135deg, #EF4444 0%, #F87171 100%);
+            --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            --gradient-premium: linear-gradient(135deg, #667EEA 0%, #764BA2 25%, #F093FB 50%, #F5576C 75%, #FFD700 100%);
+            
+            /* New Vibrant Colors */
+            --neon-blue: #00D4FF;
+            --neon-cyan: #00F5FF;
+            --electric-blue: #0066FF;
+            --vibrant-blue: #007BFF;
+            --cyber-purple: #8B5CF6;
+            --neon-pink: #FF00FF;
+            --quantum-green: #00FFAA;
+            --hologram-teal: #00FFD5;
+            --plasma-orange: #FF6B35;
+            --cosmic-violet: #9D4EDD;
+            
+            --gold-accent: #FFD700;
+            --emerald: #10B981;
+            --ruby: #EF4444;
+
+            /* Gray Scale */
+            --gray-100: #F8FAFC;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-500: #64748B;
+            --gray-700: #334155;
+            --gray-900: #0F172A;
+
+            /* Enhanced Glass Effects */
+            --glass-bg: rgba(20, 30, 48, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-highlight: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(24px);
+            --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-heading: 'Plus Jakarta Sans', var(--font-primary);
+            --font-mono: 'SF Mono', 'Roboto Mono', monospace;
+
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 0.75rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            --space-4xl: 6rem;
+
+            /* Enhanced Transitions */
+            --transition-fast: 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition-base: 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            --transition-slow: 600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+            /* Border Radius */
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --radius-2xl: 36px;
+            --radius-full: 9999px;
+        }
+
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background:
+                radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 10%, rgba(0, 102, 255, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 50% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 40%),
+                linear-gradient(135deg, var(--black-900) 0%, var(--navy-900) 100%);
+            color: var(--gray-100);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%2300d4ff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E"),
+                linear-gradient(135deg, 
+                    rgba(0, 212, 255, 0.05) 0%, 
+                    rgba(139, 92, 246, 0.03) 25%, 
+                    rgba(0, 102, 255, 0.05) 50%, 
+                    rgba(0, 245, 255, 0.03) 75%);
+            pointer-events: none;
+            z-index: -1;
+            animation: subtleBgMove 30s ease-in-out infinite alternate;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        /* ===== ENHANCED ANIMATION KEYFRAMES ===== */
+        @keyframes subtleBgMove {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+            }
+            33% { 
+                transform: translateY(-20px) rotate(1deg);
+            }
+            66% { 
+                transform: translateY(10px) rotate(-1deg);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 
+                    0 0 20px rgba(0, 212, 255, 0.4),
+                    0 0 40px rgba(0, 102, 255, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+            50% {
+                box-shadow: 
+                    0 0 40px rgba(0, 212, 255, 0.6),
+                    0 0 80px rgba(0, 102, 255, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        @keyframes borderFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        @keyframes textShimmer {
+            0% { background-position: -100% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes notificationSlideIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes notificationSlideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes progressBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* ===== FIXED PROFIT POPUP ANIMATIONS ===== */
+        @keyframes profitPopupIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            70% {
+                transform: translate(-50%, -50%) scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes profitPopupOut {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(0.9);
+                opacity: 0;
+            }
+        }
+
+        @keyframes coinSpin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+
+        /* ===== ENHANCED HEADER ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg,
+                rgba(12, 18, 32, 0.95),
+                rgba(26, 38, 64, 0.9));
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            padding: var(--space-md) 0;
+            transition: all var(--transition-base);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header.scrolled {
+            padding: var(--space-sm) 0;
+            background: linear-gradient(135deg,
+                rgba(12, 18, 32, 0.98),
+                rgba(26, 38, 64, 0.95));
+            border-bottom-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            background-size: 200% 100%;
+            animation: borderFlow 3s linear infinite;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-lg);
+            width: 100%;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.875rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, 
+                var(--gray-100) 0%, 
+                var(--neon-cyan) 33%, 
+                var(--cyber-purple) 66%, 
+                var(--quantum-green) 100%);
+            background-size: 400% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            padding-right: var(--space-md);
+            animation: textShimmer 1.5s linear infinite;
+        }
+
+        .logo::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 24px;
+            width: 2px;
+            background: linear-gradient(to bottom, 
+                transparent, 
+                var(--neon-blue), 
+                var(--cyber-purple), 
+                transparent);
+            animation: pulseGlow 1.5s ease-in-out infinite;
+        }
+
+        .mode-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--neon-cyan);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            padding: var(--space-xs) var(--space-sm);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg,
+                rgba(0, 212, 255, 0.1),
+                rgba(139, 92, 246, 0.1));
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+            animation: pulseGlow 1.5s ease-in-out infinite;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: var(--gray-300);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            background: linear-gradient(135deg,
+                rgba(255, 255, 255, 0.05),
+                rgba(255, 255, 255, 0.02));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .back-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(0, 212, 255, 0.1),
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .back-link:hover {
+            color: var(--neon-cyan);
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateX(-4px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
+        }
+
+        .back-link:hover::before {
+            left: 100%;
+        }
+
+        /* ===== ENHANCED NOTIFICATION SYSTEM ===== */
+        .notification-container {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .notification {
+            background: linear-gradient(135deg,
+                rgba(15, 23, 42, 0.95),
+                rgba(26, 38, 64, 0.95));
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(0, 212, 255, 0.1);
+            animation: notificationSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            position: relative;
+            overflow: hidden;
+            transform: translateX(120%);
+            max-width: 380px;
+            pointer-events: auto;
+            border-left: 4px solid var(--neon-blue);
+            transition: all var(--transition-base);
+        }
+
+        .notification:hover {
+            transform: translateX(-4px);
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.5),
+                0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .notification.hiding {
+            animation: notificationSlideOut 0.3s ease-out forwards;
+        }
+
+        .notification.success {
+            border-left-color: var(--emerald);
+            background: linear-gradient(135deg,
+                rgba(16, 185, 129, 0.2),
+                rgba(15, 23, 42, 0.95));
+        }
+
+        .notification.error {
+            border-left-color: var(--ruby);
+            background: linear-gradient(135deg,
+                rgba(239, 68, 68, 0.2),
+                rgba(15, 23, 42, 0.95));
+        }
+
+        .notification.info {
+            border-left-color: var(--neon-blue);
+            background: linear-gradient(135deg,
+                rgba(0, 212, 255, 0.2),
+                rgba(15, 23, 42, 0.95));
+        }
+
+        .notification.profit {
+            border-left-color: #FFD700;
+            background: linear-gradient(135deg,
+                rgba(255, 215, 0, 0.2),
+                rgba(15, 23, 42, 0.95));
+            border: 1px solid rgba(255, 215, 0, 0.4);
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-sm);
+            padding-bottom: var(--space-xs);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .notification-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-weight: 700;
+            color: var(--gray-100);
+            font-size: 1rem;
+        }
+
+        .notification-icon {
+            font-size: 1.25rem;
+            min-width: 24px;
+            filter: drop-shadow(0 0 8px currentColor);
+        }
+
+        .notification-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--gray-300);
+            cursor: pointer;
+            font-size: 0.875rem;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .notification-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--gray-100);
+            transform: rotate(90deg);
+        }
+
+        .notification-message {
+            color: var(--gray-300);
+            font-size: 0.9375rem;
+            line-height: 1.5;
+            margin-bottom: var(--space-sm);
+        }
+
+        .notification-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--gradient-primary);
+            width: 100%;
+            transform-origin: left;
+            animation: progressBar linear forwards;
+        }
+
+        /* ===== FIXED PROFIT POPUP ===== */
+        .profit-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            z-index: 10000;
+            background: linear-gradient(135deg,
+                rgba(16, 185, 129, 0.95),
+                rgba(34, 197, 94, 0.95));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 24px;
+            padding: 28px 32px;
+            box-shadow:
+                0 30px 60px rgba(16, 185, 129, 0.4),
+                0 0 80px rgba(16, 185, 129, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            min-width: 300px;
+            max-width: 90%;
+            width: auto;
+            text-align: center;
+            animation: profitPopupIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            pointer-events: none;
+        }
+
+        .profit-popup.hiding {
+            animation: profitPopupOut 0.3s ease-out forwards;
+        }
+
+        .profit-popup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.2) 50%,
+                transparent 100%);
+            animation: shimmer 3s infinite;
+        }
+
+        .profit-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            display: block;
+            animation: 
+                coinSpin 2s linear infinite,
+                float 2s ease-in-out infinite;
+        }
+
+        .profit-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 12px;
+            text-shadow: 
+                0 2px 10px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .profit-amount {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 16px;
+            text-shadow: 
+                0 2px 15px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .profit-message {
+            font-size: 1.125rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .profit-details {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9375rem;
+            color: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .profit-detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .profit-detail-label {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .profit-detail-value {
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        /* ===== ENHANCED HERO SECTION ===== */
+        .hero {
+            padding: var(--space-4xl) 0 var(--space-3xl);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-top: 100px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 50% 50%, 
+                    rgba(0, 212, 255, 0.15) 0%, 
+                    transparent 50%),
+                radial-gradient(circle at 30% 70%, 
+                    rgba(139, 92, 246, 0.1) 0%, 
+                    transparent 50%),
+                radial-gradient(circle at 70% 30%, 
+                    rgba(0, 102, 255, 0.1) 0%, 
+                    transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            padding: 0 var(--space-md);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--gradient-primary);
+            color: white;
+            padding: var(--space-sm) var(--space-xl);
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: var(--space-xl);
+            border: none;
+            box-shadow: 
+                0 8px 25px rgba(0, 212, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(50px);
+            opacity: 0;
+        }
+
+        .hero-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 900;
+            margin-bottom: var(--space-md);
+            background: linear-gradient(135deg,
+                var(--gray-100) 0%,
+                var(--neon-cyan) 25%,
+                var(--cyber-purple) 50%,
+                var(--neon-blue) 75%,
+                var(--quantum-green) 100%);
+            background-size: 400% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            letter-spacing: -1px;
+            position: relative;
+            display: inline-block;
+            animation: 
+                slideInUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+                textShimmer 3s linear infinite;
+            transform: translateY(50px);
+            opacity: 0;
+            animation-delay: 0.2s;
+        }
+
+        .hero-title::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 10%;
+            right: 10%;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            animation: borderFlow 2s linear infinite;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.125rem, 3vw, 1.5rem);
+            color: var(--gray-300);
+            max-width: 600px;
+            margin: var(--space-2xl) auto;
+            font-weight: 300;
+            line-height: 1.6;
+            animation: slideInUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(50px);
+            opacity: 0;
+            animation-delay: 0.4s;
+            padding: 0 var(--space-md);
+        }
+
+        /* ===== ENHANCED PRICE CARD - NO BLUR EFFECT ===== */
+        .price-section {
+            padding: var(--space-xl) 0;
+            position: relative;
+            animation: slideInUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(50px);
+            opacity: 0;
+            animation-delay: 0.6s;
+        }
+
+        .price-card {
+            background: linear-gradient(135deg,
+                rgba(26, 38, 64, 0.9),
+                rgba(15, 23, 42, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-2xl);
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: all var(--transition-base);
+        }
+
+        .price-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: rgba(0, 212, 255, 0.4);
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .price-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-primary);
+            background-size: 200% 100%;
+            animation: borderFlow 2s linear infinite;
+        }
+
+        .price-label {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gray-500);
+            margin-bottom: var(--space-md);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+        }
+
+        .price-value {
+            font-size: clamp(3rem, 8vw, 4.5rem);
+            font-weight: 900;
+            font-family: var(--font-mono);
+            margin: var(--space-md) 0;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-sm);
+            color: var(--neon-cyan);
+            text-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .price-display {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            font-family: var(--font-mono);
+            font-weight: 900;
+        }
+
+        .price-note {
+            font-size: 0.9375rem;
+            color: var(--gray-500);
+            text-align: center;
+            margin-top: var(--space-lg);
+            padding-top: var(--space-md);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* ===== ENHANCED CONTROL PANEL ===== */
+        .control-panel {
+            padding: var(--space-2xl) 0;
+            animation: slideInUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(50px);
+            opacity: 0;
+            animation-delay: 0.8s;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-2xl);
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 var(--space-md);
+        }
+
+        .control-section {
+            background: linear-gradient(135deg,
+                rgba(26, 38, 64, 0.9),
+                rgba(15, 23, 42, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .control-section:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .control-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent,
+                var(--neon-blue),
+                var(--cyber-purple),
+                transparent);
+            background-size: 200% 100%;
+            animation: borderFlow 2s linear infinite;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gray-100);
+            background: linear-gradient(135deg,
+                var(--gray-100) 0%,
+                var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-description {
+            font-size: 0.9375rem;
+            color: var(--gray-500);
+            margin-top: var(--space-xs);
+        }
+
+        /* Enhanced Sentiment Selector */
+        .sentiment-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-xl);
+            width: 100%;
+        }
+
+        .sentiment-option {
+            position: relative;
+            width: 100%;
+        }
+
+        .sentiment-radio {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .sentiment-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-lg);
+            padding: var(--space-xl);
+            background: linear-gradient(135deg,
+                rgba(15, 23, 42, 0.9),
+                rgba(26, 38, 64, 0.8));
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            transition: all var(--transition-base);
+            cursor: pointer;
+            height: 100%;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .sentiment-label::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--gradient-primary);
+            opacity: 0;
+            transition: opacity var(--transition-base);
+            z-index: -1;
+        }
+
+        .sentiment-radio:checked + .sentiment-label {
+            border-color: transparent;
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(0, 212, 255, 0.3),
+                0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .sentiment-radio:checked + .sentiment-label::before {
+            opacity: 0.1;
+        }
+
+        .sentiment-icon-wrapper {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            transition: all var(--transition-base);
+            position: relative;
+        }
+
+        .sentiment-option:nth-child(1) .sentiment-icon-wrapper {
+            background: linear-gradient(135deg,
+                rgba(16, 185, 129, 0.2),
+                rgba(16, 185, 129, 0.4));
+            color: var(--emerald);
+            box-shadow: 
+                0 10px 30px rgba(16, 185, 129, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .sentiment-option:nth-child(2) .sentiment-icon-wrapper {
+            background: linear-gradient(135deg,
+                rgba(239, 68, 68, 0.2),
+                rgba(239, 68, 68, 0.4));
+            color: var(--ruby);
+            box-shadow: 
+                0 10px 30px rgba(239, 68, 68, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .sentiment-radio:checked + .sentiment-label .sentiment-icon-wrapper {
+            transform: scale(1.1);
+            box-shadow: 
+                0 0 40px currentColor,
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        .sentiment-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gray-100);
+        }
+
+        .sentiment-description {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            text-align: center;
+            margin-top: var(--space-xs);
+            line-height: 1.4;
+        }
+
+        /* Enhanced Amount Input */
+        .amount-input-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: var(--space-lg);
+            padding-left: calc(var(--space-lg) + 40px);
+            background: linear-gradient(135deg,
+                rgba(15, 23, 42, 0.9),
+                rgba(26, 38, 64, 0.8));
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            color: var(--gray-100);
+            font-size: clamp(1.75rem, 4vw, 2.25rem);
+            font-weight: 800;
+            font-family: var(--font-mono);
+            transition: all var(--transition-base);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.2),
+                0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            box-shadow: 
+                0 0 0 4px rgba(0, 212, 255, 0.2),
+                inset 0 2px 4px rgba(0, 0, 0, 0.2),
+                0 8px 25px rgba(0, 212, 255, 0.2);
+            background: linear-gradient(135deg,
+                rgba(15, 23, 42, 0.95),
+                rgba(26, 38, 64, 0.85));
+        }
+
+        .amount-prefix {
+            position: absolute;
+            left: var(--space-lg);
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--neon-cyan);
+            font-weight: 800;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .amount-max {
+            position: absolute;
+            right: var(--space-md);
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            min-height: 36px;
+            min-width: 60px;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .amount-max:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Enhanced Action Button */
+        .action-button {
+            width: 100%;
+            padding: var(--space-lg);
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: var(--radius-xl);
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 
+                0 10px 30px rgba(0, 102, 255, 0.4),
+                0 0 20px rgba(0, 212, 255, 0.3);
+            min-height: 60px;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent);
+            transition: left 0.7s ease;
+        }
+
+        .action-button:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 50px rgba(0, 212, 255, 0.5),
+                0 0 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .action-button:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .action-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            animation: none !important;
+        }
+
+        .action-button i {
+            animation: float 2s ease-in-out infinite;
+        }
+
+        /* ===== ENHANCED INSIGHT STRIP ===== */
+        .insight-strip {
+            padding: var(--space-2xl) 0;
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(50px);
+            opacity: 0;
+            animation-delay: 1s;
+        }
+
+        .insight-strip::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-primary);
+            background-size: 200% 100%;
+            animation: borderFlow 2s linear infinite;
+        }
+
+        .insight-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            padding: var(--space-xl);
+            background: linear-gradient(135deg,
+                rgba(0, 212, 255, 0.1),
+                rgba(139, 92, 246, 0.1));
+            border-radius: var(--radius-xl);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            box-shadow: 
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 10px 30px rgba(0, 0, 0, 0.3);
+            margin: 0 var(--space-md);
+        }
+
+        .insight-item {
+            text-align: center;
+            padding: var(--space-lg);
+            position: relative;
+            transition: all var(--transition-base);
+        }
+
+        .insight-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .insight-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg,
+                transparent,
+                rgba(255, 255, 255, 0.03));
+            border-radius: var(--radius-lg);
+            z-index: -1;
+        }
+
+        .insight-value {
+            font-size: 2rem;
+            font-weight: 900;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-sm);
+            text-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .insight-label {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+
+        /* ===== ENHANCED TRANSPARENCY PANEL ===== */
+        .transparency-panel {
+            background: linear-gradient(135deg,
+                rgba(26, 38, 64, 0.9),
+                rgba(15, 23, 42, 0.8));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            margin: var(--space-2xl) var(--space-md);
+            position: relative;
+            overflow: hidden;
+            animation: slideInUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(50px);
+            opacity: 0;
+            animation-delay: 1.2s;
+            width: calc(100% - (2 * var(--space-md)));
+        }
+
+        .transparency-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-primary);
+            background-size: 200% 100%;
+            animation: borderFlow 2s linear infinite;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+            flex-wrap: wrap;
+        }
+
+        .panel-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--gray-100);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.3;
+        }
+
+        .panel-subtitle {
+            font-size: 0.9375rem;
+            color: var(--gray-500);
+            margin-top: var(--space-xs);
+            line-height: 1.4;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-lg);
+            width: 100%;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg,
+                rgba(255, 255, 255, 0.03),
+                rgba(255, 255, 255, 0.01));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 212, 255, 0.3);
+            background: linear-gradient(135deg,
+                rgba(255, 255, 255, 0.05),
+                rgba(255, 255, 255, 0.02));
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.3),
+                0 0 20px rgba(0, 212, 255, 0.1);
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-primary);
+            background-size: 200% 100%;
+            animation: borderFlow 2s linear infinite;
+        }
+
+        .info-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: var(--space-md);
+            font-size: 1.125rem;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .info-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--gray-100);
+            margin-bottom: var(--space-sm);
+            line-height: 1.3;
+        }
+
+        .info-text {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        /* ===== ENHANCED FOOTER ===== */
+        .footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: var(--space-xl) 0;
+            margin-top: var(--space-xl);
+            position: relative;
+            animation: slideInUp 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform: translateY(50px);
+            opacity: 0;
+            animation-delay: 1.4s;
+            width: 100%;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--gradient-primary);
+            background-size: 200% 100%;
+            animation: borderFlow 2s linear infinite;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--space-xl);
+            padding: 0 var(--space-md);
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg,
+                var(--gray-100) 0%,
+                var(--neon-cyan) 33%,
+                var(--cyber-purple) 66%,
+                var(--quantum-green) 100%);
+            background-size: 400% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textShimmer 1.5s linear infinite;
+        }
+
+        .footer-tagline {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            line-height: 1.4;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-lg);
+            justify-content: flex-end;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-link {
+            color: var(--gray-500);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            position: relative;
+            padding: var(--space-xs) 0;
+        }
+
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transform: scaleX(0);
+            transition: transform var(--transition-base);
+        }
+
+        .footer-link:hover {
+            color: var(--neon-cyan);
+            transform: translateY(-2px);
+        }
+
+        .footer-link:hover::after {
+            transform: scaleX(1);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            color: var(--gray-700);
+            font-size: 0.75rem;
+            margin-top: var(--space-xl);
+            padding-top: var(--space-xl);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 0 var(--space-md);
+        }
+
+        /* ===== UTILITY CLASSES ===== */
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .animate-pulse {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .animate-slide-right {
+            animation: slideInRight 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .animate-slide-left {
+            animation: slideInLeft 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        .text-gradient {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glass-effect {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+        }
+
+        .mb-sm { margin-bottom: var(--space-sm); }
+        .mb-md { margin-bottom: var(--space-md); }
+        .mb-lg { margin-bottom: var(--space-lg); }
+        .mb-xl { margin-bottom: var(--space-xl); }
+
+        .mt-sm { margin-top: var(--space-sm); }
+        .mt-md { margin-top: var(--space-md); }
+        .mt-lg { margin-top: var(--space-lg); }
+        .mt-xl { margin-top: var(--space-xl); }
+
+        /* Price update pulse animation */
+        .price-update-pulse {
+            animation: pricePulse 1s ease-out;
+        }
+
+        @keyframes pricePulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1024px) {
+            .container {
+                max-width: 100%;
+                padding: 0 var(--space-lg);
+            }
+            
+            .notification-container {
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+            }
+            
+            .notification {
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .hero-title {
+                font-size: clamp(2.5rem, 7vw, 4rem);
+            }
+            
+            .price-value {
+                font-size: clamp(2.5rem, 6vw, 3.5rem);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 var(--space-md);
+            }
+
+            .hero {
+                padding: var(--space-2xl) 0;
+                margin-top: 80px;
+            }
+
+            .hero-title {
+                font-size: clamp(2rem, 6vw, 3rem);
+                letter-spacing: -0.5px;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+                padding: 0;
+            }
+
+            .insight-container {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+                margin: 0 var(--space-sm);
+                padding: var(--space-lg);
+            }
+
+            .sentiment-options {
+                grid-template-columns: 1fr;
+                gap: var(--space-md);
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+                gap: var(--space-lg);
+                align-items: center;
+            }
+
+            .footer-brand,
+            .footer-links {
+                min-width: 100%;
+                align-items: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+                gap: var(--space-md);
+            }
+
+            .control-section {
+                padding: var(--space-lg);
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .notification-container {
+                top: 80px;
+                right: 10px;
+                left: 10px;
+                max-width: calc(100% - 20px);
+            }
+
+            .profit-popup {
+                min-width: 280px;
+                padding: 24px;
+                margin: 0 16px;
+                max-width: calc(100% - 32px);
+            }
+
+            .profit-amount {
+                font-size: 2rem;
+            }
+
+            .profit-icon {
+                font-size: 2.5rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-sm);
+            }
+
+            .amount-input {
+                padding: var(--space-md);
+                padding-left: calc(var(--space-md) + 36px);
+                font-size: 1.5rem;
+            }
+
+            .action-button {
+                padding: var(--space-md);
+                font-size: 1rem;
+                min-height: 56px;
+            }
+
+            .notification {
+                padding: var(--space-sm) var(--space-md);
+            }
+
+            .sentiment-label {
+                padding: var(--space-lg);
+                min-height: 180px;
+            }
+
+            .sentiment-icon-wrapper {
+                width: 60px;
+                height: 60px;
+                font-size: 1.75rem;
+            }
+
+            .price-card {
+                padding: var(--space-xl);
+                margin: 0 var(--space-sm);
+            }
+
+            .transparency-panel {
+                margin: var(--space-xl) var(--space-sm);
+                padding: var(--space-lg);
+                width: calc(100% - (2 * var(--space-sm)));
+            }
+
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-md);
+            }
+
+            .panel-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.25rem;
+            }
+
+            .panel-title {
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 var(--space-sm);
+            }
+
+            .header {
+                padding: var(--space-sm) 0;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+
+            .mode-label {
+                font-size: 0.625rem;
+                padding: 4px 8px;
+            }
+
+            .back-link {
+                padding: 8px 12px;
+                font-size: 0.875rem;
+            }
+
+            .hero {
+                margin-top: 70px;
+                padding: var(--space-xl) 0;
+            }
+
+            .hero-badge {
+                padding: 8px 16px;
+                font-size: 0.75rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+                margin-bottom: var(--space-sm);
+            }
+
+            .hero-subtitle {
+                font-size: 0.9375rem;
+                margin: var(--space-xl) 0;
+            }
+
+            .price-card {
+                padding: var(--space-lg);
+                border-radius: var(--radius-xl);
+            }
+
+            .price-value {
+                font-size: 2.5rem;
+            }
+
+            .price-label {
+                font-size: 0.75rem;
+            }
+
+            .control-section {
+                padding: var(--space-md);
+                border-radius: var(--radius-lg);
+            }
+
+            .section-header {
+                margin-bottom: var(--space-lg);
+            }
+
+            .section-icon {
+                width: 48px;
+                height: 48px;
+                font-size: 1.25rem;
+            }
+
+            .section-title {
+                font-size: 1.25rem;
+            }
+
+            .amount-input {
+                padding: 14px;
+                padding-left: 50px;
+                font-size: 1.25rem;
+                border-radius: var(--radius-lg);
+            }
+
+            .amount-prefix {
+                left: 16px;
+                font-size: 1.25rem;
+            }
+
+            .amount-max {
+                padding: 6px 12px;
+                font-size: 0.75rem;
+                min-height: 32px;
+                min-width: 50px;
+            }
+
+            .action-button {
+                padding: 14px;
+                font-size: 0.9375rem;
+                min-height: 52px;
+                border-radius: var(--radius-lg);
+                letter-spacing: 0.5px;
+            }
+
+            .sentiment-label {
+                padding: var(--space-md);
+                min-height: 160px;
+            }
+
+            .sentiment-name {
+                font-size: 1.25rem;
+            }
+
+            .sentiment-description {
+                font-size: 0.8125rem;
+            }
+
+            .insight-value {
+                font-size: 1.75rem;
+            }
+
+            .insight-label {
+                font-size: 0.8125rem;
+            }
+
+            .profit-popup {
+                min-width: 260px;
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .profit-title {
+                font-size: 1.25rem;
+            }
+
+            .profit-amount {
+                font-size: 1.75rem;
+            }
+
+            .profit-icon {
+                font-size: 2rem;
+            }
+
+            .profit-details {
+                padding: 12px;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+                gap: var(--space-md);
+            }
+
+            .footer-link {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .hero-title {
+                font-size: 1.75rem;
+            }
+
+            .price-value {
+                font-size: 2rem;
+            }
+
+            .sentiment-options {
+                grid-template-columns: 1fr;
+            }
+
+            .sentiment-label {
+                min-height: 140px;
+            }
+
+            .sentiment-icon-wrapper {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5rem;
+            }
+
+            .profit-popup {
+                min-width: 240px;
+                padding: 16px;
+            }
+
+            .profit-title {
+                font-size: 1.125rem;
+            }
+
+            .profit-amount {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .control-section:hover {
+                transform: none;
+            }
+            
+            .info-card:hover {
+                transform: none;
+            }
+            
+            .insight-item:hover {
+                transform: none;
+            }
+            
+            .price-card:hover {
+                transform: none;
+            }
+            
+            .amount-max:hover {
+                transform: translateY(-50%);
+            }
+            
+            .back-link:hover {
+                transform: none;
+            }
+            
+            .footer-link:hover {
+                transform: none;
+            }
+            
+            .notification:hover {
+                transform: none;
+            }
+            
+            /* Increase tap target sizes for mobile */
+            .amount-max {
+                min-height: 44px;
+                min-width: 70px;
+            }
+            
+            .action-button {
+                min-height: 60px;
+            }
+            
+            .footer-link {
+                padding: var(--space-sm) 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container header-container">
+            <!-- Back button -->
+            <a href="/trade" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                Trading
+            </a>
+
+            <!-- Logo -->
+            <div class="logo-container">
+                <div class="logo">UNITED WORLD</div>
+                <div class="mode-label">Accelerate</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <!-- Profit Popup Container (will be created dynamically) -->
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-bolt"></i>
+                Advanced Trading
+            </div>
+            <h1 class="hero-title">
+                ACCELERATE MODE
+            </h1>
+            <p class="hero-subtitle">
+                Gamified allocation experience with real-time price dynamics.
+                Accelerate your trading strategy with sentiment-based allocations.
+            </p>
+        </div>
+    </section>
+
+    <!-- Price Display -->
+    <section class="price-section">
+        <div class="container">
+            <div class="price-card">
+                <div class="price-label">
+                    <i class="fas fa-chart-line"></i>
+                    MRX REFERENCE PRICE
+                </div>
+                <div class="price-value">
+                    <span class="currency-symbol">₹</span>
+                    <span id="priceCounter" class="price-display">Fetching system price…</span>
+                </div>
+                <div class="price-note" id="priceNote">
+                    Price is system-calculated based on INR–MRX pool dynamics
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Allocation Control Panel -->
+    <section class="control-panel">
+        <div class="container">
+            <div class="control-grid">
+                <!-- Market Sentiment Selector (NOW ABOVE AMOUNT INPUT) -->
+                <div class="control-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div>
+                            <div class="section-title">Market Sentiment</div>
+                            <div class="section-description">Select your market outlook</div>
+                        </div>
+                    </div>
+                    <div class="sentiment-options">
+                        <div class="sentiment-option">
+                            <input
+                                type="radio"
+                                id="bullish"
+                                name="sentiment"
+                                class="sentiment-radio"
+                                value="bullish"
+                                checked>
+                            <label for="bullish" class="sentiment-label">
+                                <div class="sentiment-icon-wrapper">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <span class="sentiment-name">Buy</span>
+                                <span class="sentiment-description">Allocate INR to receive MRX</span>
+                            </label>
+                        </div>
+                        <div class="sentiment-option">
+                            <input
+                                type="radio"
+                                id="bearish"
+                                name="sentiment"
+                                class="sentiment-radio"
+                                value="bearish">
+                            <label for="bearish" class="sentiment-label">
+                                <div class="sentiment-icon-wrapper">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <span class="sentiment-name">Sell</span>
+                                <span class="sentiment-description">Allocate MRX to receive INR</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amount Input (NOW BELOW SENTIMENT SELECTOR) -->
+                <div class="control-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div>
+                            <div class="section-title">Allocation Amount</div>
+                            <div class="section-description">Enter the amount you wish to allocate</div>
+                        </div>
+                    </div>
+                    <div class="amount-input-wrapper">
+                        <span class="amount-prefix">₹</span>
+                        <input
+                            type="text"
+                            class="amount-input"
+                            id="allocationAmount"
+                            placeholder="0.00"
+                            inputmode="decimal"
+                            maxlength="15">
+                        <button class="amount-max" id="maxButton">
+                            MAX
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="control-section">
+                    <div class="section-header">
+                        <div class="section-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div>
+                            <div class="section-title">Place Order</div>
+                            <div class="section-description">Execute your allocation strategy</div>
+                        </div>
+                    </div>
+                    <button class="action-button" id="activateButton" disabled>
+                        <i class="fas fa-rocket"></i>
+                        PLACE ORDER
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Acceleration Insight Strip -->
+    <section class="insight-strip">
+        <div class="container">
+            <div class="insight-container">
+                <div class="insight-item">
+                    <div class="insight-value">↑ 87%</div>
+                    <div class="insight-label">System Participation</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-value">₹ 18.4M</div>
+                    <div class="insight-label">Holder Value Exposure</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-value">Dynamic</div>
+                    <div class="insight-label">Price Reacts to Pool Dynamics</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transparency Panel -->
+    <section class="transparency-panel">
+        <div class="container">
+            <div class="panel-header">
+                <div class="panel-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <div class="panel-title">Transparency & System Information</div>
+                    <div class="panel-subtitle">Important details about the allocation system</div>
+                </div>
+            </div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="info-title">No Guaranteed Returns</div>
+                    <div class="info-text">Allocation values change proportionally with system-calculated price movements</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="info-title">Sentiment Determines Allocation</div>
+                    <div class="info-text">Bullish allocates INR for MRX, Bearish allocates MRX for INR</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="info-title">System-Calculated Value</div>
+                    <div class="info-text">All allocations are governed by systematic pricing algorithms</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div class="info-title">Manual Processing Phase</div>
+                    <div class="info-text">During early development, settlements are processed with systematic oversight</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">UNITED WORLD</div>
+                    <div class="footer-tagline">Advanced financial acceleration platform</div>
+                </div>
+                <div class="footer-links">
+                    <a href="about" class="footer-link">
+                        <i class="fas fa-info-circle"></i>
+                        About
+                    </a>
+                    <a href="legal" class="footer-link">
+                        <i class="fas fa-gavel"></i>
+                        Legal
+                    </a>
+                    <a href="privacy" class="footer-link">
+                        <i class="fas fa-lock"></i>
+                        Privacy
+                    </a>
+                    <a href="wallet" class="footer-link">
+                        <i class="fas fa-wallet"></i>
+                        Wallet
+                    </a>
+                    <a href="withdraw" class="footer-link">
+                        <i class="fas fa-arrow-up"></i>
+                        Withdraw
+                    </a>
+                    <a href="deposit" class="footer-link">
+                        <i class="fas fa-arrow-down"></i>
+                        Deposit
+                    </a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                © UNITED WORLD – All rights reserved
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // ===== PROFIT POPUP SYSTEM =====
+        class ProfitPopup {
+            /**
+             * Show profit popup
+             * @param {number} profitAmount - Profit in INR
+             * @param {string} sentiment - 'bullish' or 'bearish'
+             * @param {number} priceBefore - Price before trade
+             * @param {number} priceAfter - Price after trade
+             * @param {string} asset - Asset involved (MRX or INR)
+             */
+            static show(profitAmount, sentiment, priceBefore, priceAfter, asset = '') {
+                // Remove any existing popup
+                const existingPopup = document.querySelector('.profit-popup');
+                if (existingPopup) {
+                    existingPopup.remove();
+                }
+
+                // Format profit amount
+                const formattedProfit = profitAmount.toLocaleString('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+
+                // Create popup element
+                const popup = document.createElement('div');
+                popup.className = 'profit-popup';
+
+                // Determine icon and message based on sentiment
+                const icon = sentiment === 'bullish' ? '🚀' : '📉';
+                const action = sentiment === 'bullish' ? 'purchase' : 'sale';
+
+                // Format prices
+                const formattedPriceBefore = priceBefore.toLocaleString('en-IN', {
+                    minimumFractionDigits: 4,
+                    maximumFractionDigits: 4
+                });
+                const formattedPriceAfter = priceAfter.toLocaleString('en-IN', {
+                    minimumFractionDigits: 4,
+                    maximumFractionDigits: 4
+                });
+
+                // Price change indicator
+                const priceChange = priceAfter - priceBefore;
+                const priceChangePercent = ((priceChange / priceBefore) * 100).toFixed(2);
+                const priceChangeSymbol = priceChange >= 0 ? '↗' : '↘';
+                const priceChangeColor = priceChange >= 0 ? '#10B981' : '#EF4444';
+
+                popup.innerHTML = `
+                    <div class="profit-icon">${icon}</div>
+                    <div class="profit-title">🎉 Instant Profit Alert!</div>
+                    <div class="profit-amount">₹${formattedProfit}</div>
+                    <div class="profit-message">
+                        Congratulations! Your ${action} generated instant profit.
+                    </div>
+                    <div class="profit-details">
+                        <div class="profit-detail-item">
+                            <span class="profit-detail-label">Before</span>
+                            <span class="profit-detail-value">₹${formattedPriceBefore}</span>
+                        </div>
+                        <div class="profit-detail-item">
+                            <span class="profit-detail-label">After</span>
+                            <span class="profit-detail-value" style="color: ${priceChangeColor}">
+                                ₹${formattedPriceAfter} ${priceChangeSymbol}
+                            </span>
+                        </div>
+                        <div class="profit-detail-item">
+                            <span class="profit-detail-label">Change</span>
+                            <span class="profit-detail-value" style="color: ${priceChangeColor}">
+                                ${priceChangePercent}%
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                // Add to body
+                document.body.appendChild(popup);
+
+                // Auto-remove after 3 seconds
+                setTimeout(() => {
+                    popup.classList.add('hiding');
+                    setTimeout(() => {
+                        if (popup.parentNode) {
+                            popup.parentNode.removeChild(popup);
+                        }
+                    }, 300);
+                }, 3000);
+
+                return popup;
+            }
+
+            /**
+             * Hide a specific popup
+             */
+            static hide(popup) {
+                if (popup && popup.parentNode) {
+                    popup.classList.add('hiding');
+                    setTimeout(() => {
+                        if (popup.parentNode) {
+                            popup.parentNode.removeChild(popup);
+                        }
+                    }, 300);
+                }
+            }
+
+            /**
+             * Hide all popups
+             */
+            static hideAll() {
+                document.querySelectorAll('.profit-popup').forEach(popup => {
+                    this.hide(popup);
+                });
+            }
+        }
+
+        // ===== ENHANCED NOTIFICATION SYSTEM =====
+        class NotificationManager {
+            constructor() {
+                this.container = document.getElementById('notificationContainer');
+                this.notifications = new Set();
+                this.maxNotifications = 3;
+                this.autoDismissTime = 5000;
+            }
+
+            /**
+             * Show a notification
+             * @param {string} message - Message to display
+             * @param {string} type - 'success', 'error', or 'info'
+             * @param {string} title - Optional title
+             * @param {number} duration - Duration in milliseconds
+             */
+            show(message, type = 'info', title = null, duration = this.autoDismissTime) {
+                // Limit number of notifications
+                if (this.notifications.size >= this.maxNotifications) {
+                    this.removeOldest();
+                }
+
+                const notificationId = 'notification-' + Date.now();
+                const icon = this.getIconForType(type);
+
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.id = notificationId;
+                notification.setAttribute('role', 'alert');
+
+                const defaultTitle = this.getDefaultTitle(type);
+
+                notification.innerHTML = `
+                    <div class="notification-header">
+                        <div class="notification-title">
+                            <i class="fas ${icon} notification-icon"></i>
+                            ${title || defaultTitle}
+                        </div>
+                        <button class="notification-close" aria-label="Close notification">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="notification-message">${message}</div>
+                    <div class="notification-progress" style="animation: progress-bar ${duration}ms linear forwards;"></div>
+                `;
+
+                this.container.appendChild(notification);
+                this.notifications.add(notificationId);
+
+                // Trigger animation
+                setTimeout(() => {
+                    notification.style.transform = 'translateX(0)';
+                }, 10);
+
+                // Add close button functionality
+                const closeBtn = notification.querySelector('.notification-close');
+                closeBtn.addEventListener('click', () => this.hide(notificationId));
+
+                // Auto-dismiss
+                if (duration > 0) {
+                    setTimeout(() => this.hide(notificationId), duration);
+                }
+
+                // Play sound for success notifications
+                if (type === 'success') {
+                    this.playSuccessSound();
+                }
+
+                return notificationId;
+            }
+
+            /**
+             * Hide a notification
+             * @param {string} notificationId - ID of notification to hide
+             */
+            hide(notificationId) {
+                const notification = document.getElementById(notificationId);
+                if (notification && !notification.classList.contains('hiding')) {
+                    notification.classList.add('hiding');
+
+                    // Remove after animation completes
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                            this.notifications.delete(notificationId);
+                        }
+                    }, 300);
+                }
+            }
+
+            /**
+             * Remove oldest notification
+             */
+            removeOldest() {
+                if (this.notifications.size > 0) {
+                    const oldestId = Array.from(this.notifications)[0];
+                    this.hide(oldestId);
+                }
+            }
+
+            /**
+             * Get icon for notification type
+             */
+            getIconForType(type) {
+                const icons = {
+                    'success': 'fa-check-circle',
+                    'error': 'fa-exclamation-circle',
+                    'info': 'fa-info-circle'
+                };
+                return icons[type] || 'fa-info-circle';
+            }
+
+            /**
+             * Get default title for notification type
+             */
+            getDefaultTitle(type) {
+                const titles = {
+                    'success': 'Success',
+                    'error': 'Error',
+                    'info': 'Information'
+                };
+                return titles[type] || 'Notification';
+            }
+
+            /**
+             * Play success sound
+             */
+            playSuccessSound() {
+                try {
+                    // Create audio context for success sound
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                    oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.3);
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+
+            /**
+             * Clear all notifications
+             */
+            clearAll() {
+                this.notifications.forEach(id => this.hide(id));
+            }
+        }
+
+        // Initialize notification manager
+        const notificationManager = new NotificationManager();
+
+        // ===== UTILITY FUNCTIONS =====
+
+        /**
+         * Create ripple effect on button click
+         */
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - button.getBoundingClientRect().left - radius}px`;
+            circle.style.top = `${event.clientY - button.getBoundingClientRect().top - radius}px`;
+            circle.classList.add('ripple');
+
+            const ripple = button.querySelector('.ripple');
+            if (ripple) ripple.remove();
+
+            button.appendChild(circle);
+
+            setTimeout(() => {
+                if (circle.parentNode === button) {
+                    button.removeChild(circle);
+                }
+            }, 600);
+        }
+
+        // ===== MRX PRICE SERVICE =====
+        class MRXPriceService {
+            constructor() {
+                this.currentPrice = 0;
+                this.updateInterval = 30000; // Update every 30 seconds
+                this.isFetching = false;
+                this.retryCount = 0;
+                this.maxRetries = 3;
+                this.lastUpdate = 0;
+
+                // DOM elements
+                this.priceElement = document.getElementById('priceCounter');
+                this.shimmerElement = document.getElementById('priceShimmer');
+                this.priceNoteElement = document.getElementById('priceNote');
+            }
+
+            /**
+             * Fetch live MRX price from backend API
+             * @returns {Promise<number|null>} Price value or null if error
+             */
+            async fetchPrice() {
+                if (this.isFetching) return this.currentPrice;
+
+                this.isFetching = true;
+                this.showLoadingState();
+
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                    const response = await fetch('/api/price', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache',
+                            'Pragma': 'no-cache'
+                        },
+                        signal: controller.signal
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    // Validate response structure
+                    if (!data || typeof data.price !== 'number') {
+                        throw new Error('Invalid price data received');
+                    }
+
+                    this.currentPrice = parseFloat(data.price);
+                    this.retryCount = 0; // Reset retry counter on success
+                    this.lastUpdate = Date.now();
+
+                    // Update UI with new price AND pool data
+                    this.updatePriceDisplay(this.currentPrice, {
+                        inr_pool: data.inr_pool || 0,
+                        mrx_pool: data.mrx_pool || 0
+                    });
+
+                    // Restore normal note text
+                    this.priceNoteElement.style.color = '';
+                    this.priceNoteElement.textContent = 'Price is system-calculated based on INR–MRX pool dynamics';
+
+                    // Show success notification
+                    notificationManager.show('Price updated successfully', 'success');
+
+                    return this.currentPrice;
+
+                } catch (error) {
+                    console.error('Failed to fetch MRX price:', error);
+                    this.handleFetchError();
+                    return null;
+                } finally {
+                    this.isFetching = false;
+                }
+            }
+
+            /**
+             * Update price display with smooth animation
+             * @param {number} newPrice - The new price to display
+             * @param {Object} poolData - Optional pool data from API
+             */
+            updatePriceDisplay(newPrice, poolData = null) {
+                // Format as Indian currency (₹ X.XX)
+                const formattedPrice = new Intl.NumberFormat('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 4
+                }).format(newPrice);
+
+                // Hide shimmer first
+                this.hideLoadingState();
+
+                // Smooth transition animation
+                this.priceElement.style.opacity = '0.5';
+                this.priceElement.style.transform = 'translateY(5px)';
+
+                setTimeout(() => {
+                    this.priceElement.textContent = formattedPrice;
+                    this.priceElement.style.opacity = '1';
+                    this.priceElement.style.transform = 'translateY(0)';
+
+                    // Update price note with pool data if available
+                    if (poolData) {
+                        this.priceNoteElement.innerHTML = `
+                            Price based on pool dynamics<br>
+                            <small style="color: var(--gray-500); font-size: 0.8125rem;">
+                                Pool: ₹${poolData.inr_pool.toLocaleString('en-IN', {maximumFractionDigits: 0})} /
+                                ${poolData.mrx_pool.toLocaleString('en-IN', {maximumFractionDigits: 0})} MRX
+                            </small>
+                        `;
+                    }
+
+                    // Add subtle pulse animation on price update
+                    this.priceElement.classList.add('price-update-pulse');
+                    setTimeout(() => {
+                        this.priceElement.classList.remove('price-update-pulse');
+                    }, 1000);
+
+                }, 200);
+            }
+
+            /**
+             * Show loading shimmer animation
+             */
+            showLoadingState() {
+                this.priceElement.textContent = 'Fetching system price…';
+                this.priceElement.style.opacity = '0.8';
+
+                if (this.shimmerElement) {
+                    this.shimmerElement.style.display = 'block';
+                }
+            }
+
+            /**
+             * Hide loading state
+             */
+            hideLoadingState() {
+                if (this.shimmerElement) {
+                    this.shimmerElement.style.display = 'none';
+                }
+                this.priceElement.style.opacity = '1';
+            }
+
+            /**
+             * Handle fetch errors with retry logic
+             */
+            handleFetchError() {
+                this.retryCount++;
+
+                if (this.retryCount <= this.maxRetries) {
+                    // Show error but will retry
+                    this.priceElement.textContent = 'System price unavailable';
+                    this.priceNoteElement.style.color = '#f59e0b';
+                    this.priceNoteElement.textContent = `Retrying... (${this.retryCount}/${this.maxRetries})`;
+
+                    // Show retry notification
+                    notificationManager.show(
+                        `Price feed unavailable. Retrying... (${this.retryCount}/${this.maxRetries})`,
+                        'info',
+                        'Price Update',
+                        3000
+                    );
+
+                    // Schedule retry with exponential backoff
+                    const retryDelay = Math.min(1000 * Math.pow(2, this.retryCount), 10000);
+                    setTimeout(() => this.fetchPrice(), retryDelay);
+
+                } else {
+                    // Max retries reached, show persistent error
+                    this.priceElement.textContent = 'System price unavailable';
+                    this.priceNoteElement.style.color = '#ef4444';
+                    this.priceNoteElement.textContent = 'Price feed temporarily unavailable. Refresh to retry.';
+                    this.hideLoadingState();
+
+                    // Show error notification
+                    notificationManager.show(
+                        'Price feed temporarily unavailable. Refresh to retry.',
+                        'error',
+                        'Connection Error',
+                        5000
+                    );
+                }
+            }
+
+            /**
+             * Initialize price fetching service
+             */
+            initialize() {
+                // Initial fetch
+                setTimeout(() => this.fetchPrice(), 500);
+
+                // Set up periodic updates
+                this.updateIntervalId = setInterval(() => {
+                    this.fetchPrice();
+                }, this.updateInterval);
+
+                // Also fetch on window focus (if user returns to tab)
+                window.addEventListener('focus', () => {
+                    if (Date.now() - this.lastUpdate > 60000) {
+                        this.fetchPrice();
+                    }
+                });
+            }
+
+            /**
+             * Clean up intervals
+             */
+            destroy() {
+                if (this.updateIntervalId) {
+                    clearInterval(this.updateIntervalId);
+                }
+            }
+
+            /**
+             * Get current price (cached value)
+             * @returns {number} Current MRX price
+             */
+            getCurrentPrice() {
+                return this.currentPrice;
+            }
+        }
+
+        // ===== USER BALANCE SERVICE =====
+        class BalanceService {
+            constructor() {
+                this.currentBalance = { inr: 0, mrx: 0 };
+                this.balanceCheckInterval = 60000;
+            }
+
+            /**
+             * Fetch user balance from server
+             */
+            async fetchBalance() {
+                try {
+                    const response = await fetch('/api/user-balance', {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.currentBalance = {
+                            inr: parseFloat(data.inr_balance) || 0,
+                            mrx: parseFloat(data.mrx_balance) || 0
+                        };
+                        this.updatePlaceholderBasedOnSentiment();
+                        this.updateUIWithBalance();
+
+                        // Show balance updated notification
+                        notificationManager.show(
+                            'Balance updated successfully',
+                            'success',
+                            'Balance Update',
+                            3000
+                        );
+
+                        return this.currentBalance;
+                    } else if (response.status === 401) {
+                        window.location.href = '/login';
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch balance:', error);
+                    notificationManager.show(
+                        'Failed to update balance',
+                        'error',
+                        'Balance Error',
+                        4000
+                    );
+                }
+                return null;
+            }
+
+            /**
+             * Validate transaction based on selected sentiment
+             * @param {number} amount - Amount to check
+             * @param {string} sentiment - 'bullish' or 'bearish'
+             * @returns {Object} Validation result
+             */
+            validateTransaction(amount, sentiment) {
+                const amountNum = parseFloat(amount) || 0;
+
+                if (amountNum <= 0) {
+                    return { valid: false, reason: 'Amount must be greater than 0' };
+                }
+
+                if (sentiment === 'bullish') {
+                    // Bullish: amount is in INR, validate against INR balance
+                    if (amountNum > this.currentBalance.inr) {
+                        return {
+                            valid: false,
+                            reason: `Insufficient INR balance. Available: ₹${this.currentBalance.inr.toLocaleString('en-IN', {maximumFractionDigits: 2})}`
+                        };
+                    }
+                } else if (sentiment === 'bearish') {
+                    // Bearish: amount is in MRX, validate against MRX balance
+                    if (amountNum > this.currentBalance.mrx) {
+                        return {
+                            valid: false,
+                            reason: `Insufficient MRX balance. Available: ${this.currentBalance.mrx.toFixed(6)} MRX`
+                        };
+                    }
+                }
+
+                return { valid: true };
+            }
+
+            /**
+             * Update amount placeholder based on selected sentiment
+             */
+            updatePlaceholderBasedOnSentiment() {
+                const amountInput = document.getElementById('allocationAmount');
+                const sentiment = document.querySelector('input[name="sentiment"]:checked');
+
+                if (sentiment) {
+                    if (sentiment.value === 'bullish') {
+                        // Bullish: Show INR placeholder
+                        amountInput.placeholder = `Up to ₹${this.currentBalance.inr.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
+                    } else if (sentiment.value === 'bearish') {
+                        // Bearish: Show MRX placeholder
+                        amountInput.placeholder = `Up to ${this.currentBalance.mrx.toFixed(6)} MRX`;
+                    }
+                } else {
+                    // Default to INR placeholder
+                    amountInput.placeholder = `Up to ₹${this.currentBalance.inr.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
+                }
+            }
+
+            /**
+             * Update UI elements with current balance
+             */
+            updateUIWithBalance() {
+                // Update balance display
+                let balanceDisplay = document.getElementById('balanceDisplay');
+                if (!balanceDisplay) {
+                    const priceNote = document.getElementById('priceNote');
+                    balanceDisplay = document.createElement('div');
+                    balanceDisplay.id = 'balanceDisplay';
+                    balanceDisplay.style.cssText = `
+                        font-size: 0.875rem;
+                        margin-top: 0.5rem;
+                        color: var(--gray-500);
+                        display: flex;
+                        justify-content: center;
+                        gap: 1rem;
+                        flex-wrap: wrap;
+                    `;
+                    priceNote.parentNode.insertBefore(balanceDisplay, priceNote.nextSibling);
+                }
+
+                balanceDisplay.innerHTML = `
+                    <span>INR Balance: <strong style="color: var(--neon-blue);">₹${this.currentBalance.inr.toLocaleString('en-IN', {maximumFractionDigits: 2})}</strong></span>
+                    <span>MRX Balance: <strong style="color: var(--neon-blue);">${this.currentBalance.mrx.toFixed(6)}</strong></span>
+                `;
+            }
+
+            /**
+             * Get balance based on sentiment
+             * @param {string} sentiment - 'bullish' or 'bearish'
+             * @returns {number} Available balance for the selected sentiment
+             */
+            getAvailableBalance(sentiment) {
+                if (sentiment === 'bullish') {
+                    return this.currentBalance.inr;
+                } else if (sentiment === 'bearish') {
+                    return this.currentBalance.mrx;
+                }
+                return 0;
+            }
+
+            /**
+             * Initialize balance service
+             */
+            initialize() {
+                // Initial fetch
+                setTimeout(() => this.fetchBalance(), 1000);
+
+                // Periodic updates
+                this.balanceInterval = setInterval(() => this.fetchBalance(), this.balanceCheckInterval);
+            }
+
+            /**
+             * Clean up
+             */
+            destroy() {
+                if (this.balanceInterval) {
+                    clearInterval(this.balanceInterval);
+                }
+            }
+        }
+
+        // ===== MAIN APPLICATION =====
+
+        // Initialize services
+        const priceService = new MRXPriceService();
+        const balanceService = new BalanceService();
+
+        // DOM elements
+        const amountInput = document.getElementById('allocationAmount');
+        const activateButton = document.getElementById('activateButton');
+        const amountPrefix = document.querySelector('.amount-prefix');
+        const maxButton = document.getElementById('maxButton');
+
+        /**
+         * Update input prefix and placeholder based on sentiment
+         */
+        function updateInputForSentiment(sentiment) {
+            if (sentiment === 'bullish') {
+                // Bullish: Show ₹ prefix and INR placeholder
+                amountPrefix.textContent = '₹';
+                amountPrefix.style.display = 'block';
+                balanceService.updatePlaceholderBasedOnSentiment();
+            } else if (sentiment === 'bearish') {
+                // Bearish: Hide ₹ prefix and show MRX placeholder
+                amountPrefix.style.display = 'none';
+                balanceService.updatePlaceholderBasedOnSentiment();
+            }
+        }
+
+        /**
+         * MAX button handler
+         */
+        maxButton.addEventListener('click', () => {
+            const sentiment = document.querySelector('input[name="sentiment"]:checked');
+            if (sentiment) {
+                const maxAmount = balanceService.getAvailableBalance(sentiment.value);
+                if (maxAmount > 0) {
+                    // Format based on sentiment
+                    let formattedAmount;
+                    if (sentiment.value === 'bullish') {
+                        // INR: format with commas
+                        formattedAmount = maxAmount.toLocaleString('en-IN', {
+                            maximumFractionDigits: 2,
+                            minimumFractionDigits: 0
+                        });
+                    } else {
+                        // MRX: show with up to 6 decimal places
+                        formattedAmount = maxAmount.toString();
+                    }
+
+                    amountInput.value = formattedAmount;
+
+                    // Trigger input event to validate
+                    amountInput.dispatchEvent(new Event('input'));
+
+                    // Show notification
+                    notificationManager.show(
+                        `Maximum available ${sentiment.value === 'bullish' ? 'INR' : 'MRX'} amount filled`,
+                        'info',
+                        'Amount Filled',
+                        2000
+                    );
+                }
+            }
+        });
+
+        /**
+         * Format amount input with validation based on sentiment
+         */
+        amountInput.addEventListener('input', (e) => {
+            let value = e.target.value;
+
+            // Remove commas for processing
+            const processedValue = value.replace(/,/g, '');
+
+            if (processedValue === '' || processedValue === '0') {
+                activateButton.disabled = true;
+                e.target.classList.remove('error');
+                e.target.title = '';
+                return;
+            }
+
+            // Check if it's a valid number
+            const amountNum = parseFloat(processedValue);
+            if (isNaN(amountNum) || amountNum <= 0) {
+                activateButton.disabled = true;
+                e.target.classList.add('error');
+                e.target.title = 'Please enter a valid positive number';
+                return;
+            }
+
+            const sentiment = document.querySelector('input[name="sentiment"]:checked');
+
+            if (sentiment) {
+                const validation = balanceService.validateTransaction(amountNum, sentiment.value);
+
+                if (validation.valid) {
+                    // Format based on sentiment
+                    if (sentiment.value === 'bullish') {
+                        // INR: format with commas for thousands
+                        value = amountNum.toLocaleString('en-IN', {
+                            maximumFractionDigits: 2,
+                            minimumFractionDigits: 0
+                        });
+                    } else {
+                        // MRX: keep decimal format with up to 6 decimal places
+                        value = amountNum.toString();
+                    }
+
+                    activateButton.disabled = false;
+                    e.target.classList.remove('error');
+                    e.target.title = '';
+
+                    // Show valid amount notification
+                    notificationManager.show(
+                        `Amount validated successfully: ${value} ${sentiment.value === 'bullish' ? 'INR' : 'MRX'}`,
+                        'success',
+                        'Amount Valid',
+                        2000
+                    );
+                } else {
+                    // Show error styling
+                    e.target.classList.add('error');
+                    activateButton.disabled = true;
+                    e.target.title = validation.reason;
+
+                    // Show error notification
+                    notificationManager.show(
+                        validation.reason,
+                        'error',
+                        'Validation Error',
+                        4000
+                    );
+                }
+            } else {
+                // No sentiment selected
+                activateButton.disabled = true;
+                e.target.title = 'Please select a sentiment first';
+                notificationManager.show(
+                    'Please select a market sentiment first',
+                    'info',
+                    'Select Sentiment',
+                    3000
+                );
+            }
+
+            e.target.value = value;
+        });
+
+        /**
+         * Sentiment selection handler
+         */
+        document.querySelectorAll('.sentiment-radio').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    // Update input prefix and placeholder
+                    updateInputForSentiment(e.target.value);
+
+                    // Clear input and reset validation
+                    amountInput.value = '';
+                    amountInput.classList.remove('error');
+                    amountInput.title = '';
+                    activateButton.disabled = true;
+
+                    // Add visual feedback
+                    const label = e.target.nextElementSibling;
+                    label.style.transform = 'translateY(-4px) scale(1.02)';
+
+                    setTimeout(() => {
+                        label.style.transform = 'translateY(-4px)';
+                    }, 200);
+
+                    // Show sentiment selected notification
+                    const sentimentName = e.target.value === 'bullish' ? 'Bullish (INR → MRX)' : 'Bearish (MRX → INR)';
+                    notificationManager.show(
+                        `${sentimentName} sentiment selected`,
+                        'info',
+                        'Market Sentiment',
+                        2000
+                    );
+                }
+            });
+        });
+
+        /**
+         * Activation button handler with sentiment-based backend integration
+         */
+        activateButton.addEventListener('click', async (e) => {
+            createRipple(e);
+
+            const amount = amountInput.value.replace(/,/g, '');
+            const sentiment = document.querySelector('input[name="sentiment"]:checked');
+
+            if (!amount || amount === '0') {
+                notificationManager.show(
+                    'Please enter a valid allocation amount',
+                    'error',
+                    'Invalid Amount',
+                    4000
+                );
+                return;
+            }
+
+            if (!sentiment) {
+                notificationManager.show(
+                    'Please select a market sentiment',
+                    'error',
+                    'No Sentiment',
+                    4000
+                );
+                return;
+            }
+
+            const amountNum = parseFloat(amount);
+            if (amountNum <= 0) {
+                notificationManager.show(
+                    'Amount must be greater than 0',
+                    'error',
+                    'Invalid Amount',
+                    4000
+                );
+                return;
+            }
+
+            // Validate balance based on sentiment
+            const validation = balanceService.validateTransaction(amountNum, sentiment.value);
+            if (!validation.valid) {
+                notificationManager.show(
+                    validation.reason,
+                    'error',
+                    'Insufficient Balance',
+                    4000
+                );
+                return;
+            }
+
+            // Show processing notification
+            const processingNotification = notificationManager.show(
+                'Processing your allocation...',
+                'info',
+                'Processing',
+                0 // No auto-dismiss
+            );
+
+            // Show loading state
+            const originalText = activateButton.innerHTML;
+            activateButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            activateButton.disabled = true;
+
+            try {
+                // Call backend API with amount AND sentiment
+                const response = await fetch('/api/accelerate-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: amountNum,
+                        sentiment: sentiment.value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || `HTTP ${response.status}`);
+                }
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Allocation failed');
+                }
+
+                // Remove processing notification
+                notificationManager.hide(processingNotification);
+
+                // ===== SHOW PROFIT POPUP IF PROFIT > 0 =====
+                if (data.profit && data.profit > 0) {
+                    const asset = sentiment.value === 'bullish' ? 'MRX' : 'INR';
+                    ProfitPopup.show(
+                        data.profit,
+                        sentiment.value,
+                        data.price_before,
+                        data.price_after,
+                        asset
+                    );
+                }
+
+                // Show success notification with detailed information
+                if (sentiment.value === 'bullish') {
+                    // Bullish: INR allocated → MRX received
+                    notificationManager.show(
+                        `₹${amountNum.toLocaleString('en-IN', {maximumFractionDigits: 2})} allocated successfully! You received ${data.mrx_received ? data.mrx_received.toFixed(6) : 'N/A'} MRX`,
+                        'success',
+                        'Allocation Successful! 🎉',
+                        6000
+                    );
+                } else {
+                    // Bearish: MRX allocated → INR received
+                    notificationManager.show(
+                        `${amountNum} MRX allocated successfully! You received ₹${data.inr_received ? data.inr_received.toLocaleString('en-IN', {maximumFractionDigits: 2}) : 'N/A'}`,
+                        'success',
+                        'Allocation Successful! 🎉',
+                        6000
+                    );
+                }
+
+                // Reset form
+                amountInput.value = '';
+                document.querySelectorAll('.sentiment-radio').forEach(radio => radio.checked = false);
+                // Re-check bullish by default
+                document.getElementById('bullish').checked = true;
+                amountPrefix.style.display = 'block';
+                amountPrefix.textContent = '₹';
+                activateButton.disabled = true;
+
+                // Refresh price and balance after allocation
+                setTimeout(() => {
+                    priceService.fetchPrice();
+                    balanceService.fetchBalance();
+                }, 1000);
+
+                // Show success animation
+                const priceCard = document.querySelector('.price-card');
+                priceCard.style.animation = 'pulseGlow 1s ease-out 3';
+
+                setTimeout(() => {
+                    priceCard.style.animation = '';
+                }, 3000);
+
+            } catch (error) {
+                console.error('Allocation failed:', error);
+
+                // Remove processing notification
+                notificationManager.hide(processingNotification);
+
+                // Show error notification
+                notificationManager.show(
+                    `Allocation failed: ${error.message}`,
+                    'error',
+                    'Allocation Failed',
+                    5000
+                );
+
+            } finally {
+                // Reset button state
+                activateButton.innerHTML = '<i class="fas fa-rocket"></i> PLACE ORDER';
+                activateButton.disabled = true;
+            }
+        });
+
+        /**
+         * Initialize page
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize services
+            priceService.initialize();
+            balanceService.initialize();
+
+            // Set bullish as default and update UI
+            document.getElementById('bullish').checked = true;
+            updateInputForSentiment('bullish');
+
+            // Welcome notification
+            setTimeout(() => {
+                notificationManager.show(
+                    'Welcome to Accelerate Mode! Ready to place your allocation?',
+                    'info',
+                    'Welcome 👋',
+                    4000
+                );
+            }, 1000);
+
+            // Add staggered animations to insight items
+            const insightItems = document.querySelectorAll('.insight-item');
+            insightItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.5}s`;
+            });
+
+            // Focus amount input
+            setTimeout(() => {
+                amountInput.focus();
+            }, 1500);
+
+            // Add scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for scroll animations
+            document.querySelectorAll('.section-title, .info-item').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+
+            // Handle keyboard on mobile
+            amountInput.addEventListener('focus', () => {
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: amountInput.getBoundingClientRect().top + window.scrollY - 100,
+                        behavior: 'smooth'
+                    });
+                }, 300);
+            });
+        });
+
+        /**
+         * Clean up on page unload
+         */
+        window.addEventListener('beforeunload', () => {
+            priceService.destroy();
+            balanceService.destroy();
+            notificationManager.clearAll();
+            ProfitPopup.hideAll();
+        });
+
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Handle viewport resize
+        window.addEventListener('resize', () => {
+            // Re-center any active profit popups
+            document.querySelectorAll('.profit-popup').forEach(popup => {
+                popup.style.left = '50%';
+                popup.style.top = '50%';
+                popup.style.transform = 'translate(-50%, -50%)';
+            });
+        });
+    </script>
+</body>
+</html>

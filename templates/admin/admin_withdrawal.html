@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdrawal Management | UNITED WORLD Trading Platform</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --secondary-color: #1e293b;
+            --accent-color: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #8b5cf6;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--secondary-color);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            padding: 0 20px 30px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 28px;
+        }
+
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: var(--text-primary);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .nav-item i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+        }
+
+        .nav-label {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        .logout-item {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .mobile-header {
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0 25px 0;
+        }
+
+        .mobile-header .logo {
+            font-size: 20px;
+        }
+
+        .hamburger-menu {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .stat-icon.total {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .stat-icon.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .stat-icon.processing {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+
+        .stat-icon.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .stat-icon.rejected {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            color: var(--danger-color);
+        }
+
+        /* Controls */
+        .controls-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 45px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 5px;
+            overflow-x: auto;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .filter-tab:hover {
+            color: var(--text-primary);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .filter-tab.active {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: rgba(255, 255, 255, 0.03);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-pending {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-approved {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .status-processing {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+
+        .status-processed {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-rejected {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-email {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .user-name {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .bank-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bank-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .account-number {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .amount {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .date {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: 1px solid var(--glass-border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.view:hover {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn.approve:hover {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btn.reject:hover {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .action-btn.process:hover {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .pagination-btn.active {
+            background: var(--accent-gradient);
+            color: white;
+            border: none;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--primary-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 25px 30px;
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .modal-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 500;
+            padding: 10px 15px;
+            background: var(--glass-bg);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .info-value.large {
+            font-size: 24px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--glass-border);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -25px;
+            top: 5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-color);
+        }
+
+        .timeline-dot.completed {
+            background: var(--success-color);
+        }
+
+        .timeline-dot.pending {
+            background: var(--warning-color);
+        }
+
+        .timeline-dot.rejected {
+            background: var(--danger-color);
+        }
+
+        .timeline-content {
+            padding: 10px 15px;
+            background: var(--glass-bg);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .timeline-date {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .timeline-text {
+            font-weight: 500;
+        }
+
+        .modal-footer {
+            padding: 25px 30px;
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .modal-footer .btn {
+            min-width: 120px;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            padding: 18px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(150%);
+            transition: transform 0.4s ease;
+            max-width: 400px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #10b981, #34d399);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            display: none;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(59, 130, 246, 0.2);
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-header {
+                display: flex;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .controls-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+
+            .action-buttons {
+                align-self: flex-end;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-height: 85vh;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+
+        /* Checkbox for bulk selection */
+        .bulk-select {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--accent-color);
+            cursor: pointer;
+        }
+
+        .bulk-actions-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px 20px;
+            background: var(--glass-bg);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            display: none;
+        }
+
+        .bulk-actions-container.active {
+            display: flex;
+        }
+
+        .selected-count {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-globe"></i>
+                    UNITED WORLD
+                </div>
+            </div>
+            <div class="sidebar-nav">
+                <a href="/admin" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span class="nav-label">Dashboard</span>
+                </a>
+                <a href="/admin/deposits" class="nav-item">
+                    <i class="fas fa-money-check-alt"></i>
+                    <span class="nav-label">Deposit Management</span>
+                </a>
+                <a href="/admin/withdrawals" class="nav-item active">
+                    <i class="fas fa-credit-card"></i>
+                    <span class="nav-label">Withdrawal Management</span>
+                </a>
+                <a href="/admin/users" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span class="nav-label">User Management</span>
+                </a>
+                <a href="/admin/logs" class="nav-item">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span class="nav-label">Activity Logs</span>
+                </a>
+                <a href="/logout" class="nav-item logout-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="nav-label">Logout</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Mobile Header -->
+            <div class="mobile-header">
+                <button class="hamburger-menu" id="hamburger">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-globe"></i>
+                    UNITED WORLD
+                </div>
+                <div></div> <!-- Spacer -->
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="page-title">Withdrawal Management</h1>
+                <p class="page-subtitle">Review and process user withdrawal requests</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Total Withdrawals</div>
+                        <div class="stat-icon total">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="total-withdrawals">₹ 0.00</div>
+                    <div class="stat-change positive" id="total-change">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Pending Review</div>
+                        <div class="stat-icon pending">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="pending-count">0</div>
+                    <div class="stat-change negative" id="pending-change">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Processing</div>
+                        <div class="stat-icon processing">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="processing-count">0</div>
+                    <div class="stat-change" id="processing-change">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Completed</div>
+                        <div class="stat-icon completed">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="completed-count">0</div>
+                    <div class="stat-change positive" id="completed-change">Loading...</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Rejected</div>
+                        <div class="stat-icon rejected">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="rejected-count">0</div>
+                    <div class="stat-change negative" id="rejected-change">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Bulk Actions -->
+            <div class="bulk-actions-container" id="bulk-actions">
+                <div>
+                    <span class="selected-count" id="selected-count">0</span> requests selected
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="bulk-approve">
+                        <i class="fas fa-check"></i> Approve Selected
+                    </button>
+                    <button class="btn btn-danger" id="bulk-reject">
+                        <i class="fas fa-times"></i> Reject Selected
+                    </button>
+                    <button class="btn btn-success" id="bulk-process">
+                        <i class="fas fa-check-double"></i> Mark as Processed
+                    </button>
+                    <button class="btn btn-secondary" id="clear-selection">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search by email, request ID, or bank details...">
+                </div>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">All Requests</button>
+                    <button class="filter-tab" data-filter="pending">Pending</button>
+                    <button class="filter-tab" data-filter="approved">Approved</button>
+                    <button class="filter-tab" data-filter="processing">Processing</button>
+                    <button class="filter-tab" data-filter="processed">Processed</button>
+                    <button class="filter-tab" data-filter="rejected">Rejected</button>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" id="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn btn-primary" id="export-btn">
+                        <i class="fas fa-file-export"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="table-title">Withdrawal Requests</div>
+                    <div class="table-actions">
+                        <div class="table-info">
+                            Showing <span id="showing-count">0-0</span> of <span id="total-count">0</span> requests
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="withdrawals-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30px;">
+                                    <input type="checkbox" id="select-all" class="bulk-select">
+                                </th>
+                                <th>Request ID</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Bank Details</th>
+                                <th>Status</th>
+                                <th>Created Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Data will be loaded here via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-text">Action completed successfully</span>
+    </div>
+
+    <!-- Withdrawal Details Modal -->
+    <div class="modal" id="details-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Withdrawal Request Details</h2>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3 class="section-title">Request Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Request ID</div>
+                            <div class="info-value" id="detail-id">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">
+                                <span class="status-badge status-pending" id="detail-status">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Created Date</div>
+                            <div class="info-value" id="detail-created">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Amount</div>
+                            <div class="info-value large" id="detail-amount">₹ 0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">User Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Full Name</div>
+                            <div class="info-value" id="detail-user-name">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value" id="detail-user-email">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Account Balance</div>
+                            <div class="info-value" id="detail-balance">₹ 0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">Bank Details</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Bank Name</div>
+                            <div class="info-value" id="detail-bank-name">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Account Holder</div>
+                            <div class="info-value" id="detail-account-holder">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Account Number</div>
+                            <div class="info-value" id="detail-account-number">Loading...</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">IFSC Code</div>
+                            <div class="info-value" id="detail-ifsc">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">Request Timeline</h3>
+                    <div class="timeline" id="timeline">
+                        <!-- Timeline will be populated here -->
+                    </div>
+                </div>
+
+                <div class="modal-section">
+                    <h3 class="section-title">Admin Notes</h3>
+                    <textarea id="admin-notes" rows="3" placeholder="Add notes or reason for rejection..." style="width: 100%; padding: 15px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-primary); font-size: 15px; outline: none; resize: vertical;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                <button class="btn btn-danger" id="reject-modal-btn">Reject</button>
+                <button class="btn btn-success" id="approve-modal-btn">Approve</button>
+                <button class="btn btn-primary" id="process-modal-btn">Mark as Processed</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let allWithdrawals = [];
+        let filteredWithdrawals = [];
+        let currentFilter = 'all';
+        let selectedIds = new Set();
+        let currentRequestId = null;
+        let autoRefreshInterval = null;
+
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.getElementById('hamburger');
+        const searchInput = document.getElementById('search-input');
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const tableBody = document.getElementById('table-body');
+        const detailsModal = document.getElementById('details-modal');
+        const modalClose = document.getElementById('modal-close');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const approveModalBtn = document.getElementById('approve-modal-btn');
+        const rejectModalBtn = document.getElementById('reject-modal-btn');
+        const processModalBtn = document.getElementById('process-modal-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const selectAllCheckbox = document.getElementById('select-all');
+        const bulkActionsContainer = document.getElementById('bulk-actions');
+        const selectedCountSpan = document.getElementById('selected-count');
+        const bulkApproveBtn = document.getElementById('bulk-approve');
+        const bulkRejectBtn = document.getElementById('bulk-reject');
+        const bulkProcessBtn = document.getElementById('bulk-process');
+        const clearSelectionBtn = document.getElementById('clear-selection');
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            initPage();
+            setupEventListeners();
+            startAutoRefresh();
+        });
+
+        async function initPage() {
+            showLoading(true);
+            try {
+                await fetchWithdrawalData();
+            } catch (error) {
+                console.error('Error initializing page:', error);
+                showNotification('Failed to load withdrawal data', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function fetchWithdrawalData() {
+            try {
+                const response = await fetch('/api/admin/withdrawal-requests', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    } else if (response.status === 403) {
+                        showNotification('Access denied. Admin privileges required.', 'error');
+                        return;
+                    }
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    allWithdrawals = data.withdrawal_requests || [];
+                    filteredWithdrawals = [...allWithdrawals];
+
+                    // Update statistics
+                    updateStats();
+
+                    renderTable();
+                    updateTableInfo();
+                } else {
+                    throw new Error(data.error || 'Failed to fetch withdrawal data');
+                }
+            } catch (error) {
+                console.error('Error fetching withdrawal data:', error);
+                showNotification('Failed to load withdrawal data. Please try again.', 'error');
+                throw error;
+            }
+        }
+
+        function updateStats() {
+            // Calculate stats from data
+            let totalAmount = 0;
+            let pending = 0;
+            let approved = 0;
+            let processing = 0;
+            let processed = 0;
+            let rejected = 0;
+
+            allWithdrawals.forEach(w => {
+                totalAmount += w.amount || 0;
+                const status = w.status || 'pending';
+
+                if (status === 'pending') pending++;
+                else if (status === 'approved') approved++;
+                else if (status === 'processing') processing++;
+                else if (status === 'processed') processed++;
+                else if (status === 'rejected') rejected++;
+            });
+
+            // Update DOM elements
+            document.getElementById('total-withdrawals').textContent = formatCurrency(totalAmount);
+            document.getElementById('pending-count').textContent = pending;
+            document.getElementById('processing-count').textContent = processing;
+            document.getElementById('completed-count').textContent = processed;
+            document.getElementById('rejected-count').textContent = rejected;
+
+            // Update change indicators
+            document.querySelectorAll('.stat-change').forEach(el => {
+                el.textContent = '';
+            });
+        }
+
+        function renderTable() {
+            if (filteredWithdrawals.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-inbox" style="font-size: 48px; color: var(--text-secondary); margin-bottom: 15px; display: block;"></i>
+                            <h3 style="color: var(--text-secondary); margin-bottom: 10px;">No withdrawal requests found</h3>
+                            <p style="color: var(--text-secondary);">Try changing your filters or search criteria</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            filteredWithdrawals.forEach(withdrawal => {
+                const isSelected = selectedIds.has(withdrawal.request_id);
+                const formattedAmount = formatCurrency(withdrawal.amount);
+                const formattedDate = formatTimestamp(withdrawal.created_at);
+                const status = withdrawal.status || 'pending';
+                const statusClass = `status-${status}`;
+                const statusText = status.charAt(0).toUpperCase() + status.slice(1);
+
+                // Use backend-provided data or create fallbacks
+                const userEmail = withdrawal.user_email || '';
+                const userName = withdrawal.user_name || '';
+                const bankName = withdrawal.bank_name || '';
+
+                // Create masked account number
+                let maskedAccount = '****';
+                if (withdrawal.account_number) {
+                    const accNum = String(withdrawal.account_number);
+                    maskedAccount = '****' + (accNum.length >= 4 ? accNum.slice(-4) : accNum);
+                }
+
+                const requestId = withdrawal.request_id || '';
+
+                html += `
+                    <tr data-id="${requestId}">
+                        <td>
+                            <input type="checkbox" class="bulk-select row-select" data-id="${requestId}" ${isSelected ? 'checked' : ''}>
+                        </td>
+                        <td><strong>${requestId}</strong></td>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-email">${userEmail}</div>
+                                <div class="user-name">${userName}</div>
+                            </div>
+                        </td>
+                        <td class="amount">${formattedAmount}</td>
+                        <td>
+                            <div class="bank-info">
+                                <div class="bank-name">${bankName}</div>
+                                <div class="account-number">${maskedAccount}</div>
+                            </div>
+                        </td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td class="date">${formattedDate}</td>
+                        <td>
+                            <div class="action-buttons-cell">
+                                <button class="action-btn view" data-id="${requestId}" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${status === 'pending' ? `
+                                    <button class="action-btn approve" data-id="${requestId}" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="action-btn reject" data-id="${requestId}" title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : ''}
+                                ${status === 'approved' ? `
+                                    <button class="action-btn process" data-id="${requestId}" title="Mark as Processed">
+                                        <i class="fas fa-check-double"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+
+            // Add event listeners to action buttons
+            document.querySelectorAll('.action-btn.view').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    showWithdrawalDetails(id);
+                });
+            });
+
+            document.querySelectorAll('.action-btn.approve').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    if (confirm(`Approve withdrawal request ${id}?`)) {
+                        updateWithdrawalStatus(id, 'approved');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.action-btn.reject').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const reason = prompt('Please provide a reason for rejection:');
+                    if (reason !== null && reason.trim()) {
+                        updateWithdrawalStatus(id, 'rejected', reason.trim());
+                    } else if (reason !== null) {
+                        showNotification('Please provide a reason for rejection', 'error');
+                    }
+                });
+            });
+
+            document.querySelectorAll('.action-btn.process').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    if (confirm(`Mark withdrawal request ${id} as processed?`)) {
+                        updateWithdrawalStatus(id, 'processed');
+                    }
+                });
+            });
+
+            // Add event listeners to row checkboxes
+            document.querySelectorAll('.row-select').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const id = e.target.dataset.id;
+                    if (e.target.checked) {
+                        selectedIds.add(id);
+                    } else {
+                        selectedIds.delete(id);
+                        selectAllCheckbox.checked = false;
+                    }
+                    updateBulkActions();
+                });
+            });
+        }
+
+        function updateTableInfo() {
+            const showingEnd = filteredWithdrawals.length;
+            const totalCount = allWithdrawals.length;
+
+            document.getElementById('showing-count').textContent = `1-${showingEnd}`;
+            document.getElementById('total-count').textContent = totalCount;
+        }
+
+        async function showWithdrawalDetails(requestId) {
+            showLoading(true);
+            try {
+                // Find the withdrawal in our current data
+                const withdrawal = allWithdrawals.find(w => w.request_id === requestId);
+                if (!withdrawal) {
+                    showNotification('Withdrawal request not found', 'error');
+                    return;
+                }
+
+                currentRequestId = requestId;
+
+                // Populate modal with withdrawal data
+                document.getElementById('detail-id').textContent = withdrawal.request_id || 'N/A';
+
+                // Set status with proper formatting
+                const status = withdrawal.status || 'pending';
+                const statusElement = document.getElementById('detail-status');
+                statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                statusElement.className = `status-badge status-${status}`;
+
+                document.getElementById('detail-created').textContent = formatTimestamp(withdrawal.created_at);
+                document.getElementById('detail-amount').textContent = formatCurrency(withdrawal.amount || 0);
+                document.getElementById('detail-user-name').textContent = withdrawal.user_name || '';
+                document.getElementById('detail-user-email').textContent = withdrawal.user_email || '';
+
+                // Create masked account number
+                let accountNumber = 'N/A';
+                if (withdrawal.account_number) {
+                    const accNum = String(withdrawal.account_number);
+                    accountNumber = `XXXXXXXXXX${accNum.length >= 4 ? accNum.slice(-4) : ''}`;
+                }
+                document.getElementById('detail-account-number').textContent = accountNumber;
+
+                document.getElementById('detail-bank-name').textContent = withdrawal.bank_name || '';
+                document.getElementById('detail-account-holder').textContent = withdrawal.user_name || '';
+                document.getElementById('detail-ifsc').textContent = withdrawal.ifsc_code || '';
+                document.getElementById('admin-notes').value = withdrawal.remarks || '';
+
+                // Try to fetch user balance from API if user_email exists
+                if (withdrawal.user_email) {
+                    try {
+                        const userResponse = await fetch(`/api/admin/user/${encodeURIComponent(withdrawal.user_email)}`);
+                        if (userResponse.ok) {
+                            const userData = await userResponse.json();
+                            if (userData.success && userData.user) {
+                                document.getElementById('detail-balance').textContent = formatCurrency(userData.user.inr_balance || 0);
+                            } else {
+                                document.getElementById('detail-balance').textContent = 'N/A';
+                            }
+                        } else {
+                            document.getElementById('detail-balance').textContent = 'N/A';
+                        }
+                    } catch (error) {
+                        console.error('Error fetching user details:', error);
+                        document.getElementById('detail-balance').textContent = 'N/A';
+                    }
+                } else {
+                    document.getElementById('detail-balance').textContent = 'N/A';
+                }
+
+                // Update timeline
+                const timeline = document.getElementById('timeline');
+                let timelineHtml = '';
+
+                // Created event
+                timelineHtml += `
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-date">${formatTimestamp(withdrawal.created_at)}</div>
+                            <div class="timeline-text">Withdrawal request submitted</div>
+                        </div>
+                    </div>
+                `;
+
+                // Status changes
+                if (status === 'approved' || status === 'processing' || status === 'processed') {
+                    const processedTime = withdrawal.processed_at || withdrawal.created_at;
+                    timelineHtml += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot completed"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">${formatTimestamp(processedTime)}</div>
+                                <div class="timeline-text">Request approved by Admin</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (status === 'processing') {
+                    timelineHtml += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot pending"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">${formatTimestamp(Date.now() / 1000)}</div>
+                                <div class="timeline-text">Transfer initiated, awaiting bank processing</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (status === 'processed') {
+                    const processedTime = withdrawal.processed_at || withdrawal.created_at + 3600;
+                    timelineHtml += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot completed"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">${formatTimestamp(processedTime)}</div>
+                                <div class="timeline-text">Transfer completed successfully</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (status === 'rejected') {
+                    const processedTime = withdrawal.processed_at || withdrawal.created_at;
+                    timelineHtml += `
+                        <div class="timeline-item">
+                            <div class="timeline-dot rejected"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-date">${formatTimestamp(processedTime)}</div>
+                                <div class="timeline-text">Request rejected by Admin</div>
+                                ${withdrawal.remarks ? `<div class="timeline-text" style="margin-top: 5px; color: var(--danger-color);"><strong>Reason:</strong> ${withdrawal.remarks}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                timeline.innerHTML = timelineHtml;
+
+                // Show/hide action buttons based on current status
+                approveModalBtn.style.display = status === 'pending' ? 'inline-block' : 'none';
+                rejectModalBtn.style.display = status === 'pending' ? 'inline-block' : 'none';
+                processModalBtn.style.display = status === 'approved' ? 'inline-block' : 'none';
+
+                // Show modal
+                detailsModal.classList.add('active');
+            } catch (error) {
+                console.error('Error showing withdrawal details:', error);
+                showNotification('Failed to load withdrawal details', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function updateWithdrawalStatus(requestId, status, notes = '') {
+            if (!requestId) return;
+
+            const withdrawal = allWithdrawals.find(w => w.request_id === requestId);
+            if (withdrawal) {
+                if (status === 'rejected' && withdrawal.amount > 50000) {
+                    if (!confirm(`Warning: This is a large withdrawal (₹${formatCurrency(withdrawal.amount)}). Are you sure you want to reject?`)) {
+                        return;
+                    }
+                }
+
+                if (status === 'approved' && withdrawal.amount > 100000) {
+                    if (!confirm(`Warning: This is a large withdrawal (₹${formatCurrency(withdrawal.amount)}). Are you sure all checks are completed?`)) {
+                        return;
+                    }
+                }
+            }
+
+            showLoading(true);
+            try {
+                const response = await fetch('/api/admin/update-withdrawal-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        request_id: requestId,
+                        status: status,
+                        remarks: notes
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(`Withdrawal request ${requestId} ${status} successfully`, 'success');
+
+                    // Close modal if open
+                    detailsModal.classList.remove('active');
+
+                    // Remove from selected if it was there
+                    if (selectedIds.has(requestId)) {
+                        selectedIds.delete(requestId);
+                        updateBulkActions();
+                    }
+
+                    // Refresh data
+                    await fetchWithdrawalData();
+                } else {
+                    throw new Error(data.error || 'Failed to update withdrawal status');
+                }
+            } catch (error) {
+                console.error('Error updating withdrawal status:', error);
+                showNotification('Failed to update withdrawal status', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function setupEventListeners() {
+            // Sidebar toggle for mobile
+            hamburger.addEventListener('click', () => {
+                sidebar.classList.toggle('active');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 1024 &&
+                    !sidebar.contains(e.target) &&
+                    e.target !== hamburger &&
+                    !hamburger.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            });
+
+            // Search functionality - client-side
+            searchInput.addEventListener('input', debounce(() => {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                if (searchTerm) {
+                    filteredWithdrawals = allWithdrawals.filter(w =>
+                        (w.user_email && w.user_email.toLowerCase().includes(searchTerm)) ||
+                        (w.user_name && w.user_name.toLowerCase().includes(searchTerm)) ||
+                        (w.request_id && w.request_id.toLowerCase().includes(searchTerm)) ||
+                        (w.bank_name && w.bank_name.toLowerCase().includes(searchTerm))
+                    );
+                } else {
+                    filteredWithdrawals = [...allWithdrawals];
+                }
+                renderTable();
+                updateTableInfo();
+            }, 300));
+
+            // Filter tabs - client-side filtering
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    filterTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentFilter = tab.dataset.filter;
+
+                    if (currentFilter === 'all') {
+                        filteredWithdrawals = [...allWithdrawals];
+                    } else {
+                        filteredWithdrawals = allWithdrawals.filter(w =>
+                            w.status === currentFilter
+                        );
+                    }
+                    renderTable();
+                    updateTableInfo();
+                });
+            });
+
+            // Refresh button
+            refreshBtn.addEventListener('click', () => {
+                refreshData();
+            });
+
+            // Export button
+            exportBtn.addEventListener('click', () => {
+                exportToCSV();
+            });
+
+            // Modal close buttons
+            modalClose.addEventListener('click', () => {
+                detailsModal.classList.remove('active');
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                detailsModal.classList.remove('active');
+            });
+
+            // Close modal when clicking outside
+            detailsModal.addEventListener('click', (e) => {
+                if (e.target === detailsModal) {
+                    detailsModal.classList.remove('active');
+                }
+            });
+
+            // Action buttons in modal
+            approveModalBtn.addEventListener('click', () => {
+                updateWithdrawalStatus(currentRequestId, 'approved');
+            });
+
+            rejectModalBtn.addEventListener('click', () => {
+                const notes = document.getElementById('admin-notes').value;
+                if (!notes.trim()) {
+                    showNotification('Please provide a reason for rejection', 'error');
+                    return;
+                }
+                updateWithdrawalStatus(currentRequestId, 'rejected', notes);
+            });
+
+            processModalBtn.addEventListener('click', () => {
+                updateWithdrawalStatus(currentRequestId, 'processed');
+            });
+
+            // Bulk actions
+            selectAllCheckbox.addEventListener('change', toggleSelectAll);
+            bulkApproveBtn.addEventListener('click', () => {
+                if (selectedIds.size === 0) return;
+                bulkUpdateStatus('approved');
+            });
+            bulkRejectBtn.addEventListener('click', () => {
+                if (selectedIds.size === 0) return;
+                const notes = prompt('Please provide a reason for rejection:');
+                if (notes === null) return;
+                if (!notes.trim()) {
+                    showNotification('Please provide a reason for rejection', 'error');
+                    return;
+                }
+                bulkUpdateStatus('rejected', notes);
+            });
+            bulkProcessBtn.addEventListener('click', () => {
+                if (selectedIds.size === 0) return;
+                bulkUpdateStatus('processed');
+            });
+            clearSelectionBtn.addEventListener('click', clearSelection);
+        }
+
+        function toggleSelectAll() {
+            const isChecked = selectAllCheckbox.checked;
+
+            if (isChecked) {
+                filteredWithdrawals.forEach(item => {
+                    selectedIds.add(item.request_id);
+                });
+            } else {
+                selectedIds.clear();
+            }
+
+            // Update checkboxes in table
+            document.querySelectorAll('.row-select').forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+
+            updateBulkActions();
+        }
+
+        function updateBulkActions() {
+            const count = selectedIds.size;
+            selectedCountSpan.textContent = count;
+
+            if (count > 0) {
+                bulkActionsContainer.classList.add('active');
+            } else {
+                bulkActionsContainer.classList.remove('active');
+                selectAllCheckbox.checked = false;
+            }
+        }
+
+        function clearSelection() {
+            selectedIds.clear();
+            selectAllCheckbox.checked = false;
+            updateBulkActions();
+
+            // Update checkboxes in table
+            document.querySelectorAll('.row-select').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        async function refreshData() {
+            showLoading(true);
+            try {
+                await fetchWithdrawalData();
+                showNotification('Data refreshed successfully', 'success');
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                showNotification('Failed to refresh data', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function exportToCSV() {
+            const dataToExport = filteredWithdrawals.length > 0 ? filteredWithdrawals : allWithdrawals;
+
+            if (dataToExport.length === 0) {
+                showNotification('No data to export', 'error');
+                return;
+            }
+
+            // Create CSV content
+            let csvContent = 'Request ID,User Name,User Email,Amount,Bank Name,Account Number,IFSC Code,Status,Created Date,Remarks\n';
+
+            dataToExport.forEach(withdrawal => {
+                const row = [
+                    withdrawal.request_id || '',
+                    withdrawal.user_name || '',
+                    withdrawal.user_email || '',
+                    withdrawal.amount || 0,
+                    withdrawal.bank_name || '',
+                    withdrawal.account_number || '',
+                    withdrawal.ifsc_code || '',
+                    withdrawal.status || '',
+                    formatTimestamp(withdrawal.created_at),
+                    withdrawal.remarks || ''
+                ].map(field => {
+                    // Escape quotes and wrap in quotes
+                    const str = String(field);
+                    return `"${str.replace(/"/g, '""')}"`;
+                }).join(',');
+
+                csvContent += row + '\n';
+            });
+
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `withdrawals_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showNotification(`Exported ${dataToExport.length} records to CSV`, 'success');
+        }
+
+        function startAutoRefresh() {
+            // Auto-refresh every 60 seconds
+            autoRefreshInterval = setInterval(() => {
+                console.log('Auto-refreshing withdrawal data...');
+                fetchWithdrawalData();
+            }, 60000);
+        }
+
+        function showLoading(show) {
+            if (show) {
+                loadingOverlay.classList.add('active');
+            } else {
+                loadingOverlay.classList.remove('active');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            notificationText.textContent = message;
+            notification.className = `notification ${type}`;
+
+            // Update icon based on type
+            const icon = notification.querySelector('i');
+            icon.className = type === 'success' ? 'fas fa-check-circle' :
+                            type === 'error' ? 'fas fa-exclamation-circle' :
+                            'fas fa-info-circle';
+
+            notification.classList.add('show');
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 5000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                minimumFractionDigits: 2
+            }).format(amount);
+        }
+
+        function formatTimestamp(timestamp) {
+            if (!timestamp) return 'N/A';
+
+            const date = new Date(timestamp * 1000);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>	

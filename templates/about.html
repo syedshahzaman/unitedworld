@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNITED WORLD | About & Legal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS VARIABLES & RESET ===== */
+        :root {
+            /* Enhanced Color Palette (Matching Accelerate Mode) */
+            --black-900: #05050A;
+            --black-800: #0A0A14;
+            --black-700: #10101E;
+            --black-600: #1A1A2E;
+
+            --navy-900: #0C1220;
+            --navy-800: #121B30;
+            --navy-700: #1A2640;
+            --navy-600: #223354;
+
+            --neon-blue: #00D4FF;
+            --neon-cyan: #00F5FF;
+            --electric-blue: #0066FF;
+            --vibrant-blue: #007BFF;
+            --gold-accent: #FFD700;
+            --emerald: #10B981;
+            --ruby: #EF4444;
+
+            --gray-100: #F8FAFC;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-500: #64748B;
+            --gray-700: #334155;
+            --gray-900: #0F172A;
+
+            --glass-bg: rgba(26, 38, 64, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-highlight: rgba(255, 255, 255, 0.05);
+            --glass-blur: blur(24px);
+            --glass-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-heading: 'Plus Jakarta Sans', var(--font-primary);
+            --font-mono: 'SF Mono', 'Roboto Mono', monospace;
+
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 0.75rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+            --space-4xl: 6rem;
+
+            /* Transitions */
+            --transition-fast: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: 600ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(0, 102, 255, 0.08) 0%, transparent 50%),
+                linear-gradient(135deg, var(--black-900) 0%, var(--navy-900) 100%);
+            color: var(--gray-100);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 245, 255, 0.02) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--space-lg);
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(12, 18, 32, 0.85);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 1000;
+            padding: var(--space-sm) 0;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: var(--space-xl);
+        }
+
+        .nav-link {
+            color: var(--gray-300);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            padding: var(--space-xs) 0;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--neon-blue);
+        }
+
+        .nav-link.active {
+            color: var(--neon-blue);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--neon-blue);
+            border-radius: 1px;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            padding: var(--space-4xl) 0 var(--space-3xl);
+            text-align: center;
+            margin-top: 80px;
+        }
+
+        .hero-title {
+            font-family: var(--font-heading);
+            font-size: clamp(3rem, 8vw, 4rem);
+            font-weight: 800;
+            margin-bottom: var(--space-md);
+            background: linear-gradient(135deg, var(--gray-100) 0%, var(--neon-blue) 50%, var(--neon-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray-300);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ===== CONTENT SIDEBAR LAYOUT ===== */
+        .content-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: var(--space-2xl);
+            margin: var(--space-3xl) 0;
+        }
+
+        /* ===== SIDEBAR NAVIGATION ===== */
+        .sidebar {
+            position: sticky;
+            top: 120px;
+            height: fit-content;
+        }
+
+        .sidebar-nav {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--space-lg);
+            padding: var(--space-lg);
+        }
+
+        .sidebar-title {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gray-500);
+            margin-bottom: var(--space-md);
+            font-weight: 600;
+        }
+
+        .sidebar-links {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+
+        .sidebar-link {
+            color: var(--gray-300);
+            text-decoration: none;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--space-sm);
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-size: 0.9375rem;
+        }
+
+        .sidebar-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--neon-blue);
+            transform: translateX(4px);
+        }
+
+        .sidebar-link.active {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--neon-blue);
+            border-left: 3px solid var(--neon-blue);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            min-height: 100vh;
+        }
+
+        .content-section {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--space-lg);
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-2xl);
+            transition: transform var(--transition-base);
+        }
+
+        .content-section:hover {
+            transform: translateY(-2px);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+
+        .content-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-blue), transparent);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 102, 255, 0.1));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-blue);
+            font-size: 1.25rem;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-100);
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--gray-500);
+            margin-top: var(--space-xs);
+        }
+
+        /* ===== CONTENT STYLES ===== */
+        .content-body {
+            line-height: 1.7;
+        }
+
+        .content-body h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-100);
+            margin: var(--space-xl) 0 var(--space-md);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .content-body h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-200);
+            margin: var(--space-lg) 0 var(--space-sm);
+        }
+
+        .content-body p {
+            margin-bottom: var(--space-lg);
+            color: var(--gray-300);
+        }
+
+        .content-body ul, .content-body ol {
+            margin: var(--space-lg) 0 var(--space-lg) var(--space-xl);
+            color: var(--gray-300);
+        }
+
+        .content-body li {
+            margin-bottom: var(--space-sm);
+        }
+
+        .highlight-box {
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 4px solid var(--neon-blue);
+            padding: var(--space-lg);
+            border-radius: var(--space-sm);
+            margin: var(--space-lg) 0;
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.05);
+            border-left: 4px solid var(--ruby);
+            padding: var(--space-lg);
+            border-radius: var(--space-sm);
+            margin: var(--space-lg) 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-xl) 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--space-md);
+            padding: var(--space-lg);
+            transition: all var(--transition-base);
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+
+        .info-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--neon-blue);
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .info-card-text {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            line-height: 1.6;
+        }
+
+        .legal-section {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: var(--space-xl);
+            margin-top: var(--space-xl);
+        }
+
+        .legal-section h3 {
+            color: var(--gray-400);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: var(--space-lg);
+        }
+
+        /* ===== TEAM SECTION ===== */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-xl);
+            margin: var(--space-xl) 0;
+        }
+
+        .team-member {
+            text-align: center;
+            padding: var(--space-xl);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--space-lg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all var(--transition-base);
+        }
+
+        .team-member:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+            border-radius: 50%;
+            margin: 0 auto var(--space-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--gray-100);
+        }
+
+        .member-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-100);
+            margin-bottom: var(--space-xs);
+        }
+
+        .member-role {
+            font-size: 0.875rem;
+            color: var(--neon-blue);
+            margin-bottom: var(--space-sm);
+        }
+
+        .member-bio {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        /* ===== CONTACT SECTION ===== */
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-lg);
+            margin: var(--space-xl) 0;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-lg);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--space-md);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 102, 255, 0.1));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--neon-blue);
+        }
+
+        .contact-details h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-100);
+            margin-bottom: 2px;
+        }
+
+        .contact-details p {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin: 0;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: var(--space-2xl) 0 var(--space-xl);
+            margin-top: var(--space-3xl);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .footer-logo {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gray-100), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-tagline {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .footer-link {
+            color: var(--gray-500);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .footer-link:hover {
+            color: var(--neon-blue);
+            transform: translateX(4px);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            color: var(--gray-700);
+            font-size: 0.8125rem;
+            margin-top: var(--space-xl);
+            padding-top: var(--space-xl);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .content-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+                margin-bottom: var(--space-2xl);
+            }
+            
+            .sidebar-nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--space-sm);
+            }
+            
+            .sidebar-links {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                padding: var(--space-2xl) 0;
+                margin-top: 70px;
+            }
+            
+            .hero-title {
+                font-size: clamp(2.5rem, 8vw, 3rem);
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .content-section {
+                padding: var(--space-xl);
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--space-sm);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 var(--space-md);
+            }
+            
+            .team-grid,
+            .info-grid,
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-section {
+                padding: var(--space-lg);
+            }
+        }
+
+        /* ===== UTILITIES ===== */
+        .text-gradient {
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mb-sm { margin-bottom: var(--space-sm); }
+        .mb-md { margin-bottom: var(--space-md); }
+        .mb-lg { margin-bottom: var(--space-lg); }
+        .mb-xl { margin-bottom: var(--space-xl); }
+
+        .mt-sm { margin-top: var(--space-sm); }
+        .mt-md { margin-top: var(--space-md); }
+        .mt-lg { margin-top: var(--space-lg); }
+        .mt-xl { margin-top: var(--space-xl); }
+
+        .text-center { text-align: center; }
+        .text-small { font-size: 0.875rem; }
+        .text-muted { color: var(--gray-500); }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <div class="logo-container">
+                <div class="logo">UNITED WORLD</div>
+            </div>
+            <nav class="nav-links">
+                <a href="/trade" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    Trading
+                </a>
+                <a href="/accelerate" class="nav-link">
+                    <i class="fas fa-rocket"></i>
+                    Accelerate
+                </a>
+                <a href="/wallet" class="nav-link">
+                    <i class="fas fa-wallet"></i>
+                    Wallet
+                </a>
+                <a href="/about" class="nav-link active">
+                    <i class="fas fa-info-circle"></i>
+                    About & Legal
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">About UNITED WORLD</h1>
+            <p class="hero-subtitle">Transparency, Innovation, and Trust in Financial Acceleration</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container content-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-nav">
+                <h3 class="sidebar-title">Navigation</h3>
+                <div class="sidebar-links">
+                    <a href="#about" class="sidebar-link active">
+                        <i class="fas fa-building"></i>
+                        About Us
+                    </a>
+                    <a href="#mission" class="sidebar-link">
+                        <i class="fas fa-bullseye"></i>
+                        Mission & Vision
+                    </a>
+                    <a href="#team" class="sidebar-link">
+                        <i class="fas fa-users"></i>
+                        Our Team
+                    </a>
+                    <a href="#privacy" class="sidebar-link">
+                        <i class="fas fa-shield-alt"></i>
+                        Privacy Policy
+                    </a>
+                    <a href="#terms" class="sidebar-link">
+                        <i class="fas fa-file-contract"></i>
+                        Terms of Service
+                    </a>
+                    <a href="#legal" class="sidebar-link">
+                        <i class="fas fa-balance-scale"></i>
+                        Legal Information
+                    </a>
+                    <a href="#compliance" class="sidebar-link">
+                        <i class="fas fa-certificate"></i>
+                        Compliance
+                    </a>
+                    <a href="#contact" class="sidebar-link">
+                        <i class="fas fa-envelope"></i>
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Sections -->
+        <main class="main-content">
+            <!-- About Us Section -->
+            <section id="about" class="content-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">About UNITED WORLD</h2>
+                        <p class="section-subtitle">Pioneering the future of financial acceleration</p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <p>UNITED WORLD is a cutting-edge financial acceleration platform designed to revolutionize how individuals and institutions interact with dynamic financial markets. Founded on principles of transparency, innovation, and user empowerment, we provide sophisticated tools for modern financial participation.</p>
+                    
+                    <div class="highlight-box">
+                        <h3>Our Philosophy</h3>
+                        <p>We believe in democratizing access to advanced financial mechanisms while maintaining the highest standards of security, transparency, and ethical operation. Every feature of UNITED WORLD is designed with user empowerment and financial education in mind.</p>
+                    </div>
+                    
+                    <h3>Platform Architecture</h3>
+                    <p>UNITED WORLD operates on a sophisticated multi-layered architecture that ensures stability, security, and real-time responsiveness. Our systems are built with redundancy, failover mechanisms, and continuous monitoring to provide uninterrupted service.</p>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-lock"></i>
+                                Security First
+                            </div>
+                            <div class="info-card-text">
+                                Enterprise-grade encryption, multi-signature wallets, and continuous security audits.
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-bolt"></i>
+                                Real-Time Processing
+                            </div>
+                            <div class="info-card-text">
+                                High-frequency processing engine capable of handling thousands of transactions per second.
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-chart-network"></i>
+                                Advanced Analytics
+                            </div>
+                            <div class="info-card-text">
+                                Sophisticated algorithms providing market insights and predictive analytics.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mission & Vision -->
+            <section id="mission" class="content-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Mission & Vision</h2>
+                        <p class="section-subtitle">Our guiding principles and future direction</p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <h3>Our Mission</h3>
+                    <p>To create a transparent, accessible, and innovative financial ecosystem that empowers users to participate in sophisticated market mechanisms with confidence and clarity. We aim to bridge the gap between traditional financial understanding and emerging financial technologies.</p>
+                    
+                    <h3>Our Vision</h3>
+                    <p>To become the global standard for transparent financial acceleration platforms, recognized for our commitment to user education, system integrity, and technological innovation. We envision a future where financial participation is accessible, understandable, and rewarding for everyone.</p>
+                    
+                    <h3>Core Values</h3>
+                    <ul>
+                        <li><strong>Transparency:</strong> Complete visibility into system operations and pricing mechanisms</li>
+                        <li><strong>Integrity:</strong> Uncompromising ethical standards in all operations</li>
+                        <li><strong>Innovation:</strong> Continuous improvement and adoption of cutting-edge technologies</li>
+                        <li><strong>Education:</strong> Empowering users through knowledge and understanding</li>
+                        <li><strong>Security:</strong> Prioritizing user asset protection above all else</li>
+                        <li><strong>Community:</strong> Building a supportive ecosystem of informed participants</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Our Team -->
+            <section id="team" class="content-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Our Team</h2>
+                        <p class="section-subtitle">The experts behind UNITED WORLD</p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <p>Our team comprises industry veterans, financial experts, and technology innovators with decades of combined experience in financial markets, blockchain technology, and software engineering.</p>
+                    
+                    <div class="team-grid">
+                        <div class="team-member">
+                            <div class="member-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <h3 class="member-name">Alex Chen</h3>
+                            <p class="member-role">CEO & Founder</p>
+                            <p class="member-bio">Former Goldman Sachs managing director with 15+ years in quantitative finance and blockchain innovation.</p>
+                        </div>
+                        
+                        <div class="team-member">
+                            <div class="member-avatar">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <h3 class="member-name">Dr. Maya Rodriguez</h3>
+                            <p class="member-role">CTO</p>
+                            <p class="member-bio">PhD in Computer Science from Stanford, previously led engineering at Coinbase and ConsenSys.</p>
+                        </div>
+                        
+                        <div class="team-member">
+                            <div class="member-avatar">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="member-name">James Okafor</h3>
+                            <p class="member-role">Security Director</p>
+                            <p class="member-bio">Former cybersecurity lead at DARPA, specializing in cryptographic systems and threat mitigation.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="highlight-box mt-lg">
+                        <h4>Advisory Board</h4>
+                        <p>Our advisory board includes former regulators, financial compliance experts, and technology pioneers who ensure we maintain the highest standards of operation and compliance.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Privacy Policy -->
+            <section id="privacy" class="content-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Privacy Policy</h2>
+                        <p class="section-subtitle">How we protect and handle your information</p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <div class="legal-section">
+                        <h3>Last Updated: January 2024</h3>
+                    </div>
+                    
+                    <h3>Information We Collect</h3>
+                    <p>We collect information necessary to provide our services, including:</p>
+                    <ul>
+                        <li>Account information (email, username, verification documents)</li>
+                        <li>Transaction history and allocation records</li>
+                        <li>Technical data (IP addresses, device information, browser type)</li>
+                        <li>Usage data (platform interactions, feature usage)</li>
+                        <li>Communication records (support tickets, emails)</li>
+                    </ul>
+                    
+                    <h3>How We Use Your Information</h3>
+                    <ul>
+                        <li>To provide and maintain our services</li>
+                        <li>To process transactions and allocations</li>
+                        <li>To ensure platform security and prevent fraud</li>
+                        <li>To communicate important updates and information</li>
+                        <li>To improve our services and user experience</li>
+                        <li>To comply with legal obligations</li>
+                    </ul>
+                    
+                    <div class="warning-box">
+                        <h4>Important Security Note</h4>
+                        <p>We never store your private keys or wallet passwords. All cryptographic operations are performed client-side. We implement industry-standard security measures including end-to-end encryption, multi-factor authentication, and regular security audits.</p>
+                    </div>
+                    
+                    <h3>Data Retention</h3>
+                    <p>We retain your information only for as long as necessary to fulfill the purposes outlined in this policy, unless a longer retention period is required by law. Transaction records are maintained for a minimum of 7 years to comply with financial regulations.</p>
+                    
+                    <h3>Your Rights</h3>
+                    <p>You have the right to:</p>
+                    <ul>
+                        <li>Access your personal information</li>
+                        <li>Request correction of inaccurate data</li>
+                        <li>Request deletion of your data (subject to legal requirements)</li>
+                        <li>Opt-out of marketing communications</li>
+                        <li>Request data portability</li>
+                    </ul>
+                    
+                    <div class="legal-section">
+                        <h3>Contact for Privacy Concerns</h3>
+                        <p>For privacy-related inquiries or to exercise your rights, contact our Data Protection Officer at <strong>dpo@unitedworld.finance</strong>.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Terms of Service -->
+            <section id="terms" class="content-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Terms of Service</h2>
+                        <p class="section-subtitle">Agreement governing platform usage</p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <div class="legal-section">
+                        <h3>Effective Date: January 2024</h3>
+                    </div>
+                    
+                    <div class="warning-box">
+                        <h4>Important Legal Notice</h4>
+                        <p>By accessing or using UNITED WORLD services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree, you must not use our services.</p>
+                    </div>
+                    
+                    <h3>1. Eligibility</h3>
+                    <p>You must be at least 18 years old and have the legal capacity to enter into binding contracts. You must not be a resident of any jurisdiction where our services are prohibited by law.</p>
+                    
+                    <h3>2. Account Responsibility</h3>
+                    <p>You are solely responsible for:</p>
+                    <ul>
+                        <li>Maintaining the confidentiality of your account credentials</li>
+                        <li>All activities that occur under your account</li>
+                        <li>Ensuring your account information is accurate and current</li>
+                        <li>Securing your devices and authentication methods</li>
+                    </ul>
+                    
+                    <h3>3. Service Description</h3>
+                    <p>UNITED WORLD provides:</p>
+                    <ul>
+                        <li>Financial acceleration mechanisms via the Accelerate Mode</li>
+                        <li>Real-time market price information</li>
+                        <li>Wallet services for digital asset storage</li>
+                        <li>Educational resources about system operations</li>
+                    </ul>
+                    
+                    <h3>4. Risk Acknowledgement</h3>
+                    <p>You acknowledge and accept that:</p>
+                    <ul>
+                        <li>All allocations involve financial risk</li>
+                        <li>Past performance does not guarantee future results</li>
+                        <li>System-calculated prices are dynamic and may fluctuate</li>
+                        <li>You are solely responsible for your allocation decisions</li>
+                    </ul>
+                    
+                    <h3>5. Prohibited Activities</h3>
+                    <p>You agree not to:</p>
+                    <ul>
+                        <li>Use the platform for illegal purposes</li>
+                        <li>Attempt to manipulate prices or exploit system vulnerabilities</li>
+                        <li>Use automated systems to interact with the platform without authorization</li>
+                        <li>Provide false or misleading information</li>
+                        <li>Circumvent any security measures</li>
+                    </ul>
+                    
+                    <div class="legal-section">
+                        <h3>6. Limitation of Liability</h3>
+                        <p>To the maximum extent permitted by law, UNITED WORLD shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Legal Information -->
+            <section id="legal" class="content-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Legal Information</h2>
+                        <p class="section-subtitle">Regulatory compliance and legal framework</p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <h3>Corporate Information</h3>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-building"></i>
+                                Registered Entity
+                            </div>
+                            <div class="info-card-text">
+                                UNITED WORLD FINANCIAL TECHNOLOGIES LTD.<br>
+                                Registration Number: UWFT2023-001
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Registered Address
+                            </div>
+                            <div class="info-card-text">
+                                123 Innovation Drive<br>
+                                Financial District<br>
+                                Singapore 018989
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Regulatory Status</h3>
+                    <p>UNITED WORLD operates under the following regulatory frameworks:</p>
+                    <ul>
+                        <li>Registered as a Financial Technology Service Provider under Singapore's Payment Services Act</li>
+                        <li>Compliant with Anti-Money Laundering (AML) regulations</li>
+                        <li>Adheres to Counter Financing of Terrorism (CFT) requirements</li>
+                        <li>Follows Financial Action Task Force (FATF) guidelines</li>
+                        <li>Implements Know Your Customer (KYC) procedures</li>
+                    </ul>
+                    
+                    <div class="highlight-box">
+                        <h4>Licenses and Certifications</h4>
+                        <p>We maintain active licenses and undergo regular third-party audits to ensure compliance with international financial regulations and security standards.</p>
+                    </div>
+                    
+                    <h3>Intellectual Property</h3>
+                    <p>All content, features, and functionality on the UNITED WORLD platform, including but not limited to text, graphics, logos, images, software, and the compilation thereof, are the exclusive property of UNITED WORLD FINANCIAL TECHNOLOGIES LTD. and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.</p>
+                    
+                    <div class="legal-section">
+                        <h3>Dispute Resolution</h3>
+                        <p>Any disputes arising from or relating to these Terms or your use of the platform shall be resolved through binding arbitration in Singapore, in accordance with the Singapore International Arbitration Centre (SIAC) rules.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compliance Section -->
+            <section id="compliance" class="content-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Compliance & Security</h2>
+                        <p class="section-subtitle">Our commitment to regulatory compliance and security</p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <h3>Compliance Framework</h3>
+                    <p>We maintain a comprehensive compliance program that includes:</p>
+                    
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-user-check"></i>
+                                KYC/AML Procedures
+                            </div>
+                            <div class="info-card-text">
+                                Mandatory identity verification for all users, continuous transaction monitoring, and suspicious activity reporting.
+                            </div>
+                        </div>
+                        <div class="info-card">
+                            <div class="info-card-title">
+                                <i class="fas fa-chart-bar"></i>
+                                Risk Assessment
+                            </div>
+                            <div class="info-card-text">
+                                Regular risk assessments, vulnerability testing, and third-party security audits conducted quarterly.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>Security Measures</h3>
+                    <ul>
+                        <li><strong>Encryption:</strong> End-to-end AES-256 encryption for all data transmissions</li>
+                        <li><strong>Wallet Security:</strong> Multi-signature wallets with cold storage for majority of assets</li>
+                        <li><strong>Access Control:</strong> Role-based access control with multi-factor authentication</li>
+                        <li><strong>Monitoring:</strong> 24/7 security monitoring and intrusion detection systems</li>
+                        <li><strong>Audits:</strong> Regular third-party security audits and penetration testing</li>
+                        <li><strong>Insurance:</strong> Comprehensive insurance coverage for digital assets</li>
+                    </ul>
+                    
+                    <div class="warning-box">
+                        <h4>User Security Responsibilities</h4>
+                        <p>While we implement enterprise-grade security measures, users must also take responsibility for their account security. This includes using strong passwords, enabling 2FA, keeping devices secure, and being vigilant against phishing attempts.</p>
+                    </div>
+                    
+                    <h3>Regulatory Reporting</h3>
+                    <p>We maintain records of all transactions and allocations as required by regulatory authorities. These records are securely stored and made available to relevant authorities upon proper request and legal requirement.</p>
+                </div>
+            </section>
+
+            <!-- Contact Us -->
+            <section id="contact" class="content-section">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Contact Us</h2>
+                        <p class="section-subtitle">Get in touch with our team</p>
+                    </div>
+                </div>
+                <div class="content-body">
+                    <p>We value your feedback, questions, and concerns. Please reach out to the appropriate team for the fastest response.</p>
+                    
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>General Support</h4>
+                                <p>support@unitedworld.finance</p>
+                                <p class="text-muted text-small">Response time: 24 hours</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>Security Issues</h4>
+                                <p>security@unitedworld.finance</p>
+                                <p class="text-muted text-small">Critical response: 2 hours</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>Legal & Compliance</h4>
+                                <p>legal@unitedworld.finance</p>
+                                <p class="text-muted text-small">Response time: 48 hours</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>Business Inquiries</h4>
+                                <p>partnerships@unitedworld.finance</p>
+                                <p class="text-muted text-small">Response time: 72 hours</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="highlight-box">
+                        <h4>Emergency Contact</h4>
+                        <p>For account security emergencies or suspected unauthorized access, please call our 24/7 emergency line: <strong>+65 6123 4567</strong> (Available in all time zones).</p>
+                    </div>
+                    
+                    <h3>Office Hours</h3>
+                    <p>Our Singapore headquarters operates Monday through Friday, 9:00 AM to 6:00 PM SGT (GMT+8). Support services are available 24/7 via email with varying response times.</p>
+                    
+                    <div class="legal-section">
+                        <h3>Mailing Address</h3>
+                        <p>For formal communications or legal documents, please use our registered office address:</p>
+                        <p><strong>UNITED WORLD FINANCIAL TECHNOLOGIES LTD.<br>
+                        123 Innovation Drive, Financial District<br>
+                        Singapore 018989<br>
+                        Republic of Singapore</strong></p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">UNITED WORLD</div>
+                    <div class="footer-tagline">Transparent financial acceleration for everyone</div>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="/trade" class="footer-link">
+                        <i class="fas fa-chart-line"></i>
+                        Trading Platform
+                    </a>
+                    <a href="/accelerate" class="footer-link">
+                        <i class="fas fa-rocket"></i>
+                        Accelerate Mode
+                    </a>
+                    <a href="/wallet" class="footer-link">
+                        <i class="fas fa-wallet"></i>
+                        Wallet Services
+                    </a>
+                    <a href="#privacy" class="footer-link">
+                        <i class="fas fa-shield-alt"></i>
+                        Privacy Policy
+                    </a>
+                    <a href="#terms" class="footer-link">
+                        <i class="fas fa-file-contract"></i>
+                        Terms of Service
+                    </a>
+                </div>
+                
+                <div class="footer-links">
+                    <a href="#about" class="footer-link">
+                        <i class="fas fa-info-circle"></i>
+                        About Us
+                    </a>
+                    <a href="#team" class="footer-link">
+                        <i class="fas fa-users"></i>
+                        Our Team
+                    </a>
+                    <a href="#compliance" class="footer-link">
+                        <i class="fas fa-certificate"></i>
+                        Compliance
+                    </a>
+                    <a href="#contact" class="footer-link">
+                        <i class="fas fa-envelope"></i>
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                © 2024 UNITED WORLD FINANCIAL TECHNOLOGIES LTD. All rights reserved.<br>
+                UNITED WORLD is a registered trademark. This platform is intended for qualified users only.<br>
+                <span class="text-muted">Version 2.4.1 | Last Updated: January 17, 2024</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    // Update active states
+                    document.querySelectorAll('.sidebar-link').forEach(link => {
+                        link.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Smooth scroll
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Update active sidebar link on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.content-section');
+            const scrollPosition = window.scrollY + 150;
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                const sectionId = section.getAttribute('id');
+                
+                if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                    document.querySelectorAll('.sidebar-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Add scroll animation to sections
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe sections for scroll animations
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(section);
+        });
+
+        // Initialize with first section active
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial active state
+            const firstLink = document.querySelector('.sidebar-link');
+            if (firstLink) {
+                firstLink.classList.add('active');
+            }
+            
+            // Add subtle animation to team members
+            const teamMembers = document.querySelectorAll('.team-member');
+            teamMembers.forEach((member, index) => {
+                member.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNITED WORLD | Deposit Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS VARIABLES & RESET ===== */
+        :root {
+            /* Color Palette - Institutional Fintech */
+            --black-900: #05050A;
+            --black-800: #0A0A14;
+            --black-700: #10101E;
+            --black-600: #1A1A2E;
+            --navy-900: #0C1220;
+            --navy-800: #121B30;
+            --navy-700: #1A2640;
+            --navy-600: #223354;
+
+            /* Accent Colors */
+            --primary-500: #2D8CFF;
+            --primary-400: #5AA5FF;
+            --primary-300: #89C2FF;
+            --teal-500: #0DC9C9;
+            --cyan-500: #00E0FF;
+
+            /* Status Colors */
+            --success-500: #10B981;
+            --success-300: #34D399;
+            --warning-500: #F59E0B;
+            --warning-300: #FBBF24;
+            --danger-500: #EF4444;
+            --danger-300: #F87171;
+            --info-500: #3B82F6;
+            --info-300: #60A5FA;
+
+            /* Text & UI */
+            --text-primary: #F8FAFC;
+            --text-secondary: #CBD5E1;
+            --text-tertiary: #64748B;
+            --text-disabled: #475569;
+
+            --bg-card: rgba(26, 38, 64, 0.6);
+            --bg-card-hover: rgba(37, 99, 235, 0.05);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(45, 140, 255, 0.3);
+
+            /* Glass Effects */
+            --glass-bg: rgba(26, 38, 64, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(20px);
+            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
+            /* Spacing */
+            --space-xs: 0.5rem;
+            --space-sm: 0.75rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            --space-3xl: 4rem;
+
+            /* Border Radius */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(135deg, var(--black-900) 0%, var(--navy-900) 100%);
+            color: var(--text-primary);
+            line-height: 1.5;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== LAYOUT CONTAINER ===== */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            grid-column: 1;
+            grid-row: 1 / -1;
+            background: var(--navy-800);
+            border-right: 1px solid var(--border-color);
+            padding: var(--space-xl) 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -100%;
+                z-index: 1000;
+                width: 280px;
+                transition: left var(--transition-base);
+                height: 100vh;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 999;
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 0 var(--space-xl) var(--space-xl);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: var(--space-xl);
+        }
+
+        .logo-img {
+            height: 32px;
+            width: auto;
+            filter: brightness(1.1);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: var(--text-primary);
+            font-family: 'Arial Narrow', Arial, sans-serif;
+        }
+
+        .logo-text span {
+            background: linear-gradient(135deg, var(--primary-400), var(--cyan-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 var(--space-md);
+        }
+
+        .nav-item {
+            margin-bottom: var(--space-xs);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-fast);
+            font-weight: 500;
+            font-size: 0.9375rem;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+            border-left: 3px solid var(--primary-400);
+        }
+
+        .nav-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .nav-link.disabled::after {
+            content: '\f023';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.75rem;
+            margin-left: auto;
+            color: var(--text-disabled);
+        }
+
+        .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            grid-column: 2;
+            grid-row: 1;
+            background: var(--navy-800);
+            border-bottom: 1px solid var(--border-color);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        @media (max-width: 1024px) {
+            .header {
+                grid-column: 1;
+            }
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: var(--space-xs);
+            border-radius: var(--radius-sm);
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-xs);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-400), var(--cyan-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .admin-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .admin-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--text-primary);
+        }
+
+        .admin-badge {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-300);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: var(--space-sm) var(--space-lg);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            grid-column: 2;
+            grid-row: 2;
+            padding: var(--space-xl);
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-column: 1;
+                padding: var(--space-lg);
+            }
+        }
+
+        /* ===== DEPOSIT MANAGEMENT ===== */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-2xl);
+            flex-wrap: wrap;
+            gap: var(--space-lg);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-md);
+            align-items: center;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm) var(--space-md);
+            min-width: 300px;
+        }
+
+        .search-box input {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 0.875rem;
+            width: 100%;
+            padding: var(--space-xs);
+        }
+
+        .search-box input:focus {
+            outline: none;
+        }
+
+        .search-box i {
+            color: var(--text-tertiary);
+            margin-right: var(--space-sm);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: var(--space-xs);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: var(--space-xl);
+        }
+
+        .filter-tab {
+            padding: var(--space-sm) var(--space-lg);
+            border: none;
+            background: none;
+            color: var(--text-secondary);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .filter-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-tab.active {
+            background: rgba(45, 140, 255, 0.2);
+            color: var(--primary-400);
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        @media (max-width: 1200px) {
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .stat-box.pending .stat-value {
+            color: var(--warning-500);
+        }
+
+        .stat-box.approved .stat-value {
+            color: var(--success-500);
+        }
+
+        .stat-box.rejected .stat-value {
+            color: var(--danger-500);
+        }
+
+        .stat-box.total .stat-value {
+            color: var(--primary-400);
+        }
+
+        /* ===== DEPOSIT TABLE ===== */
+        .deposit-table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .table-controls {
+            display: flex;
+            gap: var(--space-md);
+            align-items: center;
+        }
+
+        .table-controls select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            padding: var(--space-xs) var(--space-sm);
+            font-family: var(--font-primary);
+            font-size: 0.875rem;
+        }
+
+        .deposit-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .deposit-table thead {
+            background: rgba(26, 38, 64, 0.8);
+        }
+
+        .deposit-table th {
+            padding: var(--space-lg) var(--space-xl);
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .deposit-table tbody tr {
+            border-bottom: 1px solid var(--border-color);
+            transition: background var(--transition-fast);
+        }
+
+        .deposit-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .deposit-table td {
+            padding: var(--space-lg) var(--space-xl);
+            font-size: 0.9375rem;
+            color: var(--text-secondary);
+        }
+
+        .user-cell {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-email {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .user-id {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .amount-cell {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 1.125rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-500);
+        }
+
+        .status-approved {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-500);
+        }
+
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-500);
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .payment-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .action-cell {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            font-family: var(--font-primary);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .action-btn.approve {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-300);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .action-btn.approve:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+
+        .action-btn.reject {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-300);
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .action-btn.reject:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .action-btn.view {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-300);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .action-btn.view:hover {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--text-tertiary);
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: var(--space-lg);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--navy-700);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: var(--space-xl);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: var(--space-xs);
+            border-radius: var(--radius-sm);
+        }
+
+        .modal-close:hover {
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-body {
+            padding: var(--space-xl);
+        }
+
+        .modal-footer {
+            padding: var(--space-xl);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-md);
+        }
+
+        .modal-section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-label {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-bottom: var(--space-xs);
+            font-weight: 500;
+        }
+
+        .modal-value {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .modal-value.large {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-note {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+        }
+
+        .btn {
+            padding: var(--space-sm) var(--space-xl);
+            border-radius: var(--radius-md);
+            font-family: var(--font-primary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-primary {
+            background: rgba(45, 140, 255, 0.2);
+            color: var(--primary-400);
+            border-color: rgba(45, 140, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: rgba(45, 140, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: var(--space-lg) var(--space-xl);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pagination-btn {
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-family: var(--font-primary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .pagination-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .pagination-btn.active {
+            background: rgba(45, 140, 255, 0.2);
+            color: var(--primary-400);
+            border-color: rgba(45, 140, 255, 0.3);
+        }
+
+        .pagination-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+            margin: 0 var(--space-lg);
+        }
+
+        /* ===== LOADING STATES ===== */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-400);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading {
+            opacity: 0.7;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--navy-800);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--navy-600);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--navy-700);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .content-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: auto;
+                width: 100%;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .deposit-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .deposit-table th,
+            .deposit-table td {
+                padding: var(--space-md);
+            }
+
+            .action-cell {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            :root {
+                --space-xl: 1.5rem;
+                --space-2xl: 2rem;
+            }
+
+            .main-content {
+                padding: var(--space-md);
+            }
+
+            .stat-box {
+                padding: var(--space-md);
+            }
+
+            .stat-value {
+                font-size: 1.5rem;
+            }
+
+            .modal {
+                margin: var(--space-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Overlay (Mobile Only) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/uwblank.png" alt="UNITED WORLD Logo" class="logo-img">
+                <div class="logo-text">UNITED <span>WORLD</span></div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/admin" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/users" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/deposits" class="nav-link active">
+                        <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
+                        <span>Deposits</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/withdrawals" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-wallet"></i></span>
+                        <span>Withdrawals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link disabled">
+                        <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                        <span>Market</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="page-title">Deposit Management</h1>
+                    <p class="page-subtitle">Review and process user deposit requests</p>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="admin-info">
+                    <div class="admin-avatar" id="adminAvatar">AW</div>
+                    <div class="admin-details">
+                        <div class="admin-name" id="adminName">Admin Wilson</div>
+                        <div class="admin-badge">ADMIN</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="window.location.href='/logout'">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Content Header -->
+            <div class="content-header">
+                <div>
+                    <h2 style="font-size: 1.75rem; font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-xs);">
+                        Deposit Requests
+                    </h2>
+                    <p style="color: var(--text-tertiary);">
+                        Manage all user deposit requests and verify transactions
+                    </p>
+                </div>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search by email, transaction ID...">
+                    </div>
+                    <button class="btn btn-primary" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-status="all">All Requests</button>
+                <button class="filter-tab" data-status="pending">Pending</button>
+                <button class="filter-tab" data-status="approved">Approved</button>
+                <button class="filter-tab" data-status="rejected">Rejected</button>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="stats-overview">
+                <div class="stat-box total">
+                    <div class="stat-value" id="totalRequests">0</div>
+                    <div class="stat-label">Total Requests</div>
+                </div>
+                <div class="stat-box pending">
+                    <div class="stat-value" id="pendingRequests">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-box approved">
+                    <div class="stat-value" id="approvedRequests">0</div>
+                    <div class="stat-label">Approved</div>
+                </div>
+                <div class="stat-box rejected">
+                    <div class="stat-value" id="rejectedRequests">0</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+
+            <!-- Deposit Requests Table -->
+            <div class="deposit-table-container">
+                <div class="table-header">
+                    <div class="table-title">Recent Deposit Requests</div>
+                    <div class="table-controls">
+                        <select id="rowsPerPage">
+                            <option value="10">10 per page</option>
+                            <option value="25" selected>25 per page</option>
+                            <option value="50">50 per page</option>
+                            <option value="100">100 per page</option>
+                        </select>
+                        <span style="color: var(--text-tertiary); font-size: 0.875rem;">
+                            Sort by: 
+                            <select id="sortBy" style="background: none; border: none; color: var(--text-primary);">
+                                <option value="created_at">Date</option>
+                                <option value="amount">Amount</option>
+                                <option value="status">Status</option>
+                            </select>
+                        </span>
+                    </div>
+                </div>
+
+                <table class="deposit-table">
+                    <thead>
+                        <tr>
+                            <th>Request ID</th>
+                            <th>User</th>
+                            <th>Amount</th>
+                            <th>Transaction ID</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="depositsTableBody">
+                        <!-- Data will be populated by JavaScript -->
+                        <tr>
+                            <td colspan="8" class="no-data">
+                                <div class="loading-spinner"></div>
+                                <div style="margin-top: var(--space-md);">Loading deposit requests...</div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <button class="pagination-btn" id="prevPage" disabled>
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <span class="pagination-info" id="pageInfo">Page 1 of 1</span>
+                    <button class="pagination-btn" id="nextPage" disabled>
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Deposit Details Modal -->
+        <div class="modal-overlay" id="detailsModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 class="modal-title">Deposit Request Details</h3>
+                    <button class="modal-close" id="closeModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="modal-section">
+                        <div class="modal-label">Request ID</div>
+                        <div class="modal-value" id="modalRequestId">DPR1700000000000</div>
+                    </div>
+
+                    <div class="modal-section">
+                        <div class="modal-label">User Information</div>
+                        <div class="modal-value" id="modalUserEmail">user@example.com</div>
+                        <div style="font-size: 0.875rem; color: var(--text-tertiary); margin-top: 2px;" id="modalUserPhone">Phone: +91 9876543210</div>
+                    </div>
+
+                    <div class="modal-section">
+                        <div class="modal-label">Amount</div>
+                        <div class="modal-value large" id="modalAmount">₹ 10,000</div>
+                    </div>
+
+                    <div class="modal-section">
+                        <div class="modal-label">Transaction Details</div>
+                        <div style="background: rgba(255, 255, 255, 0.05); padding: var(--space-md); border-radius: var(--radius-md);">
+                            <div style="margin-bottom: var(--space-sm);">
+                                <div class="modal-label">Transaction ID</div>
+                                <div class="modal-value" id="modalTransactionId">TXN1234567890</div>
+                            </div>
+                            <div>
+                                <div class="modal-label">Payment Method</div>
+                                <div class="modal-value" id="modalPaymentMethod">UPI</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-section">
+                        <div class="modal-label">Status</div>
+                        <div>
+                            <span class="status-badge status-pending" id="modalStatusBadge">Pending</span>
+                        </div>
+                    </div>
+
+                    <div class="modal-section">
+                        <div class="modal-label">Date & Time</div>
+                        <div class="modal-value" id="modalCreatedAt">2024-01-15 14:30:25</div>
+                    </div>
+
+                    <div class="modal-note">
+                        <strong>Note:</strong> Verify the transaction ID with the user's bank statement before approving. Once approved, the amount will be added to the user's INR balance immediately.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button class="btn" id="rejectBtn" style="background: rgba(239, 68, 68, 0.1); color: var(--danger-300); border-color: rgba(239, 68, 68, 0.2);">
+                        Reject Request
+                    </button>
+                    <button class="btn btn-primary" id="approveBtn">
+                        Approve Deposit
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Current state
+        let currentDeposits = [];
+        let filteredDeposits = [];
+        let currentPage = 1;
+        let rowsPerPage = 25;
+        let currentFilter = 'all';
+        let currentSort = 'created_at';
+        let currentRequestId = null;
+
+        // DOM Elements
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const adminAvatar = document.getElementById('adminAvatar');
+        const adminName = document.getElementById('adminName');
+        const searchInput = document.getElementById('searchInput');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const rowsPerPageSelect = document.getElementById('rowsPerPage');
+        const sortBySelect = document.getElementById('sortBy');
+        const depositsTableBody = document.getElementById('depositsTableBody');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const pageInfo = document.getElementById('pageInfo');
+        const totalRequestsEl = document.getElementById('totalRequests');
+        const pendingRequestsEl = document.getElementById('pendingRequests');
+        const approvedRequestsEl = document.getElementById('approvedRequests');
+        const rejectedRequestsEl = document.getElementById('rejectedRequests');
+
+        // Modal Elements
+        const detailsModal = document.getElementById('detailsModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const approveBtn = document.getElementById('approveBtn');
+        const rejectBtn = document.getElementById('rejectBtn');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchUserData();
+            loadDepositRequests();
+            setupEventListeners();
+            setupModalEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mobile menu
+            mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+            sidebarOverlay.addEventListener('click', closeMobileMenu);
+
+            // Search
+            searchInput.addEventListener('input', debounce(filterDeposits, 300));
+
+            // Refresh
+            refreshBtn.addEventListener('click', loadDepositRequests);
+
+            // Filter tabs
+            filterTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const status = tab.dataset.status;
+                    setActiveFilter(status);
+                    filterDeposits();
+                });
+            });
+
+            // Pagination
+            rowsPerPageSelect.addEventListener('change', (e) => {
+                rowsPerPage = parseInt(e.target.value);
+                currentPage = 1;
+                renderTable();
+            });
+
+            sortBySelect.addEventListener('change', (e) => {
+                currentSort = e.target.value;
+                sortDeposits();
+                renderTable();
+            });
+
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(filteredDeposits.length / rowsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+        }
+
+        // Setup modal event listeners
+        function setupModalEventListeners() {
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            approveBtn.addEventListener('click', approveDeposit);
+            rejectBtn.addEventListener('click', rejectDeposit);
+
+            // Close modal on overlay click
+            detailsModal.addEventListener('click', (e) => {
+                if (e.target === detailsModal) {
+                    closeModal();
+                }
+            });
+        }
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        }
+
+        // Fetch admin user data
+        async function fetchUserData() {
+            try {
+                const response = await fetch('/api/user/data');
+                if (!response.ok) throw new Error('Failed to fetch user data');
+                const data = await response.json();
+                
+                if (data.success) {
+                    adminAvatar.textContent = data.avatar_initials || 'AW';
+                    adminName.textContent = data.full_name || 'Admin User';
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        }
+
+        // Load deposit requests from API
+        async function loadDepositRequests() {
+            try {
+                showLoadingState();
+                
+                const response = await fetch('/api/admin/deposit-requests?limit=1000');
+                if (!response.ok) throw new Error('Failed to fetch deposit requests');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentDeposits = data.deposit_requests;
+                    updateStats(currentDeposits);
+                    filterDeposits();
+                } else {
+                    throw new Error(data.error || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error loading deposit requests:', error);
+                showErrorState();
+            }
+        }
+
+        // Update statistics
+        function updateStats(deposits) {
+            const total = deposits.length;
+            const pending = deposits.filter(d => d.status === 'pending').length;
+            const approved = deposits.filter(d => d.status === 'approved').length;
+            const rejected = deposits.filter(d => d.status === 'rejected').length;
+
+            totalRequestsEl.textContent = total;
+            pendingRequestsEl.textContent = pending;
+            approvedRequestsEl.textContent = approved;
+            rejectedRequestsEl.textContent = rejected;
+        }
+
+        // Filter deposits based on search and status filter
+        function filterDeposits() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            filteredDeposits = currentDeposits.filter(deposit => {
+                // Status filter
+                if (currentFilter !== 'all' && deposit.status !== currentFilter) {
+                    return false;
+                }
+                
+                // Search filter
+                if (searchTerm) {
+                    const searchFields = [
+                        deposit.user_email,
+                        deposit.transaction_id,
+                        deposit.request_id,
+                        deposit.phone
+                    ];
+                    return searchFields.some(field => 
+                        field && field.toString().toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                return true;
+            });
+            
+            sortDeposits();
+            currentPage = 1;
+            renderTable();
+        }
+
+        // Sort deposits
+        function sortDeposits() {
+            filteredDeposits.sort((a, b) => {
+                switch (currentSort) {
+                    case 'amount':
+                        return b.amount - a.amount;
+                    case 'status':
+                        return a.status.localeCompare(b.status);
+                    case 'created_at':
+                    default:
+                        return b.created_at - a.created_at;
+                }
+            });
+        }
+
+        // Set active filter
+        function setActiveFilter(status) {
+            currentFilter = status;
+            filterTabs.forEach(tab => {
+                if (tab.dataset.status === status) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+        }
+
+        // Render table with current data
+        function renderTable() {
+            const startIndex = (currentPage - 1) * rowsPerPage;
+            const endIndex = startIndex + rowsPerPage;
+            const pageDeposits = filteredDeposits.slice(startIndex, endIndex);
+            const totalPages = Math.ceil(filteredDeposits.length / rowsPerPage);
+
+            // Update table body
+            if (pageDeposits.length === 0) {
+                depositsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="no-data">
+                            <i class="fas fa-inbox" style="font-size: 2rem; color: var(--text-tertiary); margin-bottom: var(--space-md);"></i>
+                            <div>No deposit requests found</div>
+                            ${searchInput.value ? '<div style="margin-top: var(--space-xs); color: var(--text-disabled);">Try changing your search or filter</div>' : ''}
+                        </td>
+                    </tr>
+                `;
+            } else {
+                depositsTableBody.innerHTML = pageDeposits.map(deposit => `
+                    <tr>
+                        <td>
+                            <div style="font-family: monospace; font-size: 0.875rem; color: var(--text-primary);">
+                                ${deposit.request_id}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-email">${deposit.user_email}</div>
+                                <div class="user-id">Phone: ${deposit.phone || 'N/A'}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="amount-cell">₹ ${formatNumber(deposit.amount, 2)}</div>
+                        </td>
+                        <td>
+                            <div style="font-family: monospace; font-size: 0.875rem;">
+                                ${deposit.transaction_id}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="payment-method">
+                                <div class="payment-icon">
+                                    ${getPaymentMethodIcon(deposit.payment_method)}
+                                </div>
+                                <span>${formatPaymentMethod(deposit.payment_method)}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-${deposit.status}">
+                                ${deposit.status}
+                            </span>
+                        </td>
+                        <td>
+                            ${formatTimestamp(deposit.created_at)}
+                        </td>
+                        <td>
+                            <div class="action-cell">
+                                <button class="action-btn view" onclick="viewDepositDetails('${deposit.request_id}')">
+                                    <i class="fas fa-eye"></i>
+                                    View
+                                </button>
+                                ${deposit.status === 'pending' ? `
+                                    <button class="action-btn approve" onclick="openApproveModal('${deposit.request_id}')">
+                                        <i class="fas fa-check"></i>
+                                        Approve
+                                    </button>
+                                    <button class="action-btn reject" onclick="openRejectModal('${deposit.request_id}')">
+                                        <i class="fas fa-times"></i>
+                                        Reject
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            // Update pagination
+            updatePagination(totalPages);
+        }
+
+        // Update pagination controls
+        function updatePagination(totalPages) {
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${filteredDeposits.length} requests)`;
+        }
+
+        // Format payment method
+        function formatPaymentMethod(method) {
+            const methods = {
+                'upi': 'UPI',
+                'bank_transfer': 'Bank Transfer',
+                'credit_card': 'Credit Card',
+                'debit_card': 'Debit Card'
+            };
+            return methods[method] || method;
+        }
+
+        // Get payment method icon
+        function getPaymentMethodIcon(method) {
+            const icons = {
+                'upi': '₹',
+                'bank_transfer': '🏦',
+                'credit_card': '💳',
+                'debit_card': '💳'
+            };
+            return icons[method] || '💰';
+        }
+
+        // Format timestamp
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp * 1000);
+            return date.toLocaleDateString('en-IN') + ' ' + date.toLocaleTimeString('en-IN');
+        }
+
+        // Format number
+        function formatNumber(num, decimals = 0) {
+            return num.toLocaleString('en-IN', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        // View deposit details
+        function viewDepositDetails(requestId) {
+            const deposit = currentDeposits.find(d => d.request_id === requestId);
+            if (!deposit) return;
+
+            currentRequestId = requestId;
+
+            // Update modal content
+            document.getElementById('modalRequestId').textContent = deposit.request_id;
+            document.getElementById('modalUserEmail').textContent = deposit.user_email;
+            document.getElementById('modalUserPhone').textContent = `Phone: ${deposit.phone || 'N/A'}`;
+            document.getElementById('modalAmount').textContent = `₹ ${formatNumber(deposit.amount, 2)}`;
+            document.getElementById('modalTransactionId').textContent = deposit.transaction_id;
+            document.getElementById('modalPaymentMethod').textContent = formatPaymentMethod(deposit.payment_method);
+            document.getElementById('modalCreatedAt').textContent = formatTimestamp(deposit.created_at);
+
+            // Update status badge
+            const statusBadge = document.getElementById('modalStatusBadge');
+            statusBadge.className = `status-badge status-${deposit.status}`;
+            statusBadge.textContent = deposit.status;
+
+            // Show/hide action buttons based on status
+            if (deposit.status === 'pending') {
+                approveBtn.style.display = 'block';
+                rejectBtn.style.display = 'block';
+                approveBtn.textContent = 'Approve Deposit';
+                rejectBtn.textContent = 'Reject Request';
+            } else {
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+            }
+
+            // Show modal
+            detailsModal.classList.add('active');
+        }
+
+        // Open approve modal
+        function openApproveModal(requestId) {
+            currentRequestId = requestId;
+            if (confirm('Are you sure you want to approve this deposit request? The amount will be added to the user\'s balance immediately.')) {
+                approveDeposit();
+            }
+        }
+
+        // Open reject modal
+        function openRejectModal(requestId) {
+            currentRequestId = requestId;
+            const reason = prompt('Please enter reason for rejection:', 'Transaction ID mismatch');
+            if (reason !== null) {
+                if (confirm(`Reject this deposit request? Reason: "${reason}"`)) {
+                    rejectDeposit(reason);
+                }
+            }
+        }
+
+        // Approve deposit
+        async function approveDeposit() {
+            if (!currentRequestId) return;
+
+            try {
+                showLoadingState();
+                
+                const response = await fetch('/api/admin/update-deposit-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        request_id: currentRequestId,
+                        status: 'approved'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Deposit approved successfully!');
+                    closeModal();
+                    loadDepositRequests(); // Refresh data
+                } else {
+                    throw new Error(data.error || 'Failed to approve deposit');
+                }
+            } catch (error) {
+                console.error('Error approving deposit:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Reject deposit
+        async function rejectDeposit(reason = '') {
+            if (!currentRequestId) return;
+
+            try {
+                showLoadingState();
+                
+                const response = await fetch('/api/admin/update-deposit-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        request_id: currentRequestId,
+                        status: 'rejected',
+                        remarks: reason
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Deposit rejected successfully!');
+                    closeModal();
+                    loadDepositRequests(); // Refresh data
+                } else {
+                    throw new Error(data.error || 'Failed to reject deposit');
+                }
+            } catch (error) {
+                console.error('Error rejecting deposit:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            detailsModal.classList.remove('active');
+            currentRequestId = null;
+        }
+
+        // Show loading state
+        function showLoadingState() {
+            refreshBtn.innerHTML = '<div class="loading-spinner"></div> Loading...';
+            refreshBtn.disabled = true;
+        }
+
+        // Hide loading state
+        function hideLoadingState() {
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+            refreshBtn.disabled = false;
+        }
+
+        // Show error state
+        function showErrorState() {
+            depositsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="no-data">
+                        <i class="fas fa-exclamation-triangle" style="color: var(--danger-500); font-size: 2rem; margin-bottom: var(--space-md);"></i>
+                        <div>Failed to load deposit requests</div>
+                        <button onclick="loadDepositRequests()" style="margin-top: var(--space-md); padding: var(--space-sm) var(--space-lg); background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer;">
+                            <i class="fas fa-redo"></i> Retry
+                        </button>
+                    </td>
+                </tr>
+            `;
+            hideLoadingState();
+        }
+
+        // Debounce function for search
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Auto-refresh every 60 seconds
+        setInterval(loadDepositRequests, 60000);
+    </script>
+</body>
+</html>

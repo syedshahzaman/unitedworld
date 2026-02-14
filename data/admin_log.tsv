@@ -1,0 +1,16 @@
+log_id	admin_email	action	target_id	target_type	details	timestamp	ip_address
+LOG1768410234B28803	admin@unitedworld.com	deposit_approved	DPR1768257941E7E8F8	deposit_request	Approved deposit of ₹1000.0 for za4449025@gmail.com	1768410234	127.0.0.1
+LOG1768425997D3C8B6	admin@unitedworld.com	withdrawal_approved	WDR176842597209EE40	withdrawal_request	Updated withdrawal of ₹100.0 for za4449025@gmail.com to 'approved'	1768425997	127.0.0.1
+LOG17684278071DB4F8	admin@unitedworld.com	withdrawal_approved	WDR1768427781A2BA78	withdrawal_request	Updated withdrawal from 'pending' to 'approved' - Amount: ₹200.0	1768427807	127.0.0.1
+LOG1768427902A2CF2F	admin@unitedworld.com	deposit_approved	DPR1768420423E9A9C9	deposit_request	Approved deposit of ₹500.0 for za4449025@gmail.com	1768427902	127.0.0.1
+LOG1768588878558960	admin@unitedworld.com	withdrawal_processed	WDR1768427781A2BA78	withdrawal_request	Updated withdrawal from 'approved' to 'processed'	1768588878	127.0.0.1
+LOG1768588891584025	admin@unitedworld.com	withdrawal_processed	WDR176842597209EE40	withdrawal_request	Updated withdrawal from 'approved' to 'processed'	1768588891	127.0.0.1
+LOG1768588898DF509C	admin@unitedworld.com	withdrawal_approved	WDR176842589834B243	withdrawal_request	Updated withdrawal from 'pending' to 'approved' - Amount: ₹25000.0	1768588898	127.0.0.1
+LOG17685889041BDB3D	admin@unitedworld.com	withdrawal_processed	WDR17684258980F929E	withdrawal_request	Updated withdrawal from 'approved' to 'processed'	1768588904	127.0.0.1
+LOG1768588906D38A67	admin@unitedworld.com	withdrawal_processed	WDR176842589834B243	withdrawal_request	Updated withdrawal from 'approved' to 'processed'	1768588906	127.0.0.1
+LOG1770421941EBAB64	admin@unitedworld.com	withdrawal_approved	WDR1770421854C53CAD	withdrawal_request	Updated withdrawal from 'pending' to 'approved' - Amount: ₹100.0	1770421941	127.0.0.1
+LOG17704219443152D9	admin@unitedworld.com	withdrawal_processed	WDR1770421854C53CAD	withdrawal_request	Updated withdrawal from 'approved' to 'processed'	1770421944	127.0.0.1
+LOG1770427755F47BFC	admin@unitedworld.com	withdrawal_approved	WDR1770427686AABBFF	withdrawal_request	Updated withdrawal from 'pending' to 'approved' - Amount: ₹100.0	1770427755	127.0.0.1
+LOG1770427758120FD0	admin@unitedworld.com	withdrawal_processed	WDR1770427686AABBFF	withdrawal_request	Updated withdrawal from 'approved' to 'processed' - Amount: ₹100.0	1770427758	127.0.0.1
+LOG1770467837F4937D	admin@unitedworld.com	withdrawal_approved	WDR1770467771E498EF	withdrawal_request	Updated withdrawal from 'pending' to 'approved' - Amount: ₹100.0	1770467837	127.0.0.1
+LOG1770467839C0A400	admin@unitedworld.com	withdrawal_processed	WDR1770467771E498EF	withdrawal_request	Updated withdrawal from 'approved' to 'processed' - Amount: ₹100.0	1770467839	127.0.0.1

@@ -1,0 +1,14 @@
+user_id	full_name	email	mobile	password	referral	inr_balance	mrx_balance	created_at	company_credit	used_company_credit	withdrawable_balance
+7e8ed7d9	John Doe	john@example.com	1234567890	password123	REF001	150000	5000	1769138291	0.00	0.00	0.00
+ADMIN001	Admin Wilson	admin@unitedworld.com	9876543210	admin123	ADMIN001	1000000	100000	1769138291	0.00	0.00	0.00
+cb2394d4	SHAH ZAMAN HUSSAIN	za4449025@gmail.com	+917 061 2213 23	12345678		1088.64	0	1769138307	0.00	0.00	0.00
+d9244bbc	Junaid 	junaid@gmail.com	+919 470 0460 73	12345678		1577.66	0	1769138382	0.00	0.00	0.00
+aa843d36	Syed Sami Hussain 	syedsamihussain999@gmail.com	+916 200 8517 68	samzam09786		962.63	0	1769144607	0.00	0.00	0.00
+aae9af39	Zaid 	ztaj68437@gmail.com	+918 340 4359 21	zaid_120		10000	0	1769159041	0.00	0.00	0.00
+c3d48e31	Ramish Hassan	muzzammil.ahmad.789@gmail.com	+918 252 2784 79	raja@1234		0	0	1769159162	0.00	0.00	0.00
+9c1c9a31	Afsar Alam	afsaralam@gmail.com	+919 905 6360 92	afsar@123		10715.84	0	1769230443	0.00	0.00	0.00
+c167a6e3	Md Nazir	mn0813218@gmail.com	+778 389 9109	mdnazir786	ZAMAN1	0	0	1770223348	0.00	0.00	0.00
+8bfc24a6	Taufik	toufiquem584@gmail.com	+916 202 9878 73	m887443@tt	Junaid 1	1000	0	1770463779	0.00	0.00	0.00
+4481532a	Md anas	mdanaskhof1156@gmail.com	+960 801 7496	anassheikh	Junaid 2	1399.39	0	1770464158	0.00	0.00	0.00
+2980ef0f	Adnan Shamim	adnanshamim9835@gmail.com	+919 835 9899 18	Adnanshamim9835		10000	0	1770569235	0.00	0.00	0.00
+17611593	Yusuf Khan	yk5277695@gmail.com	+917 766 9739 40	yusuf123	ZAMAN1	0	0	1770642769	1000.0	0.00	0.00

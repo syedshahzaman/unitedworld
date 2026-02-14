@@ -1,0 +1,2647 @@
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, make_response
+import uuid
+import time
+import os
+import re
+from datetime import datetime
+
+# -------------------------
+# APP CONFIG
+# -------------------------
+app = Flask(__name__)
+app.secret_key = "unitedworld-secret-key"
+
+DATA_DIR = "data"
+USERS_FILE = os.path.join(DATA_DIR, "users.tsv")
+TXN_FILE = os.path.join(DATA_DIR, "transactions.tsv")
+MARKET_FILE = os.path.join(DATA_DIR, "market.tsv")
+WITHDRAW_REQUEST_FILE = os.path.join(DATA_DIR, "withdraw_request.tsv")
+DEPOSIT_REQUEST_FILE = os.path.join(DATA_DIR, "deposit_request.tsv")
+ADMIN_LOG_FILE = os.path.join(DATA_DIR, "admin_log.tsv")
+TAX_COLLECTION_FILE = os.path.join(DATA_DIR, "tax_collection.tsv")
+ORDERS_FILE = os.path.join(DATA_DIR, "orders.tsv")  # NEW: Orders tracking file
+
+USERS_HEADER = (
+    "user_id\tfull_name\temail\tmobile\tpassword\treferral\t"
+    "inr_balance\tmrx_balance\tcreated_at\n"
+)                                                                                  
+TXN_HEADER = (
+    "txn_id\tuser_email\ttype\tamount_inr\tamount_mrx\tprice\ttimestamp\tstatus\n"
+)
+                                                                                   MARKET_HEADER = "inr_pool\tmrx_pool\tlast_updated\n"
+
+WITHDRAW_REQUEST_HEADER = (
+    "request_id\tuser_email\tuser_name\tamount\tstatus\t"
+    "bank_name\taccount_number\tifsc_code\t"
+    "created_at\tprocessed_at\tremarks\n"
+)
+
+DEPOSIT_REQUEST_HEADER = (
+    "request_id\tuser_email\tamount\ttransaction_id\t"
+    "phone\tpayment_method\tstatus\tcreated_at\n"
+)
+
+ADMIN_LOG_HEADER = (
+    "log_id\tadmin_email\taction\ttarget_id\ttarget_type\t"
+    "details\ttimestamp\tip_address\n"
+)
+
+TAX_COLLECTION_HEADER = (
+    "tax_id\tuser_email\tuser_name\torder_type\t"
+    "order_amount\ttax_amount\torder_worth\t"
+    "order_date\ttimestamp\tremarks\n"
+)
+
+ORDERS_HEADER = (  # NEW: Orders file header
+    "order_id\tuser_email\tuser_name\torder_type\torder_amount_inr\t"
+    "order_amount_mrx\tprice_at_order\ttax_amount\tstatus\tcreated_at\tremarks\n"
+)
+
+# -------------------------
+# PRICE FLOOR CONSTANT
+# -------------------------
+PRICE_FLOOR = 1.0  # Minimum ₹1 per MRX - CANNOT GO BELOW THIS
+
+# -------------------------
+# TAX AND ORDER LIMIT CONSTANTS
+# -------------------------
+TAX_RATE = 0.05  # 5% tax on both buy orders AND withdrawals
+MAX_SINGLE_ORDER = 1000.00  # Maximum ₹1000 per single order
+
+# -------------------------
+# FILE INITIALIZATION
+# -------------------------
+def ensure_files():
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+    if not os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "w") as f:
+            f.write(USERS_HEADER)
+            # Add default users including admin
+            f.write(f"{str(uuid.uuid4())[:8]}\tJohn Doe\tjohn@example.com\t"
+                   f"1234567890\tpassword123\tREF001\t"
+                   f"150000\t5000\t{int(time.time())}\n")
+            f.write(f"ADMIN001\tAdmin Wilson\tadmin@unitedworld.com\t"
+                   f"9876543210\tadmin123\tADMIN001\t"
+                   f"1000000\t100000\t{int(time.time())}\n")
+
+    if not os.path.exists(TXN_FILE):
+        with open(TXN_FILE, "w") as f:
+            f.write(TXN_HEADER)
+
+    if not os.path.exists(MARKET_FILE):
+        with open(MARKET_FILE, "w") as f:
+            f.write(MARKET_HEADER)
+            # Initialize with price ABOVE floor: 2000 INR / 1000 MRX = ₹2 per MRX
+            f.write("2000.00\t1000.000000\t0\n")
+
+    if not os.path.exists(WITHDRAW_REQUEST_FILE):
+        with open(WITHDRAW_REQUEST_FILE, "w") as f:
+            f.write(WITHDRAW_REQUEST_HEADER)
+            # Add some sample withdrawal requests for testing
+            current_time = int(time.time())
+            day_ago = current_time - 86400
+            two_days_ago = current_time - 172800
+            f.write(f"WDR{int(time.time())}{uuid.uuid4().hex[:6].upper()}\trahul.sharma@email.com\tRahul Sharma\t25000\tpending\tState Bank of India\t123456789012\tSBIN0001234\t{day_ago}\t0\t\n")
+            f.write(f"WDR{int(time.time())}{uuid.uuid4().hex[:6].upper()}\tpriya.patel@email.com\tPriya Patel\t15000\tapproved\tHDFC Bank\t987654321098\tHDFC0000123\t{two_days_ago}\t{current_time}\tApproved after verification\n")
+
+    if not os.path.exists(DEPOSIT_REQUEST_FILE):
+        with open(DEPOSIT_REQUEST_FILE, "w") as f:
+            f.write(DEPOSIT_REQUEST_HEADER)
+
+    if not os.path.exists(ADMIN_LOG_FILE):
+        with open(ADMIN_LOG_FILE, "w") as f:
+            f.write(ADMIN_LOG_HEADER)
+
+    if not os.path.exists(TAX_COLLECTION_FILE):
+        with open(TAX_COLLECTION_FILE, "w") as f:
+            f.write(TAX_COLLECTION_HEADER)
+
+    # NEW: Initialize orders file
+    if not os.path.exists(ORDERS_FILE):
+        with open(ORDERS_FILE, "w") as f:
+            f.write(ORDERS_HEADER)
+
+# -------------------------
+# TAX COLLECTION HELPERS
+# -------------------------
+def log_tax_collection(user_email, user_name, order_type, order_amount, tax_amount, order_worth, remarks=""):
+    """Log tax collection to separate file"""
+    ensure_files()
+
+    tax_id = f"TAX{int(time.time())}{uuid.uuid4().hex[:6].upper()}"
+    timestamp = int(time.time())
+    order_date = datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+
+    with open(TAX_COLLECTION_FILE, "a") as f:
+        f.write(
+            f"{tax_id}\t{user_email}\t{user_name}\t{order_type}\t"
+            f"{order_amount}\t{tax_amount}\t{order_worth}\t"
+            f"{order_date}\t{timestamp}\t{remarks}\n"
+        )
+
+    return tax_id
+
+def get_tax_collection_stats():
+    """Get tax collection statistics"""
+    ensure_files()
+
+    if not os.path.exists(TAX_COLLECTION_FILE):
+        return {
+            'total_tax': 0,
+            'total_transactions': 0,
+            'buy_tax': 0,
+            'withdrawal_tax': 0,
+            'sell_tax': 0,
+            'deposit_tax': 0
+        }
+
+    total_tax = 0
+    total_transactions = 0
+    buy_tax = 0
+    withdrawal_tax = 0
+    sell_tax = 0
+    deposit_tax = 0
+
+    with open(TAX_COLLECTION_FILE, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if i == 0:  # Skip header
+            continue
+
+        line = line.strip()
+        if not line:
+            continue
+
+        cols = line.split("\t")
+        if len(cols) >= 9:
+            total_transactions += 1
+            tax_amount = float(cols[5]) if cols[5] else 0
+            total_tax += tax_amount
+
+            order_type = cols[3] if len(cols) > 3 else ""
+            if order_type == "buy":
+                buy_tax += tax_amount
+            elif order_type == "withdrawal":
+                withdrawal_tax += tax_amount
+            elif order_type == "sell":
+                sell_tax += tax_amount
+            elif order_type == "deposit":
+                deposit_tax += tax_amount
+
+    return {
+        'total_tax': round(total_tax, 2),
+        'total_transactions': total_transactions,
+        'buy_tax': round(buy_tax, 2),
+        'withdrawal_tax': round(withdrawal_tax, 2),
+        'sell_tax': round(sell_tax, 2),
+        'deposit_tax': round(deposit_tax, 2)
+    }
+
+def get_tax_collection_records(limit=100):
+    """Get recent tax collection records"""
+    ensure_files()
+
+    records = []
+
+    if not os.path.exists(TAX_COLLECTION_FILE):
+        return records
+
+    with open(TAX_COLLECTION_FILE, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if i == 0:  # Skip header
+            continue
+
+        line = line.strip()
+        if not line:
+            continue
+
+        cols = line.split("\t")
+        if len(cols) >= 9:
+            records.append({
+                'tax_id': cols[0],
+                'user_email': cols[1],
+                'user_name': cols[2],
+                'order_type': cols[3],
+                'order_amount': float(cols[4]) if cols[4] else 0,
+                'tax_amount': float(cols[5]) if cols[5] else 0,
+                'order_worth': float(cols[6]) if cols[6] else 0,
+                'order_date': cols[7],
+                'timestamp': int(cols[8]) if cols[8] else 0,
+                'remarks': cols[9] if len(cols) > 9 else ""
+            })
+
+    records.sort(key=lambda x: x['timestamp'], reverse=True)
+    return records[:limit]
+
+# -------------------------
+# ORDER TRACKING HELPERS (NEW)
+# -------------------------
+def save_order_record(user_email, user_name, order_type, order_amount_inr,
+                     order_amount_mrx, price_at_order, tax_amount, remarks=""):
+    """Save order details when users buy/sell MRX"""
+    ensure_files()
+
+    order_id = f"ORD{int(time.time())}{uuid.uuid4().hex[:6].upper()}"
+    created_at = int(time.time())
+
+    with open(ORDERS_FILE, "a") as f:
+        f.write(
+            f"{order_id}\t{user_email}\t{user_name}\t{order_type}\t"
+            f"{order_amount_inr}\t{order_amount_mrx}\t{price_at_order}\t"
+            f"{tax_amount}\tcompleted\t{created_at}\t{remarks}\n"
+        )
+
+    return order_id
+
+# -------------------------
+# MARKET HELPERS WITH PRICE FLOOR VALIDATION
+# -------------------------
+def read_market():
+    with open(MARKET_FILE, "r") as f:
+        lines = f.readlines()
+
+    if len(lines) < 2:
+        # Return default with price > ₹1 floor
+        return 2000.0, 1000.0  # ₹2 per MRX
+
+    cols = lines[1].strip().split("\t")
+    return float(cols[0]), float(cols[1])
+
+
+def write_market(inr_pool, mrx_pool):
+    """Write market state with price floor validation"""
+    # Validate price doesn't go below floor
+    if mrx_pool > 0:
+        new_price = inr_pool / mrx_pool
+        if new_price < PRICE_FLOOR:
+            raise ValueError(f"Cannot set market: Price would be ₹{new_price:.4f} which is below ₹{PRICE_FLOOR:.2f} floor")
+
+    with open(MARKET_FILE, "w") as f:
+        f.write(MARKET_HEADER)
+        f.write(f"{round(inr_pool,2)}\t{round(mrx_pool,6)}\t{int(time.time())}\n")
+
+
+def validate_price_floor(new_inr_pool, new_mrx_pool):
+    """Validate that new pool state maintains minimum price"""
+    if new_mrx_pool <= 0:
+        return False, "MRX pool cannot be zero or negative"
+
+    new_price = new_inr_pool / new_mrx_pool
+    if new_price < PRICE_FLOOR:
+        # Calculate maximum MRX that can be in pool at this INR level
+        max_mrx_at_floor = new_inr_pool / PRICE_FLOOR
+        return False, f"Price would drop below ₹{PRICE_FLOOR:.2f} floor"
+
+    return True, f"Price: ₹{new_price:.4f}"
+
+
+# -------------------------
+# USER HELPERS
+# -------------------------
+def get_user(email):
+    with open(USERS_FILE, "r") as f:
+        for line in f:
+            if line.startswith("user_id"):
+                continue
+            cols = line.strip().split("\t")
+            if cols[2] == email:
+                return cols
+    return None
+
+def get_all_users():
+    users = []
+    with open(USERS_FILE, "r") as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if i == 0:  # Skip header
+                continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 8:
+                users.append({
+                    'user_id': cols[0],
+                    'full_name': cols[1],
+                    'email': cols[2],
+                    'mobile': cols[3],
+                    'inr_balance': float(cols[6]),
+                    'mrx_balance': float(cols[7]),
+                    'created_at': int(cols[8])
+                })
+    return users
+
+def update_user_balances(email, new_inr, new_mrx):
+    rows = []
+    with open(USERS_FILE, "r") as f:
+        rows = f.readlines()
+
+    with open(USERS_FILE, "w") as f:
+        for line in rows:
+            if line.startswith("user_id"):
+                f.write(line)
+                continue
+
+            cols = line.strip().split("\t")
+            if cols[2] == email:
+                cols[6] = str(round(new_inr, 2))
+                cols[7] = str(round(new_mrx, 6))
+                f.write("\t".join(cols) + "\n")
+            else:
+                f.write(line)
+
+def is_admin(email):
+    """Check if user is admin"""
+    user = get_user(email)
+    if not user:
+        return False
+    # Admin if email contains 'admin' OR user_id starts with 'ADM'
+    return 'admin' in email.lower() or user[0].startswith('ADM')
+
+# -------------------------
+# ADMIN LOGGING
+# -------------------------
+def log_admin_action(admin_email, action, target_id, target_type, details=""):
+    """Log admin actions for audit trail"""
+    ensure_files()
+
+    log_id = f"LOG{int(time.time())}{uuid.uuid4().hex[:6].upper()}"
+    timestamp = int(time.time())
+    ip_address = request.remote_addr if request else "0.0.0.0"
+
+    with open(ADMIN_LOG_FILE, "a") as f:
+        f.write(
+            f"{log_id}\t{admin_email}\t{action}\t{target_id}\t{target_type}\t"
+            f"{details}\t{timestamp}\t{ip_address}\n"
+        )
+
+    return log_id
+
+def get_recent_admin_logs(limit=50):
+    """Get recent admin logs"""
+    ensure_files()
+    logs = []
+
+    if not os.path.exists(ADMIN_LOG_FILE):
+        return logs
+
+    with open(ADMIN_LOG_FILE, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if i == 0:  # Skip header
+            continue
+        cols = line.strip().split("\t")
+        if len(cols) >= 8:
+            logs.append({
+                'log_id': cols[0],
+                'admin_email': cols[1],
+                'action': cols[2],
+                'target_id': cols[3],
+                'target_type': cols[4],
+                'details': cols[5],
+                'timestamp': int(cols[6]),
+                'ip_address': cols[7]
+            })
+
+    logs.sort(key=lambda x: x['timestamp'], reverse=True)
+    return logs[:limit]
+
+# -------------------------
+# DEPOSIT REQUEST HELPERS
+# -------------------------
+def save_deposit_request(user_email, amount, txn_id, phone, method):
+    ensure_files()
+
+    request_id = f"DPR{int(time.time())}{uuid.uuid4().hex[:6].upper()}"
+    created_at = int(time.time())
+
+    with open(DEPOSIT_REQUEST_FILE, "a") as f:
+        f.write(
+            f"{request_id}\t{user_email}\t{amount}\t{txn_id}\t"
+            f"{phone}\t{method}\tpending\t{created_at}\n"
+        )
+
+    return request_id
+
+def get_user_deposit_requests(user_email, limit=10):
+    ensure_files()
+    deposits = []
+
+    if not os.path.exists(DEPOSIT_REQUEST_FILE):
+        return deposits
+
+    with open(DEPOSIT_REQUEST_FILE, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if i == 0:  # Skip header
+            continue
+        cols = line.strip().split("\t")
+        if len(cols) >= 8 and cols[1] == user_email:
+            deposits.append({
+                "request_id": cols[0],
+                "amount": float(cols[2]),
+                "transaction_id": cols[3],
+                "phone": cols[4],
+                "payment_method": cols[5],
+                "status": cols[6],
+                "created_at": int(cols[7])
+            })
+
+    deposits.sort(key=lambda x: x["created_at"], reverse=True)
+    return deposits[:limit]
+
+def get_all_deposit_requests(limit=50):
+    ensure_files()
+    deposits = []
+
+    if not os.path.exists(DEPOSIT_REQUEST_FILE):
+        return deposits
+
+    with open(DEPOSIT_REQUEST_FILE, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if i == 0:  # Skip header
+            continue
+        cols = line.strip().split("\t")
+        if len(cols) >= 8:
+            deposits.append({
+                "request_id": cols[0],
+                "user_email": cols[1],
+                "amount": float(cols[2]),
+                "transaction_id": cols[3],
+                "phone": cols[4],
+                "payment_method": cols[5],
+                "status": cols[6],
+                "created_at": int(cols[7])
+            })
+
+    deposits.sort(key=lambda x: x["created_at"], reverse=True)
+    return deposits[:limit]
+
+def update_deposit_request_status(request_id, status, admin_email=""):
+    ensure_files()
+
+    if not os.path.exists(DEPOSIT_REQUEST_FILE):
+        return False
+
+    rows = []
+    updated = False
+    deposit_info = None
+
+    with open(DEPOSIT_REQUEST_FILE, "r") as f:
+        rows = f.readlines()
+
+    with open(DEPOSIT_REQUEST_FILE, "w") as f:
+        for line in rows:
+            if line.startswith("request_id"):
+                f.write(line)
+                continue
+
+            cols = line.strip().split("\t")
+            if cols[0] == request_id:
+                # Save deposit info for balance update if approved
+                if status == "approved" and cols[6] != "approved":
+                    deposit_info = {
+                        "user_email": cols[1],
+                        "amount": float(cols[2])
+                    }
+
+                cols[6] = status
+                updated = True
+                f.write("\t".join(cols) + "\n")
+            else:
+                f.write(line)
+
+    # Update user balance if deposit is approved
+    if updated and status == "approved" and deposit_info:
+        user = get_user(deposit_info["user_email"])
+        if user:
+            current_inr = float(user[6])
+            new_inr = current_inr + deposit_info["amount"]
+            update_user_balances(deposit_info["user_email"], new_inr, float(user[7]))
+
+            # Save transaction record
+            save_transaction(
+                deposit_info["user_email"],
+                'deposit_approved',
+                deposit_info["amount"],
+                0,
+                0
+            )
+
+            # Log admin action
+            if admin_email:
+                log_admin_action(
+                    admin_email,
+                    "deposit_approved",
+                    request_id,
+                    "deposit_request",
+                    f"Approved deposit of ₹{deposit_info['amount']} for {deposit_info['user_email']}"
+                )
+
+    return updated
+
+# -------------------------
+# TRANSACTION HELPERS
+# -------------------------
+def save_transaction(user_email, txn_type, amount_inr, amount_mrx, price):
+    txn_id = f"TXN{int(time.time())}{uuid.uuid4().hex[:6].upper()}"
+    timestamp = int(time.time())
+
+    with open(TXN_FILE, "a") as f:
+        f.write(
+            f"{txn_id}\t{user_email}\t{txn_type}\t"
+            f"{amount_inr}\t{round(amount_mrx,6)}\t"
+            f"{round(price,4)}\t{timestamp}\tcompleted\n"
+        )
+    return txn_id
+
+def get_user_transactions(user_email, limit=50):
+    transactions = []
+    with open(TXN_FILE, "r") as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if i == 0:  # Skip header
+                continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 8 and cols[1] == user_email:
+                transactions.append({
+                    'txn_id': cols[0],
+                    'type': cols[2],
+                    'amount_inr': float(cols[3]),
+                    'amount_mrx': float(cols[4]),
+                    'price': float(cols[5]),
+                    'timestamp': int(cols[6]),
+                    'status': cols[7]
+                })
+
+    transactions.sort(key=lambda x: x['timestamp'], reverse=True)
+    return transactions[:limit]
+
+def get_recent_transactions(limit=50):
+    """Get recent transactions across all users"""
+    transactions = []
+    with open(TXN_FILE, "r") as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if i == 0:  # Skip header
+                continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 8:
+                transactions.append({
+                    'txn_id': cols[0],
+                    'user_email': cols[1],
+                    'type': cols[2],
+                    'amount_inr': float(cols[3]),
+                    'amount_mrx': float(cols[4]),
+                    'price': float(cols[5]),
+                    'timestamp': int(cols[6]),
+                    'status': cols[7]
+                })
+
+    transactions.sort(key=lambda x: x['timestamp'], reverse=True)
+    return transactions[:limit]
+
+# -------------------------
+# WITHDRAWAL REQUEST HELPERS - FIXED VERSION
+# -------------------------
+def save_withdraw_request(user_email, user_name, amount, bank_name, account_number, ifsc_code):
+    """Save withdrawal request with proper formatting"""
+    request_id = f"WDR{int(time.time())}{uuid.uuid4().hex[:6].upper()}"
+    created_at = int(time.time())
+
+    # Ensure proper tab-separated format with all 11 columns
+    line = f"{request_id}\t{user_email}\t{user_name}\t{amount}\tpending\t{bank_name}\t{account_number}\t{ifsc_code}\t{created_at}\t0\t\n"
+
+    # DEBUG: Verify column count
+    tab_count = line.count('\t')
+    print(f"DEBUG: Saving withdrawal - {tab_count} tabs, should be 10 (11 columns)")
+
+    with open(WITHDRAW_REQUEST_FILE, "a") as f:
+        f.write(line)
+
+    return request_id
+
+def get_user_withdrawal_requests(user_email):
+    """Get withdrawal requests for a specific user - FIXED VERSION"""
+    requests = []
+    if not os.path.exists(WITHDRAW_REQUEST_FILE):
+        return requests
+
+    with open(WITHDRAW_REQUEST_FILE, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if i == 0:  # Skip header
+            continue
+
+        line = line.strip()
+        if not line:
+            continue
+
+        cols = line.split("\t")
+
+        # FIX: Handle incomplete rows (minimum 8 columns required for basic info)
+        if len(cols) >= 8 and cols[1] == user_email:
+            # Pad missing columns
+            while len(cols) < 11:
+                cols.append("")
+
+            # Clean and parse data
+            try:
+                amount = float(cols[3]) if cols[3] else 0
+            except:
+                amount = 0
+
+            # Clean corrupted timestamps
+            created_at_str = re.sub(r'[^0-9]', '', str(cols[8])) if len(cols) > 8 else ""
+            try:
+                created_at = int(created_at_str) if created_at_str else int(time.time())
+            except:
+                created_at = int(time.time())
+
+            # Get last 4 digits of account number safely
+            account_num = cols[6] if len(cols) > 6 else ""
+            last_four = account_num[-4:] if account_num and len(account_num) >= 4 else ""
+
+            requests.append({
+                'request_id': cols[0],
+                'amount': amount,
+                'status': cols[4] if len(cols) > 4 else 'pending',
+                'bank_name': cols[5] if len(cols) > 5 else '',
+                'account_number': last_four,
+                'ifsc_code': cols[7] if len(cols) > 7 else '',
+                'created_at': created_at,
+                'processed_at': int(cols[9]) if len(cols) > 9 and cols[9].isdigit() else None,
+                'remarks': cols[10] if len(cols) > 10 else ""
+            })
+
+    requests.sort(key=lambda x: x['created_at'], reverse=True)
+    return requests
+
+def get_all_withdrawal_requests(limit=1000):
+    """Get all withdrawal requests (for admin use) - FIXED VERSION"""
+    ensure_files()
+    requests = []
+
+    if not os.path.exists(WITHDRAW_REQUEST_FILE):
+        return requests
+
+    with open(WITHDRAW_REQUEST_FILE, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if i == 0:  # Skip header
+            continue
+
+        line = line.strip()
+        if not line:
+            continue
+
+        cols = line.split("\t")
+
+        # FIX: Minimum 8 columns required for basic info
+        if len(cols) >= 8:
+            # Pad missing columns
+            while len(cols) < 11:
+                cols.append("")
+
+            # Clean and parse data
+            try:
+                amount = float(cols[3]) if cols[3] else 0
+            except:
+                amount = 0
+
+            # Clean corrupted timestamps
+            created_at_str = re.sub(r'[^0-9]', '', str(cols[8])) if len(cols) > 8 else ""
+            try:
+                created_at = int(created_at_str) if created_at_str else int(time.time())
+            except:
+                created_at = int(time.time())
+
+            processed_at_str = re.sub(r'[^0-9]', '', str(cols[9])) if len(cols) > 9 else "0"
+            try:
+                processed_at = int(processed_at_str) if processed_at_str and processed_at_str.isdigit() else 0
+            except:
+                processed_at = 0
+
+            requests.append({
+                'request_id': cols[0],
+                'user_email': cols[1],
+                'user_name': cols[2],
+                'amount': amount,
+                'status': cols[4] if len(cols) > 4 else 'pending',
+                'bank_name': cols[5] if len(cols) > 5 else '',
+                'account_number': cols[6] if len(cols) > 6 else '',
+                'ifsc_code': cols[7] if len(cols) > 7 else '',
+                'created_at': created_at,
+                'processed_at': processed_at if processed_at > 0 else None,
+                'remarks': cols[10] if len(cols) > 10 else ""
+            })
+
+    requests.sort(key=lambda x: x['created_at'], reverse=True)
+    return requests[:limit]
+
+def update_withdrawal_request_status(request_id, status, admin_email="", remarks=""):
+    """Update withdrawal request status and handle balance changes - FIXED VERSION"""
+    ensure_files()
+
+    if not os.path.exists(WITHDRAW_REQUEST_FILE):
+        return False
+
+    rows = []
+    updated = False
+    withdrawal_info = None
+    previous_status = None
+
+    with open(WITHDRAW_REQUEST_FILE, "r") as f:
+        rows = f.readlines()
+
+    with open(WITHDRAW_REQUEST_FILE, "w") as f:
+        for line in rows:
+            if line.startswith("request_id"):
+                f.write(line)
+                continue
+
+            cols = line.strip().split("\t")
+            if cols[0] == request_id:
+                previous_status = cols[4]
+
+                # Get withdrawal info for balance update
+                if previous_status == "pending" and status in ["approved", "rejected"]:
+                    try:
+                        withdrawal_info = {
+                            "user_email": cols[1],
+                            "user_name": cols[2],
+                            "amount": float(cols[3]) if cols[3] else 0
+                        }
+                    except:
+                        withdrawal_info = {
+                            "user_email": cols[1],
+                            "user_name": cols[2],
+                            "amount": 0
+                        }
+
+                cols[4] = status
+                if status in ["processed", "rejected", "approved"]:
+                    cols[9] = str(int(time.time()))  # processed_at
+                if remarks:
+                    while len(cols) < 11:
+                        cols.append("")
+                    cols[10] = remarks
+                updated = True
+                f.write("\t".join(cols) + "\n")
+            else:
+                f.write(line)
+
+    # Handle balance changes - CRITICAL FIX: DEDUCT BALANCE WHEN APPROVED
+    if updated and withdrawal_info:
+        user = get_user(withdrawal_info["user_email"])
+        if user:
+            current_inr = float(user[6])
+            current_mrx = float(user[7])
+
+            if status == "approved" and previous_status == "pending":
+                # Calculate 5% tax on withdrawal
+                tax_amount = withdrawal_info["amount"] * TAX_RATE
+                amount_after_tax = withdrawal_info["amount"] - tax_amount
+
+                # DEDUCT FULL AMOUNT FROM BALANCE WHEN APPROVED
+                new_inr = current_inr - withdrawal_info["amount"]
+                if new_inr >= 0:
+                    update_user_balances(withdrawal_info["user_email"], new_inr, current_mrx)
+
+                    # Save transaction for withdrawal (full amount deducted)
+                    save_transaction(
+                        withdrawal_info["user_email"],
+                        'withdrawal_approved',
+                        -withdrawal_info["amount"],  # Negative amount for deduction
+                        0,
+                        0
+                    )
+
+                    # Log tax collection for withdrawal
+                    log_tax_collection(
+                        user_email=withdrawal_info["user_email"],
+                        user_name=withdrawal_info["user_name"],
+                        order_type="withdrawal",
+                        order_amount=withdrawal_info["amount"],
+                        tax_amount=tax_amount,
+                        order_worth=withdrawal_info["amount"],
+                        remarks=f"Withdrawal tax: {TAX_RATE*100}%"
+                    )
+
+                    print(f"BALANCE UPDATE: Deducted ₹{withdrawal_info['amount']} from {withdrawal_info['user_email']}. Old: ₹{current_inr}, New: ₹{new_inr}")
+                    print(f"TAX COLLECTED: ₹{tax_amount:.2f} tax on withdrawal of ₹{withdrawal_info['amount']:.2f}")
+                else:
+                    print(f"ERROR: Insufficient balance for withdrawal approval. User: {withdrawal_info['user_email']}, Amount: {withdrawal_info['amount']}, Balance: {current_inr}")
+                    # Revert status change
+                    return False
+
+            elif status == "rejected" and previous_status == "pending":
+                # Return balance if rejected
+                new_inr = current_inr + withdrawal_info["amount"]
+                update_user_balances(withdrawal_info["user_email"], new_inr, current_mrx)
+                save_transaction(
+                    withdrawal_info["user_email"],
+                    'withdrawal_rejected_return',
+                    withdrawal_info["amount"],  # Positive amount for return
+                    0,
+                    0
+                )
+                print(f"BALANCE UPDATE: Returned ₹{withdrawal_info['amount']} to {withdrawal_info['user_email']}. Old: ₹{current_inr}, New: ₹{new_inr}")
+
+            elif status == "processed" and previous_status == "approved":
+                # Mark as processed (balance already deducted during approval)
+                save_transaction(
+                    withdrawal_info["user_email"] if withdrawal_info else cols[1],
+                    'withdrawal_processed',
+                    0,
+                    0,
+                    0
+                )
+                print(f"PROCESSED: Withdrawal {request_id} marked as processed")
+
+    # Log admin action
+    if updated and admin_email:
+        log_admin_action(
+            admin_email,
+            f"withdrawal_{status}",
+            request_id,
+            "withdrawal_request",
+            f"Updated withdrawal from '{previous_status}' to '{status}'" +
+            (f" - Amount: ₹{withdrawal_info['amount'] if withdrawal_info else 0}" if withdrawal_info else "")
+        )
+
+    return updated
+
+# -------------------------
+# WITHDRAWAL STATISTICS HELPERS - FIXED VERSION
+# -------------------------
+def get_withdrawal_stats():
+    """Get withdrawal statistics for the admin dashboard"""
+    ensure_files()
+
+    if not os.path.exists(WITHDRAW_REQUEST_FILE):
+        return {
+            'total': 0,
+            'pending': 0,
+            'approved': 0,
+            'processing': 0,
+            'processed': 0,
+            'rejected': 0,
+            'total_amount': 0
+        }
+
+    total = 0
+    pending = 0
+    approved = 0
+    processing = 0
+    processed = 0
+    rejected = 0
+    total_amount = 0
+
+    with open(WITHDRAW_REQUEST_FILE, "r") as f:
+        lines = f.readlines()
+
+    for i, line in enumerate(lines):
+        if i == 0:  # Skip header
+            continue
+
+        line = line.strip()
+        if not line:
+            continue
+
+        cols = line.split("\t")
+
+        # FIX: Minimum 5 columns needed for basic stats
+        if len(cols) >= 5:
+            total += 1
+
+            # Parse amount safely
+            try:
+                amount = float(cols[3]) if cols[3] else 0
+            except:
+                amount = 0
+            total_amount += amount
+
+            status = cols[4] if len(cols) > 4 else 'pending'
+
+            if status == 'pending':
+                pending += 1
+            elif status == 'approved':
+                approved += 1
+            elif status == 'processing':
+                processing += 1
+            elif status == 'processed':
+                processed += 1
+            elif status == 'rejected':
+                rejected += 1
+
+    return {
+        'total': total,
+        'pending': pending,
+        'approved': approved,
+        'processing': processing,
+        'processed': processed,
+        'rejected': rejected,
+        'total_amount': round(total_amount, 2)
+    }
+
+# -------------------------
+# DASHBOARD STATS HELPERS
+# -------------------------
+def get_dashboard_stats():
+    """Get comprehensive dashboard statistics"""
+    # Get all users
+    users = get_all_users()
+    total_users = len(users)
+
+    # Calculate total balances
+    total_inr = sum(user['inr_balance'] for user in users)
+    total_mrx = sum(user['mrx_balance'] for user in users)
+
+    # Get market data
+    inr_pool, mrx_pool = read_market()
+    price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+
+    # Get pending requests
+    deposit_requests = get_all_deposit_requests()
+    withdrawal_stats = get_withdrawal_stats()
+
+    pending_deposits = sum(1 for d in deposit_requests if d['status'] == 'pending')
+    pending_withdrawals = withdrawal_stats['pending']
+    processing_withdrawals = withdrawal_stats['processing']
+    total_withdrawal_amount = withdrawal_stats['total_amount']
+
+    # Get tax collection stats
+    tax_stats = get_tax_collection_stats()
+
+    # Calculate liquidity health
+    if inr_pool > 0 and mrx_pool > 0:
+        liquidity_ratio = (inr_pool * price) / (mrx_pool * price)  # Simplified ratio
+        if liquidity_ratio > 0.8:
+            liquidity_health = "healthy"
+        elif liquidity_ratio > 0.5:
+            liquidity_health = "warning"
+        else:
+            liquidity_health = "critical"
+    else:
+        liquidity_health = "critical"
+
+    # Get recent activity
+    recent_transactions = get_recent_transactions(limit=10)
+    recent_logs = get_recent_admin_logs(limit=10)
+
+    return {
+        'total_users': total_users,
+        'total_inr': round(total_inr, 2),
+        'total_mrx': round(total_mrx, 6),
+        'current_price': round(price, 4),
+        'inr_pool': round(inr_pool, 2),
+        'mrx_pool': round(mrx_pool, 6),
+        'pending_deposits': pending_deposits,
+        'pending_withdrawals': pending_withdrawals,
+        'processing_withdrawals': processing_withdrawals,
+        'total_withdrawal_amount': total_withdrawal_amount,
+        'liquidity_health': liquidity_health,
+        'active_users': len([u for u in users if u['inr_balance'] > 1000 or u['mrx_balance'] > 100]),
+        'recent_transactions': recent_transactions,
+        'recent_logs': recent_logs,
+        'withdrawal_stats': withdrawal_stats,
+        'tax_stats': tax_stats  # Added tax stats
+    }
+
+# -------------------------
+# ROUTES
+# -------------------------
+@app.route("/")
+def home():
+    return redirect(url_for("login"))
+# ... (after all your other routes like /trade, /wallet, /account etc.)
+
+# ===== ABOUT, LEGAL & PRIVACY ROUTES =====
+@app.route("/about")
+def about():
+    """About page"""
+    return render_template("about.html", section="about")
+
+@app.route("/legal")
+def legal():
+    """Legal information"""
+    return render_template("about.html", section="legal")
+
+@app.route("/privacy")
+def privacy():
+    """Privacy Policy"""
+    return render_template("about.html", section="privacy")
+
+# ===== ERROR HANDLERS =====
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"success": False, "error": "Not found"}), 404
+
+@app.errorhandler(500)
+def server_error(error):
+    return jsonify({"success": False, "error": "Internal server error"}), 500
+
+# -------------------------
+# SIGNUP
+# -------------------------
+@app.route("/signup", methods=["GET", "POST"])
+def signup():
+    ensure_files()
+
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+        full_name = request.form.get("fullName")
+        mobile = request.form.get("mobile")
+
+        if not email or not password or not full_name:
+            return "Missing required fields", 400
+
+        if get_user(email):
+            return "Email already registered", 400
+
+        user_id = str(uuid.uuid4())[:8]
+        created_at = int(time.time())
+        referral = request.form.get("referralCode", "")
+
+        with open(USERS_FILE, "a") as f:
+            f.write(
+                f"{user_id}\t{full_name}\t{email}\t"
+                f"{mobile}\t{password}\t{referral}\t"
+                f"0\t0\t{created_at}\n"
+            )
+
+        session["user"] = email
+        response = make_response(redirect(url_for("trade")))
+        response.set_cookie('user_email', email, max_age=30*24*60*60)
+        return response
+
+    return render_template("signup.html")
+
+# -------------------------
+# LOGIN - UPDATED TO REDIRECT ADMINS TO ADMIN DASHBOARD
+# -------------------------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    ensure_files()
+
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+
+        user = get_user(email)
+        if not user or user[4] != password:
+            return render_template("login.html", error="Invalid credentials")
+
+        # Login successful - set session
+        session["user"] = email
+
+        print(f"LOGIN DEBUG: User {email} logged in successfully")
+        print(f"LOGIN DEBUG: Checking admin status...")
+        print(f"LOGIN DEBUG: Email contains 'admin'? {'admin' in email.lower()}")
+        print(f"LOGIN DEBUG: User ID starts with 'ADM'? {user[0].startswith('ADM')}")
+        print(f"LOGIN DEBUG: is_admin() function returns: {is_admin(email)}")
+
+        # Check if user is admin and redirect accordingly
+        if is_admin(email):
+            print(f"LOGIN DEBUG: User is admin, redirecting to admin dashboard")
+            return redirect(url_for("admin_dashboard"))
+        else:
+            print(f"LOGIN DEBUG: User is not admin, redirecting to trade page")
+            return redirect(url_for("trade"))
+
+    return render_template("login.html")
+
+# -------------------------
+# ONE-CLICK ADMIN LOGIN FOR TESTING
+# -------------------------
+@app.route("/admin-login")
+def admin_login():
+    """One-click admin login for testing purposes"""
+    # Create admin user if it doesn't exist
+    if not get_user("admin@unitedworld.com"):
+        user_id = "ADMIN001"
+        created_at = int(time.time())
+
+        with open(USERS_FILE, "a") as f:
+            f.write(
+                f"{user_id}\tAdmin Wilson\tadmin@unitedworld.com\t"
+                f"9876543210\tadmin123\tADMIN001\t"
+                f"1000000\t100000\t{created_at}\n"
+            )
+
+    # Login as admin
+    session["user"] = "admin@unitedworld.com"
+    print(f"ADMIN-LOGIN: Logged in as admin@unitedworld.com")
+    print(f"ADMIN-LOGIN: Redirecting to admin dashboard")
+
+    return redirect(url_for("admin_dashboard"))
+
+# -------------------------
+# LOGOUT
+# -------------------------
+@app.route("/logout")
+def logout():
+    session.clear()
+    response = make_response(redirect(url_for("login")))
+    response.set_cookie('user_email', '', expires=0)
+    return response
+
+# -------------------------
+# DEBUG ENDPOINT
+# -------------------------
+@app.route("/debug")
+def debug():
+    """Debug endpoint to check system status"""
+    ensure_files()
+
+    status = {
+        "session_user": session.get("user", "Not logged in"),
+        "files_exist": {
+            "users.tsv": os.path.exists(USERS_FILE),
+            "market.tsv": os.path.exists(MARKET_FILE),
+            "tax_collection.tsv": os.path.exists(TAX_COLLECTION_FILE),
+            "orders.tsv": os.path.exists(ORDERS_FILE),  # NEW
+            "data_dir": os.path.exists(DATA_DIR)
+        },
+        "user_count": 0,
+        "admin_users": []
+    }
+
+    # Count users and find admins
+    if os.path.exists(USERS_FILE):
+        with open(USERS_FILE, "r") as f:
+            lines = f.readlines()
+            status["user_count"] = len(lines) - 1  # exclude header
+
+            # Find admin users
+            for i, line in enumerate(lines):
+                if i == 0:  # Skip header
+                    continue
+                cols = line.strip().split("\t")
+                if len(cols) >= 3 and ('admin' in cols[2].lower() or cols[0].startswith('ADM')):
+                    status["admin_users"].append({
+                        "email": cols[2],
+                        "user_id": cols[0],
+                        "is_admin_by_email": 'admin' in cols[2].lower(),
+                        "is_admin_by_id": cols[0].startswith('ADM')
+                    })
+
+    return jsonify(status)
+
+# -------------------------
+# PROTECTED PAGES
+# -------------------------
+@app.route("/trade")
+def trade():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    user = get_user(session["user"])
+    if not user:
+        return redirect(url_for("logout"))
+
+    return render_template("trade.html")
+
+@app.route("/wallet")
+def wallet():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    user = get_user(session["user"])
+    if not user:
+        return redirect(url_for("logout"))
+
+    transactions = get_user_transactions(session["user"], limit=20)
+    withdrawal_requests = get_user_withdrawal_requests(session["user"])
+    deposit_requests = get_user_deposit_requests(session["user"])
+
+    return render_template(
+        "wallet.html",
+        user_name=user[1],
+        inr_balance=user[6],
+        mrx_balance=user[7],
+        transactions=transactions,
+        withdrawal_requests=withdrawal_requests,
+        deposit_requests=deposit_requests
+    )
+
+@app.route("/account")
+def account():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    user = get_user(session["user"])
+    if not user:
+        return redirect(url_for("logout"))
+
+    transactions = get_user_transactions(session["user"], limit=10)
+
+    return render_template(
+        "account.html",
+        user_id=user[0],
+        full_name=user[1],
+        email=user[2],
+        mobile=user[3],
+        referral=user[5],
+        inr_balance=user[6],
+        mrx_balance=user[7],
+        created_at=datetime.fromtimestamp(int(user[8])).strftime('%Y-%m-%d %H:%M:%S'),
+        transactions=transactions
+    )
+
+@app.route("/accelerate")
+def accelerate():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    user = get_user(session["user"])
+    if not user:
+        return redirect(url_for("logout"))
+
+    return render_template("accelerate.html")
+
+@app.route("/deposit")
+def deposit():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    user = get_user(session["user"])
+    if not user:
+        return redirect(url_for("logout"))
+
+    return render_template("deposit.html")
+
+@app.route("/withdraw")
+def withdraw():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    user = get_user(session["user"])
+    if not user:
+        return redirect(url_for("logout"))
+
+    return render_template(
+        "withdraw.html",
+        user_name=user[1],
+        inr_balance=user[6],
+        mrx_balance=user[7]
+    )
+
+# -------------------------
+# ADMIN ROUTES
+# -------------------------
+@app.route("/admin")
+def admin_dashboard():
+    if "user" not in session:
+        print("ADMIN ACCESS DENIED: No user in session")
+        return redirect(url_for("login"))
+
+    user_email = session["user"]
+    print(f"ADMIN ACCESS ATTEMPT: User {user_email} trying to access admin dashboard")
+
+    if not is_admin(user_email):
+        print(f"ADMIN ACCESS DENIED: User {user_email} is not admin")
+        user = get_user(user_email)
+        error_msg = f"""
+        <h1>Access Denied</h1>
+        <p>Logged in as: {user_email}</p>
+        <p>Your account does not have admin privileges.</p>
+        <p>User ID: {user[0] if user else 'N/A'}</p>
+        <p>Admin requirements:</p>
+        <ul>
+            <li>Email must contain 'admin' (yours: {'admin' in user_email.lower()})</li>
+            <li>OR User ID must start with 'ADM' (yours: {user[0].startswith('ADM') if user else 'N/A'})</li>
+        </ul>
+        <p><a href="/logout">Logout</a> | <a href="/">Home</a> | <a href="/admin-login">Login as Admin</a></p>
+        """
+        return error_msg, 403
+
+    print(f"ADMIN ACCESS GRANTED: User {user_email} is admin, rendering dashboard")
+    # Render from admin subfolder
+    return render_template("admin/dashboard.html")
+
+@app.route("/admin/deposits")
+def admin_deposits():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if not is_admin(session["user"]):
+        return "Access denied", 403
+
+    # Render the deposit management page from admin subfolder
+    return render_template("admin/admin_deposit.html")
+
+@app.route("/admin/withdrawals")
+def admin_withdrawals():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if not is_admin(session["user"]):
+        return "Access denied", 403
+
+    # Render the withdrawal management page from admin subfolder
+    return render_template("admin/admin_withdrawal.html")
+
+@app.route("/admin/users")
+def admin_users():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if not is_admin(session["user"]):
+        return "Access denied", 403
+
+    users = get_all_users()
+
+    # Try to render from admin subfolder, fallback to basic template
+    try:
+        return render_template("admin/users.html", users=users)
+    except:
+        # Fallback basic template
+        return f"""
+        <h1>Admin - Users</h1>
+        <p>Total: {len(users)} users</p>
+        <ul>
+        {' '.join([f'<li>{u["email"]} - ₹{u["inr_balance"]} - {u["mrx_balance"]} MRX</li>' for u in users])}
+        </ul>
+        <p><a href="/admin">Back to Dashboard</a></p>
+        """
+
+@app.route("/admin/logs")
+def admin_logs():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if not is_admin(session["user"]):
+        return "Access denied", 403
+
+    logs = get_recent_admin_logs(limit=100)
+
+    # Try to render from admin subfolder, fallback to basic template
+    try:
+        return render_template("admin/logs.html", logs=logs)
+    except:
+        # Fallback basic template
+        return f"""
+        <h1>Admin - Activity Logs</h1>
+        <p>Total: {len(logs)} logs</p>
+        <ul>
+        {' '.join([f'<li>{l["action"]} - {l["admin_email"]} - {datetime.fromtimestamp(l["timestamp"]).strftime("%Y-%m-%d %H:%M:%S")}</li>' for l in logs])}
+        </ul>
+        <p><a href="/admin">Back to Dashboard</a></p>
+        """
+
+# -------------------------
+# NEW ADMIN TAX ROUTES
+# -------------------------
+@app.route("/admin/tax")
+def admin_tax():
+    """Admin tax collection dashboard"""
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if not is_admin(session["user"]):
+        return "Access denied", 403
+
+    # Render the tax management page from admin subfolder
+    try:
+        return render_template("admin/tax.html")
+    except:
+        # Fallback basic template
+        return """
+        <h1>Admin - Tax Collection</h1>
+        <p>Tax collection dashboard</p>
+        <p><a href="/admin">Back to Dashboard</a></p>
+        """
+
+# -------------------------
+# API ENDPOINTS
+# -------------------------
+@app.route("/api/user/data")
+def api_user_data():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+
+    user = get_user(session["user"])
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    full_name = user[1]
+    if len(full_name) >= 2:
+        initials = full_name[:2].upper()
+    elif len(full_name) == 1:
+        initials = full_name[0].upper() + "U"
+    else:
+        initials = "GU"
+
+    return jsonify({
+        "success": True,
+        "full_name": full_name,
+        "email": user[2],
+        "avatar_initials": initials,
+        "user_id": user[0],
+        "is_admin": is_admin(user[2])
+    })
+
+@app.route("/api/user-balance")
+def api_user_balance():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+
+    user = get_user(session["user"])
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({
+        "success": True,
+        "inr_balance": float(user[6]),
+        "mrx_balance": float(user[7])
+    })
+
+@app.route("/api/price")
+def api_price():
+    inr_pool, mrx_pool = read_market()
+
+    if mrx_pool <= 0:
+        return jsonify({
+            "success": False,
+            "price": 0,
+            "inr_pool": inr_pool,
+            "mrx_pool": mrx_pool,
+            "error": "Invalid market state"
+        }), 500
+
+    price = round(inr_pool / mrx_pool, 4)
+    return jsonify({
+        "success": True,
+        "price": price,
+        "inr_pool": round(inr_pool, 2),
+        "mrx_pool": round(mrx_pool, 6)
+    })
+
+@app.route("/api/accelerate-order", methods=["POST"])
+def accelerate_order():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"success": False, "error": "Invalid request"}), 400
+
+    amount = float(data.get("amount", 0))
+    sentiment = data.get("sentiment", "bullish")
+
+    # CHECK 1: Validate single order limit
+    if amount > MAX_SINGLE_ORDER:
+        return jsonify({
+            "success": False,
+            "error": f"Single order cannot exceed ₹{MAX_SINGLE_ORDER:.2f}. Your order: ₹{amount:.2f}"
+        }), 400
+
+    if amount <= 0:
+        return jsonify({"success": False, "error": "Invalid amount"}), 400
+
+    if sentiment not in ["bullish", "bearish"]:
+        return jsonify({"success": False, "error": "Invalid sentiment. Must be 'bullish' or 'bearish'"}), 400
+
+    user = get_user(session["user"])
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    inr_balance = float(user[6])
+    mrx_balance = float(user[7])
+    user_name = user[1]
+
+    inr_pool, mrx_pool = read_market()
+    if mrx_pool <= 0:
+        return jsonify({"success": False, "error": "Market unavailable"}), 500
+
+    # Calculate current price BEFORE the order
+    price_before = inr_pool / mrx_pool
+
+    if sentiment == "bullish":
+        # Calculate 5% tax on the INR amount (BUY order)
+        tax_amount = amount * TAX_RATE
+        amount_after_tax = amount - tax_amount  # Only this amount goes to pool
+
+        total_deduction = amount  # User pays full amount
+
+        if inr_balance < total_deduction:
+            return jsonify({
+                "success": False,
+                "error": f"Insufficient INR balance. Required: ₹{total_deduction:.2f} (₹{amount:.2f} including ₹{tax_amount:.2f} tax). Available: ₹{inr_balance:.2f}"
+            }), 400
+
+        # Calculate MRX to receive using AMM formula (only amount_after_tax goes to pool)
+        mrx_received = mrx_pool * (1 - (inr_pool / (inr_pool + amount_after_tax)))
+
+        # Calculate what the new price would be (only amount_after_tax affects the pool)
+        new_inr_pool = inr_pool + amount_after_tax
+        new_mrx_pool = mrx_pool - mrx_received
+        new_price = new_inr_pool / new_mrx_pool if new_mrx_pool > 0 else price_before
+
+        # Check if new price would violate floor
+        if new_price < PRICE_FLOOR:
+            return jsonify({
+                "success": False,
+                "error": f"Cannot execute trade. Price would drop below ₹{PRICE_FLOOR:.2f} floor.",
+                "current_price": round(price_before, 4),
+                "projected_price": round(new_price, 4),
+                "price_floor": PRICE_FLOOR
+            }), 400
+
+        # Check liquidity protection
+        if mrx_received > mrx_pool * 0.95:
+            return jsonify({"success": False, "error": "Market liquidity too low"}), 400
+
+        # ===== CALCULATE INSTANT UNREALIZED PROFIT FOR BULLISH =====
+        # Value of MRX received at OLD price vs NEW price
+        value_at_old_price = mrx_received * price_before
+        value_at_new_price = mrx_received * new_price
+        unrealized_profit = value_at_new_price - amount_after_tax  # Profit based on tax-adjusted amount
+        
+        # Execute the trade - tax stays with platform, only amount_after_tax goes to pool
+        write_market(new_inr_pool, new_mrx_pool)
+        new_inr = inr_balance - total_deduction  # Deduct full amount from user
+        new_mrx = mrx_balance + mrx_received
+        update_user_balances(session["user"], new_inr, new_mrx)
+
+        txn_type = "accelerate_bullish"
+
+        txn_id = save_transaction(
+            session['user'],
+            txn_type,
+            -total_deduction,  # Negative for deduction including tax
+            mrx_received,
+            price_before
+        )
+
+        # Log tax collection for buy order
+        tax_log_id = log_tax_collection(
+            user_email=session['user'],
+            user_name=user_name,
+            order_type="buy",
+            order_amount=amount,
+            tax_amount=tax_amount,
+            order_worth=amount,
+            remarks=f"Buy order tax: {TAX_RATE*100}%, MRX received: {mrx_received:.6f}"
+        )
+
+        # NEW: Save order record for buy order
+        order_id = save_order_record(
+            user_email=session['user'],
+            user_name=user_name,
+            order_type="buy",
+            order_amount_inr=amount,
+            order_amount_mrx=mrx_received,
+            price_at_order=price_before,
+            tax_amount=tax_amount,
+            remarks=f"BUY: Paid ₹{amount:.2f}, received {mrx_received:.6f} MRX, tax: ₹{tax_amount:.2f}"
+        )
+
+        response_data = {
+            "success": True,
+            "transaction_id": txn_id,
+            "tax_log_id": tax_log_id,
+            "order_id": order_id,  # NEW: Include order ID in response
+            "new_inr_balance": round(new_inr, 2),
+            "new_mrx_balance": round(new_mrx, 6),
+            "price_before": round(price_before, 4),
+            "price_after": round(new_price, 4),
+            "sentiment": sentiment,
+            "inr_paid": round(amount, 2),
+            "tax_amount": round(tax_amount, 2),
+            "amount_to_pool": round(amount_after_tax, 2),
+            "tax_rate": f"{TAX_RATE*100}%",
+            "mrx_received": round(mrx_received, 6),
+            "price_floor": PRICE_FLOOR,
+            "price_floor_violation": False,
+            "single_order_limit": MAX_SINGLE_ORDER,
+            "within_limit": amount <= MAX_SINGLE_ORDER,
+            "effective_rate": f"₹{amount:.2f} paid → MRX worth ₹{amount_after_tax:.2f} received",
+            # ===== NEW PROFIT CALCULATION FIELDS =====
+            "profit": round(unrealized_profit, 2),
+            "profit_type": "unrealized",
+            "new_price": round(new_price, 4)
+        }
+
+    else:  # bearish (selling MRX)
+        if mrx_balance < amount:
+            return jsonify({
+                "success": False,
+                "error": f"Insufficient MRX balance. Available: {mrx_balance:.6f} MRX"
+            }), 400
+
+        # Calculate INR to receive using AMM formula
+        inr_received_before_tax = inr_pool * (1 - (mrx_pool / (mrx_pool + amount)))
+
+        # Calculate 5% tax on the INR received (SELL order)
+        tax_amount = inr_received_before_tax * TAX_RATE
+        inr_received_after_tax = inr_received_before_tax - tax_amount
+
+        # Calculate what the new price would be
+        new_mrx_pool = mrx_pool + amount
+        new_inr_pool = inr_pool - inr_received_before_tax
+        new_price = new_inr_pool / new_mrx_pool if new_mrx_pool > 0 else price_before
+
+        # CRITICAL: Check if new price would violate floor when SELLING
+        # When selling MRX, price goes DOWN (bad for floor)
+        if new_price < PRICE_FLOOR:
+            # Calculate MAXIMUM MRX that can be sold without violating floor
+            max_mrx_sellable = (inr_pool / PRICE_FLOOR) - mrx_pool
+
+            return jsonify({
+                "success": False,
+                "error": f"Cannot sell {amount:.6f} MRX. Price would drop below ₹{PRICE_FLOOR:.2f} floor.",
+                "suggestion": f"Maximum you can sell without violating floor: {max_mrx_sellable:.6f} MRX",
+                "current_price": round(price_before, 4),
+                "projected_price": round(new_price, 4),
+                "price_floor": PRICE_FLOOR,
+                "max_sellable": round(max_mrx_sellable, 6) if max_mrx_sellable > 0 else 0
+            }), 400
+
+        # Check liquidity protection
+        if inr_received_before_tax > inr_pool * 0.95:
+            return jsonify({"success": False, "error": "Market liquidity too low"}), 400
+
+        # ===== CALCULATE INSTANT UNREALIZED PROFIT FOR BEARISH =====
+        # For selling: Profit is the difference between what you could have sold at old price vs new price
+        # But since you're selling, your remaining MRX holdings lose value when price drops
+        # Instead, show savings from selling at better price than after your own sell
+        mrx_remaining = mrx_balance - amount
+        value_loss_on_remaining = mrx_remaining * (price_before - new_price)  # Loss on remaining holdings
+        unrealized_profit = -value_loss_on_remaining  # Negative loss = positive savings
+        
+        # Execute the trade
+        write_market(new_inr_pool, new_mrx_pool)
+        new_mrx = mrx_balance - amount
+        new_inr = inr_balance + inr_received_after_tax
+        update_user_balances(session["user"], new_inr, new_mrx)
+
+        txn_type = "accelerate_bearish"
+
+        txn_id = save_transaction(
+            session['user'],
+            txn_type,
+            inr_received_after_tax,  # Amount after tax
+            -amount,  # Negative for MRX deduction
+            price_before
+        )
+
+        # Log tax collection for sell order
+        tax_log_id = log_tax_collection(
+            user_email=session['user'],
+            user_name=user_name,
+            order_type="sell",
+            order_amount=inr_received_before_tax,
+            tax_amount=tax_amount,
+            order_worth=inr_received_before_tax,
+            remarks=f"Sell order tax: {TAX_RATE*100}%, MRX sold: {amount:.6f}"
+        )
+
+        # NEW: Save order record for sell order
+        order_id = save_order_record(
+            user_email=session['user'],
+            user_name=user_name,
+            order_type="sell",
+            order_amount_inr=inr_received_before_tax,
+            order_amount_mrx=amount,
+            price_at_order=price_before,
+            tax_amount=tax_amount,
+            remarks=f"SELL: Sold {amount:.6f} MRX, received ₹{inr_received_after_tax:.2f} after tax: ₹{tax_amount:.2f}"
+        )
+
+        response_data = {
+            "success": True,
+            "transaction_id": txn_id,
+            "tax_log_id": tax_log_id,
+            "order_id": order_id,  # NEW: Include order ID in response
+            "new_inr_balance": round(new_inr, 2),
+            "new_mrx_balance": round(new_mrx, 6),
+            "price_before": round(price_before, 4),
+            "price_after": round(new_price, 4),
+            "sentiment": sentiment,
+            "mrx_sold": round(amount, 6),
+            "inr_received_before_tax": round(inr_received_before_tax, 2),
+            "tax_amount": round(tax_amount, 2),
+            "inr_received_after_tax": round(inr_received_after_tax, 2),
+            "tax_rate": f"{TAX_RATE*100}%",
+            "price_floor": PRICE_FLOOR,
+            "price_floor_violation": False,
+            "single_order_limit": MAX_SINGLE_ORDER,
+            "within_limit": True,
+            "effective_rate": f"MRX worth ₹{inr_received_before_tax:.2f} sold → ₹{inr_received_after_tax:.2f} received",
+            # ===== NEW PROFIT CALCULATION FIELDS =====
+            "profit": round(unrealized_profit, 2),
+            "profit_type": "unrealized",
+            "new_price": round(new_price, 4)
+        }
+
+    return jsonify(response_data)
+
+@app.route("/api/user/transactions")
+def api_user_transactions():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+
+    limit = request.args.get("limit", 50, type=int)
+    transactions = get_user_transactions(session["user"], limit)
+
+    return jsonify({
+        "success": True,
+        "transactions": transactions,
+        "count": len(transactions)
+    })
+
+@app.route("/api/deposit-request", methods=["POST"])
+def api_deposit_request():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"success": False, "error": "Invalid request"}), 400
+
+    amount = float(data.get("amount", 0))
+    txn_id = data.get("transaction_id", "").strip()
+    phone = data.get("phone", "").strip()
+    method = data.get("payment_method", "upi")
+
+    if amount < 100 or amount > 100000:
+        return jsonify({"success": False, "error": "Amount must be between ₹500 and ₹100,000"}), 400
+
+    if len(txn_id) < 5:
+        return jsonify({"success": False, "error": "Invalid transaction ID (min 5 characters)"}), 400
+
+    if not phone.isdigit() or len(phone) != 10:
+        return jsonify({"success": False, "error": "Invalid phone number (10 digits required)"}), 400
+
+    if method not in ["upi", "bank_transfer", "credit_card", "debit_card"]:
+        return jsonify({"success": False, "error": "Invalid payment method"}), 400
+
+    user_email = session["user"]
+    user = get_user(user_email)
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    request_id = save_deposit_request(
+        user_email=user_email,
+        amount=amount,
+        txn_id=txn_id,
+        phone=phone,
+        method=method
+    )
+
+    return jsonify({
+        "success": True,
+        "message": "Deposit request submitted successfully",
+        "request_id": request_id,
+        "status": "pending",
+        "amount": amount,
+        "payment_method": method
+    })
+
+@app.route("/api/deposit-history")
+def api_deposit_history():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    limit = request.args.get("limit", 10, type=int)
+    deposits = get_user_deposit_requests(session["user"], limit)
+
+    return jsonify({
+        "success": True,
+        "deposits": deposits,
+        "count": len(deposits)
+    })
+
+@app.route("/api/withdraw", methods=["POST"])
+def api_withdraw():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    data = request.get_json()
+    amount = float(data.get("amount", 0))
+    bank_name = data.get("bank_name", "")
+    account_number = data.get("account_number", "")
+    ifsc_code = data.get("ifsc_code", "")
+
+    if amount <= 0:
+        return jsonify({"success": False, "error": "Invalid amount"}), 400
+
+    if not bank_name or not account_number or not ifsc_code:
+        return jsonify({"success": False, "error": "All bank details are required"}), 400
+
+    user = get_user(session["user"])
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    current_inr = float(user[6])
+
+    if current_inr < amount:
+        return jsonify({"success": False, "error": "Insufficient balance"}), 400
+
+    request_id = save_withdraw_request(
+        session['user'],
+        user[1],
+        amount,
+        bank_name,
+        account_number,
+        ifsc_code
+    )
+
+    return jsonify({
+        "success": True,
+        "request_id": request_id,
+        "message": f"Withdrawal request submitted successfully. Note: 5% tax (₹{amount * TAX_RATE:.2f}) will be deducted when approved. You will receive ₹{amount * (1 - TAX_RATE):.2f}.",
+        "amount_requested": amount,
+        "tax_amount": round(amount * TAX_RATE, 2),
+        "amount_after_tax": round(amount * (1 - TAX_RATE), 2),
+        "current_balance": round(current_inr, 2)
+    })
+
+@app.route("/api/withdrawal-requests")
+def api_withdrawal_requests():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"}), 401
+
+    withdrawal_requests = get_user_withdrawal_requests(session["user"])
+
+    return jsonify({
+        "success": True,
+        "withdrawal_requests": withdrawal_requests,
+        "count": len(withdrawal_requests)
+    })
+
+# -------------------------
+# ADMIN API ENDPOINTS - UPDATED FOR FRONTEND COMPATIBILITY
+# -------------------------
+@app.route("/api/admin/dashboard-stats")
+def api_admin_dashboard_stats():
+    """Get comprehensive dashboard statistics for admin panel"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    stats = get_dashboard_stats()
+
+    return jsonify({
+        "success": True,
+        "stats": stats,
+        "timestamp": int(time.time())
+    })
+
+@app.route("/api/admin/update-deposit-status", methods=["POST"])
+def api_admin_update_deposit_status():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    data = request.get_json()
+    request_id = data.get("request_id", "").strip()
+    status = data.get("status", "").strip()
+
+    if not request_id:
+        return jsonify({"success": False, "error": "Request ID required"}), 400
+
+    if status not in ["approved", "rejected", "pending"]:
+        return jsonify({"success": False, "error": "Invalid status"}), 400
+
+    updated = update_deposit_request_status(request_id, status, session["user"])
+
+    if not updated:
+        return jsonify({"success": False, "error": "Deposit request not found"}), 404
+
+    return jsonify({
+        "success": True,
+        "message": f"Deposit request {request_id} updated to '{status}'",
+        "request_id": request_id,
+        "status": status
+    })
+
+@app.route("/api/admin/update-withdrawal-status", methods=["POST"])
+def api_admin_update_withdrawal_status():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    data = request.get_json()
+    request_id = data.get("request_id", "").strip()
+    status = data.get("status", "").strip()
+    remarks = data.get("remarks", "").strip()
+
+    if not request_id:
+        return jsonify({"success": False, "error": "Request ID required"}), 400
+
+    if status not in ["approved", "rejected", "processing", "pending", "processed"]:
+        return jsonify({"success": False, "error": "Invalid status"}), 400
+
+    updated = update_withdrawal_request_status(request_id, status, session["user"], remarks)
+
+    if not updated:
+        return jsonify({"success": False, "error": "Withdrawal request not found"}), 404
+
+    return jsonify({
+        "success": True,
+        "message": f"Withdrawal request {request_id} updated to '{status}'",
+        "request_id": request_id,
+        "status": status
+    })
+
+@app.route("/api/admin/deposit-requests")
+def api_admin_deposit_requests():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    limit = request.args.get("limit", 50, type=int)
+    status_filter = request.args.get("status", "")
+
+    deposit_requests = get_all_deposit_requests(limit)
+
+    if status_filter:
+        deposit_requests = [req for req in deposit_requests if req["status"] == status_filter]
+
+    return jsonify({
+        "success": True,
+        "deposit_requests": deposit_requests,
+        "count": len(deposit_requests),
+        "filter_status": status_filter
+    })
+
+@app.route("/api/admin/withdrawal-requests")
+def api_admin_withdrawal_requests():
+    """Get withdrawal requests for admin panel - FIXED VERSION"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    # Get parameters
+    limit = request.args.get("limit", 1000, type=int)  # Default to 1000 for all requests
+    status_filter = request.args.get("status", "")
+    search = request.args.get("search", "").strip().lower()
+
+    # Get all withdrawal requests
+    all_requests = get_all_withdrawal_requests(limit=limit)
+
+    # Apply search filter if provided
+    if search:
+        filtered_requests = []
+        for req in all_requests:
+            search_match = (
+                (req.get('user_email', '').lower().find(search) >= 0) or
+                (req.get('user_name', '').lower().find(search) >= 0) or
+                (req.get('request_id', '').lower().find(search) >= 0) or
+                (req.get('bank_name', '').lower().find(search) >= 0) or
+                (str(req.get('account_number', '')).find(search) >= 0) or
+                (req.get('ifsc_code', '').lower().find(search) >= 0)
+            )
+            if search_match:
+                filtered_requests.append(req)
+        all_requests = filtered_requests
+
+    # Apply status filter if provided
+    if status_filter and status_filter != 'all':
+        all_requests = [req for req in all_requests if req.get("status", "") == status_filter]
+
+    # Get statistics
+    stats = get_withdrawal_stats()
+
+    # Format requests for frontend
+    formatted_requests = []
+    for req in all_requests:
+        # Create masked account number for display
+        account_number = str(req.get('account_number', ''))
+        masked_account = f"****{account_number[-4:]}" if account_number and len(account_number) >= 4 else "****"
+
+        formatted_req = {
+            'request_id': req.get('request_id', ''),
+            'user_email': req.get('user_email', ''),
+            'user_name': req.get('user_name', ''),
+            'amount': float(req.get('amount', 0)),
+            'status': req.get('status', 'pending'),
+            'bank_name': req.get('bank_name', ''),
+            'account_number': req.get('account_number', ''),
+            'masked_account': masked_account,
+            'ifsc_code': req.get('ifsc_code', ''),
+            'created_at': int(req.get('created_at', time.time())),
+            'processed_at': int(req.get('processed_at', 0)) if req.get('processed_at') else None,
+            'remarks': req.get('remarks', '')
+        }
+        formatted_requests.append(formatted_req)
+
+    return jsonify({
+        "success": True,
+        "withdrawal_requests": formatted_requests,
+        "stats": stats,
+        "count": len(formatted_requests),
+        "filter_status": status_filter,
+        "search_query": search
+    })
+
+@app.route("/api/admin/users")
+def api_admin_users():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    users = get_all_users()
+
+    # Get market price for total value calculation
+    inr_pool, mrx_pool = read_market()
+    price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+
+    # Enhance user data with total value
+    for user in users:
+        user['total_value'] = round(user['inr_balance'] + (user['mrx_balance'] * price), 2)
+        user['is_admin'] = is_admin(user['email'])
+
+    return jsonify({
+        "success": True,
+        "users": users,
+        "count": len(users),
+        "market_price": round(price, 4)
+    })
+
+@app.route("/api/admin/user/<user_email>")
+def api_admin_user_detail(user_email):
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    user_data = get_user(user_email)
+    if not user_data:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    transactions = get_user_transactions(user_email, limit=20)
+    deposit_requests = get_user_deposit_requests(user_email, limit=10)
+    withdrawal_requests = get_user_withdrawal_requests(user_email)
+
+    return jsonify({
+        "success": True,
+        "user": {
+            'user_id': user_data[0],
+            'full_name': user_data[1],
+            'email': user_data[2],
+            'mobile': user_data[3],
+            'inr_balance': float(user_data[6]),
+            'mrx_balance': float(user_data[7]),
+            'created_at': int(user_data[8]),
+            'referral': user_data[5]
+        },
+        "transactions": transactions,
+        "deposit_requests": deposit_requests,
+        "withdrawal_requests": withdrawal_requests,
+        "transaction_count": len(transactions)
+    })
+
+@app.route("/api/admin/logs")
+def api_admin_logs():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    limit = request.args.get("limit", 50, type=int)
+    logs = get_recent_admin_logs(limit)
+
+    return jsonify({
+        "success": True,
+        "logs": logs,
+        "count": len(logs)
+    })
+
+# -------------------------
+# NEW TAX COLLECTION API ENDPOINTS
+# -------------------------
+@app.route("/api/admin/tax-stats")
+def api_admin_tax_stats():
+    """Get tax collection statistics"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    tax_stats = get_tax_collection_stats()
+
+    return jsonify({
+        "success": True,
+        "tax_stats": tax_stats,
+        "timestamp": int(time.time())
+    })
+
+@app.route("/api/admin/tax-records")
+def api_admin_tax_records():
+    """Get tax collection records"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    limit = request.args.get("limit", 100, type=int)
+    order_type = request.args.get("order_type", "")
+    search = request.args.get("search", "").strip().lower()
+
+    records = get_tax_collection_records(limit)
+
+    # Apply filters
+    if order_type and order_type != "all":
+        records = [r for r in records if r['order_type'] == order_type]
+
+    if search:
+        filtered_records = []
+        for record in records:
+            search_match = (
+                (record.get('user_email', '').lower().find(search) >= 0) or
+                (record.get('user_name', '').lower().find(search) >= 0) or
+                (record.get('tax_id', '').lower().find(search) >= 0)
+            )
+            if search_match:
+                filtered_records.append(record)
+        records = filtered_records
+
+    # Calculate summary
+    total_tax = sum(r['tax_amount'] for r in records)
+    total_orders = len(records)
+
+    return jsonify({
+        "success": True,
+        "tax_records": records,
+        "count": total_orders,
+        "total_tax": round(total_tax, 2),
+        "filter_order_type": order_type,
+        "search_query": search
+    })
+
+@app.route("/api/admin/system-health")
+def api_admin_system_health():
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    try:
+        # Check file sizes and health
+        file_stats = {}
+        for file_path, file_name in [
+            (USERS_FILE, "users.tsv"),
+            (TXN_FILE, "transactions.tsv"),
+            (MARKET_FILE, "market.tsv"),
+            (WITHDRAW_REQUEST_FILE, "withdraw_request.tsv"),
+            (DEPOSIT_REQUEST_FILE, "deposit_request.tsv"),
+            (ADMIN_LOG_FILE, "admin_log.tsv"),
+            (TAX_COLLECTION_FILE, "tax_collection.tsv"),
+            (ORDERS_FILE, "orders.tsv")  # NEW: Added orders file
+        ]:
+            if os.path.exists(file_path):
+                size = os.path.getsize(file_path)
+                with open(file_path, 'r') as f:
+                    lines = len(f.readlines())
+                file_stats[file_name] = {
+                    'size_kb': round(size / 1024, 2),
+                    'line_count': lines - 1 if lines > 1 else 0,  # Exclude header
+                    'exists': True
+                }
+            else:
+                file_stats[file_name] = {'exists': False}
+
+        # Get market stats
+        inr_pool, mrx_pool = read_market()
+        price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+
+        # Get user stats
+        users = get_all_users()
+
+        # Get tax stats
+        tax_stats = get_tax_collection_stats()
+
+        return jsonify({
+            "success": True,
+            "timestamp": int(time.time()),
+            "files": file_stats,
+            "market": {
+                "inr_pool": round(inr_pool, 2),
+                "mrx_pool": round(mrx_pool, 6),
+                "price": round(price, 4),
+                "price_floor": PRICE_FLOOR,
+                "above_floor": price >= PRICE_FLOOR,
+                "liquidity": round(inr_pool + (mrx_pool * price), 2)
+            },
+            "users": {
+                "total": len(users),
+                "active": len([u for u in users if u['inr_balance'] > 0 or u['mrx_balance'] > 0])
+            },
+            "tax": tax_stats,
+            "system": {
+                "uptime": int(time.time() - os.path.getctime(DATA_DIR)) if os.path.exists(DATA_DIR) else 0,
+                "data_dir": DATA_DIR
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "timestamp": int(time.time())
+        }), 500
+
+# -------------------------
+# ADMIN PRICE FLOOR MANAGEMENT
+# -------------------------
+@app.route("/api/admin/adjust-pool", methods=["POST"])
+def api_admin_adjust_pool():
+    """Admin endpoint to manually adjust pool while respecting price floor"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    data = request.get_json()
+    new_inr = float(data.get("inr_pool", 0))
+    new_mrx = float(data.get("mrx_pool", 0))
+
+    # Enforce price floor
+    if new_mrx > 0 and (new_inr / new_mrx) < PRICE_FLOOR:
+        return jsonify({
+            "success": False,
+            "error": f"Cannot set pool. Price would be ₹{new_inr/new_mrx:.4f} which is below ₹{PRICE_FLOOR:.2f} floor",
+            "minimum_inr_for_mrx": new_mrx * PRICE_FLOOR,
+            "maximum_mrx_for_inr": new_inr / PRICE_FLOOR if PRICE_FLOOR > 0 else 0
+        }), 400
+
+    try:
+        write_market(new_inr, new_mrx)
+
+        # Log admin action
+        log_admin_action(
+            session["user"],
+            "adjust_pool",
+            "market",
+            "pool",
+            f"Adjusted pool to ₹{new_inr:.2f}/{new_mrx:.6f} MRX (Price: ₹{new_inr/new_mrx:.4f})"
+        )
+
+        return jsonify({
+            "success": True,
+            "message": "Pool adjusted successfully",
+            "new_inr_pool": new_inr,
+            "new_mrx_pool": new_mrx,
+            "new_price": round(new_inr / new_mrx, 4) if new_mrx > 0 else 0,
+            "price_floor": PRICE_FLOOR,
+            "above_floor": (new_inr / new_mrx) >= PRICE_FLOOR if new_mrx > 0 else True
+        })
+    except ValueError as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 400
+
+
+@app.route("/api/admin/get-price-floor")
+def api_admin_get_price_floor():
+    """Get current price floor setting"""
+    if "user" not in session or not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    inr_pool, mrx_pool = read_market()
+    current_price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+
+    return jsonify({
+        "success": True,
+        "price_floor": PRICE_FLOOR,
+        "current_price": round(current_price, 4),
+        "above_floor": current_price >= PRICE_FLOOR,
+        "margin": round(current_price - PRICE_FLOOR, 4) if current_price >= PRICE_FLOOR else 0
+    })
+
+
+@app.route("/api/market/stats")
+def api_market_stats():
+    inr_pool, mrx_pool = read_market()
+    price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+
+    users = get_all_users()
+    total_users = len(users)
+    total_inr = sum(user['inr_balance'] for user in users)
+    total_mrx = sum(user['mrx_balance'] for user in users)
+    total_value = total_inr + (total_mrx * price)
+
+    return jsonify({
+        "success": True,
+        "market": {
+            "price": round(price, 4),
+            "inr_pool": round(inr_pool, 2),
+            "mrx_pool": round(mrx_pool, 6),
+            "price_floor": PRICE_FLOOR,
+            "above_floor": price >= PRICE_FLOOR,
+            "liquidity": round(inr_pool * 2, 2)
+        },
+        "network": {
+            "total_users": total_users,
+            "total_value": round(total_value, 2),
+            "active_users": len([u for u in users if u['inr_balance'] > 0 or u['mrx_balance'] > 0])
+        }
+    })
+
+@app.route("/api/health")
+def api_health():
+    try:
+        ensure_files()
+        inr_pool, mrx_pool = read_market()
+        price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+
+        return jsonify({
+            "status": "healthy",
+            "market_operational": mrx_pool > 0,
+            "inr_pool": inr_pool,
+            "mrx_pool": mrx_pool,
+            "current_price": round(price, 4),
+            "price_floor": PRICE_FLOOR,
+            "above_floor": price >= PRICE_FLOOR,
+            "timestamp": int(time.time())
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "unhealthy",
+            "error": str(e),
+            "timestamp": int(time.time())
+        }), 500
+
+# -------------------------
+# DEBUG ENDPOINTS
+# -------------------------
+@app.route("/debug-withdrawals")
+def debug_withdrawals():
+    """Debug endpoint to check withdrawal data"""
+    ensure_files()
+
+    # Get raw TSV content
+    tsv_content = ""
+    if os.path.exists(WITHDRAW_REQUEST_FILE):
+        with open(WITHDRAW_REQUEST_FILE, "r") as f:
+            tsv_content = f.read()
+
+    # Get parsed data
+    parsed_data = get_all_withdrawal_requests()
+
+    # Show column analysis
+    lines = tsv_content.strip().split('\n')
+    column_analysis = []
+    for i, line in enumerate(lines):
+        if line:
+            cols = line.split('\t')
+            column_analysis.append(f"Line {i}: {len(cols)} columns")
+
+    html = f"""
+    <h1>Withdrawal Data Debug</h1>
+    <h2>File: {WITHDRAW_REQUEST_FILE}</h2>
+    <h3>Column Analysis:</h3>
+    <pre>{'\\n'.join(column_analysis)}</pre>
+    <h3>Raw TSV Content:</h3>
+    <pre>{tsv_content}</pre>
+    <h3>Parsed Data ({len(parsed_data)} records):</h3>
+    <pre>{jsonify({'withdrawals': parsed_data}).get_data(as_text=True)}</pre>
+    """
+
+    return html
+
+@app.route("/debug-market")
+def debug_market():
+    """Debug endpoint to check market state and price floor"""
+    inr_pool, mrx_pool = read_market()
+    price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+
+    html = f"""
+    <h1>Market State Debug</h1>
+    <h2>Current State:</h2>
+    <ul>
+        <li>INR Pool: ₹{inr_pool:,.2f}</li>
+        <li>MRX Pool: {mrx_pool:,.6f} MRX</li>
+        <li>Current Price: ₹{price:.4f} per MRX</li>
+        <li>Price Floor: ₹{PRICE_FLOOR:.2f} per MRX</li>
+        <li>Above Floor: {price >= PRICE_FLOOR} ({'✅ SAFE' if price >= PRICE_FLOOR else '❌ VIOLATION'})</li>
+        <li>Margin: ₹{price - PRICE_FLOOR:.4f}</li>
+    </ul>
+    <h2>Price Floor Calculations:</h2>
+    <ul>
+        <li>Maximum MRX at current INR: {inr_pool / PRICE_FLOOR:,.6f} MRX</li>
+        <li>Minimum INR at current MRX: ₹{mrx_pool * PRICE_FLOOR:,.2f}</li>
+    </ul>
+    <h2>Test Trade Scenarios:</h2>
+    <p>Maximum MRX that can be sold without violating floor: {(inr_pool / PRICE_FLOOR) - mrx_pool:,.6f} MRX</p>
+    <p><a href="/admin">Back to Admin</a></p>
+    """
+
+    return html
+
+# -------------------------
+# NEW DEBUG ENDPOINT FOR TAX AND LIMIT
+# -------------------------
+@app.route("/debug-tax")
+def debug_tax():
+    """Debug endpoint to check tax collection"""
+    ensure_files()
+
+    # Get tax stats
+    tax_stats = get_tax_collection_stats()
+
+    # Get recent tax records
+    tax_records = get_tax_collection_records(limit=20)
+
+    # Get tax file content
+    tax_content = ""
+    if os.path.exists(TAX_COLLECTION_FILE):
+        with open(TAX_COLLECTION_FILE, "r") as f:
+            tax_content = f.read()
+
+    html = f"""
+    <h1>Tax Collection Debug</h1>
+    <h2>Tax Statistics:</h2>
+    <ul>
+        <li>Total Tax Collected: ₹{tax_stats['total_tax']:,.2f}</li>
+        <li>Total Tax Transactions: {tax_stats['total_transactions']}</li>
+        <li>Buy Order Tax: ₹{tax_stats['buy_tax']:,.2f}</li>
+        <li>Withdrawal Tax: ₹{tax_stats['withdrawal_tax']:,.2f}</li>
+        <li>Sell Order Tax: ₹{tax_stats['sell_tax']:,.2f}</li>
+        <li>Deposit Tax: ₹{tax_stats['deposit_tax']:,.2f}</li>
+    </ul>
+
+    <h2>Tax Rate & Limits:</h2>
+    <ul>
+        <li>Tax Rate: {TAX_RATE*100}%</li>
+        <li>Maximum Single Order: ₹{MAX_SINGLE_ORDER:,.2f}</li>
+    </ul>
+
+    <h2>Example Calculations:</h2>
+    <h3>Buy Order (₹100):</h3>
+    <ul>
+        <li>Tax: ₹{100 * TAX_RATE:.2f}</li>
+        <li>To Pool: ₹{100 * (1 - TAX_RATE):.2f}</li>
+        <li>User gets: MRX worth ₹{100 * (1 - TAX_RATE):.2f}</li>
+    </ul>
+
+    <h3>Withdrawal (₹100):</h3>
+    <ul>
+        <li>Tax: ₹{100 * TAX_RATE:.2f}</li>
+        <li>User receives: ₹{100 * (1 - TAX_RATE):.2f}</li>
+        <li>Platform keeps: ₹{100 * TAX_RATE:.2f}</li>
+    </ul>
+
+    <h2>Recent Tax Records ({len(tax_records)}):</h2>
+    <table border="1">
+        <tr>
+            <th>Date</th>
+            <th>User</th>
+            <th>Type</th>
+            <th>Order Amount</th>
+            <th>Tax</th>
+            <th>Order Worth</th>
+        </tr>
+        {"".join([f'<tr><td>{r["order_date"]}</td><td>{r["user_email"]}</td><td>{r["order_type"]}</td><td>₹{r["order_amount"]:.2f}</td><td>₹{r["tax_amount"]:.2f}</td><td>₹{r["order_worth"]:.2f}</td></tr>' for r in tax_records])}
+    </table>
+
+    <h2>Tax File Content:</h2>
+    <pre>{tax_content}</pre>
+
+    <p><a href="/admin">Back to Admin</a> | <a href="/admin/tax">Tax Dashboard</a></p>
+    """
+
+    return html
+
+# -------------------------
+# NEW DEBUG ENDPOINT FOR ORDERS
+# -------------------------
+@app.route("/debug-orders")
+def debug_orders():
+    """Debug endpoint to check order tracking"""
+    ensure_files()
+
+    # Get orders file content
+    orders_content = ""
+    if os.path.exists(ORDERS_FILE):
+        with open(ORDERS_FILE, "r") as f:
+            orders_content = f.read()
+
+    # Count lines
+    lines = orders_content.strip().split('\n')
+    header_count = 1 if len(lines) > 0 else 0
+    order_count = len(lines) - header_count
+
+    html = f"""
+    <h1>Order Tracking Debug</h1>
+    <h2>File: {ORDERS_FILE}</h2>
+    <h3>Statistics:</h3>
+    <ul>
+        <li>Total Orders: {order_count}</li>
+        <li>File Size: {os.path.getsize(ORDERS_FILE) if os.path.exists(ORDERS_FILE) else 0} bytes</li>
+        <li>File Exists: {os.path.exists(ORDERS_FILE)}</li>
+    </ul>
+
+    <h3>Orders File Content:</h3>
+    <pre>{orders_content}</pre>
+
+    <h3>Column Structure:</h3>
+    <ol>
+        <li>order_id (e.g., ORD1738181234ABC123)</li>
+        <li>user_email</li>
+        <li>user_name</li>
+        <li>order_type (buy/sell)</li>
+        <li>order_amount_inr (₹ amount)</li>
+        <li>order_amount_mrx (MRX amount)</li>
+        <li>price_at_order (₹ per MRX at time of order)</li>
+        <li>tax_amount (₹ tax deducted)</li>
+        <li>status (completed)</li>
+        <li>created_at (timestamp)</li>
+        <li>remarks (description)</li>
+    </ol>
+
+    <p><a href="/admin">Back to Admin</a></p>
+    """
+
+    return html
+
+# -------------------------
+# ERROR HANDLERS
+# -------------------------
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"success": False, "error": "Not found"}), 404
+
+@app.errorhandler(500)
+def server_error(error):
+    return jsonify({"success": False, "error": "Internal server error"}), 500
+
+# -------------------------
+# RUN
+# -------------------------
+if __name__ == "__main__":
+    ensure_files()
+    print("=" * 70)
+    print("UNITED WORLD - Trading Platform")
+    print("=" * 70)
+    print(f"🎯 PRICE FLOOR PROTECTION: ₹{PRICE_FLOOR:.2f} per MRX")
+    print(f"💰 Tax Rate: {TAX_RATE*100}% on buy orders AND withdrawals")
+    print(f"🚫 Single Order Limit: ₹{MAX_SINGLE_ORDER:.2f} maximum")
+    print("=" * 70)
+    print(f"📊 Initial Market Price: ₹{2000/1000:.2f} per MRX")
+    print("=" * 70)
+    print(f"📋 ORDER TRACKING: All buy/sell orders saved to orders.tsv")
+    print("=" * 70)
+    print(f"🎉 NEW FEATURE: Instant profit calculation on every order!")
+    print(f"📈 Shows unrealized profit when price moves in your favor")
+    print("=" * 70)
+    print(f"✓ Admin Dashboard: http://127.0.0.1:8080/admin")
+    print(f"✓ Admin Tax Dashboard: http://127.0.0.1:8080/admin/tax")
+    print(f"✓ Admin Withdrawals: http://127.0.0.1:8080/admin/withdrawals")
+    print(f"✓ Market Debug: http://127.0.0.1:8080/debug-market")
+    print(f"✓ Tax Debug: http://127.0.0.1:8080/debug-tax")
+    print(f"✓ Orders Debug: http://127.0.0.1:8080/debug-orders")
+    print(f"✓ One-click Admin Login: http://127.0.0.1:8080/admin-login")
+    print("=" * 70)
+    print(f"Default Admin Login:")
+    print(f"  📧 Email: admin@unitedworld.com")
+    print(f"  🔑 Password: admin123")
+    print("=" * 70)
+
+    # Check initial market state
+    inr_pool, mrx_pool = read_market()
+    initial_price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+
+    print(f"📊 Initial Market State:")
+    print(f"  • INR Pool: ₹{inr_pool:,.2f}")
+    print(f"  • MRX Pool: {mrx_pool:,.6f}")
+    print(f"  • Initial Price: ₹{initial_price:.4f} per MRX")
+    print(f"  • Price Floor: ₹{PRICE_FLOOR:.2f} per MRX")
+    print(f"  • Status: {'✅ ABOVE FLOOR' if initial_price >= PRICE_FLOOR else '❌ BELOW FLOOR - ADJUST IMMEDIATELY!'}")
+    print("=" * 70)
+    print("🚀 Server starting on http://127.0.0.1:8080")
+    print("🛑 Press Ctrl+C to stop")
+    print("=" * 70)
+
+    app.run(host="127.0.0.1", port=8080, debug=True)
