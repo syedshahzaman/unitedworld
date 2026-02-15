@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNITED WORLD | User Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --black-900: #03050B;
+            --black-800: #0A0C14;
+            --black-700: #11131F;
+            --black-600: #1A1D2B;
+            --navy-900: #0B0F1C;
+            --navy-800: #12182A;
+            --navy-700: #1A2340;
+            --navy-600: #233155;
+            
+            --primary-500: #2D8CFF;
+            --primary-400: #4DA1FF;
+            --primary-300: #7AB6FF;
+            --teal-500: #00D4D4;
+            --cyan-500: #00E5FF;
+            
+            --success-500: #10B981;
+            --success-400: #34D399;
+            --warning-500: #F59E0B;
+            --warning-400: #FBBF24;
+            --danger-500: #EF4444;
+            --danger-400: #F87171;
+            --info-500: #3B82F6;
+            
+            --text-primary: #FFFFFF;
+            --text-secondary: #E2E8F0;
+            --text-tertiary: #94A3B8;
+            --text-disabled: #64748B;
+            
+            --bg-card: rgba(18, 24, 42, 0.75);
+            --bg-card-solid: #12182A;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(45, 140, 255, 0.3);
+            
+            --glass-bg: rgba(18, 24, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(20px);
+            --glass-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            
+            --space-xs: 0.5rem;
+            --space-sm: 0.75rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 2.5rem;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            
+            --shadow-glow: 0 0 20px rgba(45, 140, 255, 0.3);
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(145deg, var(--black-900) 0%, var(--navy-900) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(45, 140, 255, 0.03) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(0, 212, 212, 0.03) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: var(--bg-card-solid);
+            border-right: 1px solid var(--border-color);
+            padding: var(--space-xl) 0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--glass-shadow);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                z-index: 1000;
+                width: 280px;
+                transition: left var(--transition-base);
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(5px);
+                z-index: 999;
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 0 var(--space-xl) var(--space-xl);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: var(--space-xl);
+        }
+
+        .logo-img {
+            height: 36px;
+            width: auto;
+            filter: brightness(1.2);
+        }
+
+        .logo-text {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .logo-text span {
+            background: linear-gradient(135deg, var(--primary-400), var(--cyan-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 var(--space-lg);
+        }
+
+        .nav-item {
+            margin-bottom: var(--space-xs);
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(45, 140, 255, 0.15), transparent);
+            color: var(--primary-400);
+            border-left: 3px solid var(--primary-400);
+        }
+
+        .nav-link.active .nav-icon {
+            color: var(--primary-400);
+        }
+
+        .nav-icon {
+            width: 24px;
+            text-align: center;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--glass-border);
+            padding: var(--space-lg) var(--space-xl);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+        }
+
+        @media (max-width: 1024px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-top: var(--space-xs);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xl);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-xs) var(--space-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+        }
+
+        .admin-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-500), var(--cyan-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .admin-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-name {
+            font-weight: 600;
+            font-size: 0.9375rem;
+        }
+
+        .admin-badge {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-400);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: var(--space-sm) var(--space-xl);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            padding: var(--space-2xl);
+            overflow-y: auto;
+        }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-xl);
+            margin-bottom: var(--space-2xl);
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            transition: all var(--transition-base);
+        }
+
+        .stat-card:hover {
+            border-color: var(--primary-400);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+
+        .stat-icon.users {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+        }
+
+        .stat-icon.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-400);
+        }
+
+        .stat-icon.limited {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-400);
+        }
+
+        .stat-icon.admins {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8B5CF6;
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+        }
+
+        /* ===== SEARCH & FILTERS ===== */
+        .controls-section {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .search-section {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: var(--space-md);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: var(--space-md) var(--space-md) var(--space-md) 45px;
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+            font-size: 0.9375rem;
+            transition: all var(--transition-base);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-400);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: var(--space-sm);
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-secondary);
+            font-family: var(--font-primary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary-400);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: rgba(45, 140, 255, 0.1);
+            border-color: var(--primary-400);
+            color: var(--primary-400);
+        }
+
+        .filter-btn.danger.active {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger-400);
+            color: var(--danger-400);
+        }
+
+        .filter-btn.warning.active {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning-400);
+            color: var(--warning-400);
+        }
+
+        .summary-badge {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md) var(--space-lg);
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-tertiary);
+        }
+
+        .summary-badge span {
+            color: var(--primary-400);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* ===== USERS TABLE ===== */
+        .table-container {
+            background: var(--bg-card);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            margin-bottom: var(--space-xl);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .table-header h3 i {
+            color: var(--primary-400);
+        }
+
+        .table-controls {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .table-control-btn {
+            padding: var(--space-sm) var(--space-md);
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .table-control-btn:hover {
+            border-color: var(--primary-400);
+            color: var(--primary-400);
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th {
+            text-align: left;
+            padding: var(--space-lg) var(--space-xl);
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text-tertiary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .users-table th:hover {
+            color: var(--primary-400);
+        }
+
+        .users-table th i {
+            margin-left: var(--space-xs);
+            font-size: 0.75rem;
+        }
+
+        .users-table td {
+            padding: var(--space-lg) var(--space-xl);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .users-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .users-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-500), var(--cyan-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .badge {
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge.admin {
+            background: rgba(139, 92, 246, 0.1);
+            color: #8B5CF6;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .badge.limited {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-400);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge.warning {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-400);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-400);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 6px;
+            background: var(--bg-card-solid);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-500), var(--cyan-500));
+            border-radius: 3px;
+            transition: width var(--transition-base);
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, var(--warning-500), var(--warning-400));
+        }
+
+        .progress-fill.danger {
+            background: linear-gradient(90deg, var(--danger-500), var(--danger-400));
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
+        .action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .action-icon:hover {
+            border-color: var(--primary-400);
+            color: var(--primary-400);
+            transform: translateY(-2px);
+        }
+
+        .action-icon.warning:hover {
+            border-color: var(--warning-400);
+            color: var(--warning-400);
+        }
+
+        .action-icon.danger:hover {
+            border-color: var(--danger-400);
+            color: var(--danger-400);
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-xl);
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .page-btn:hover {
+            border-color: var(--primary-400);
+            color: var(--primary-400);
+        }
+
+        .page-btn.active {
+            background: rgba(45, 140, 255, 0.1);
+            border-color: var(--primary-400);
+            color: var(--primary-400);
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ===== MODALS ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .modal-header h2 i {
+            color: var(--primary-400);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            color: var(--danger-400);
+            transform: scale(1.1);
+        }
+
+        .modal-body {
+            margin-bottom: var(--space-xl);
+        }
+
+        .detail-row {
+            display: flex;
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-label {
+            width: 140px;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .detail-value {
+            flex: 1;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .detail-value.highlight {
+            color: var(--primary-400);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: var(--space-md);
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: var(--space-md) var(--space-xl);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.primary {
+            background: rgba(45, 140, 255, 0.1);
+            color: var(--primary-400);
+            border-color: rgba(45, 140, 255, 0.3);
+        }
+
+        .modal-btn.primary:hover {
+            background: rgba(45, 140, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-400);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .modal-btn.warning:hover {
+            background: rgba(245, 158, 11, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .modal-btn.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-400);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .modal-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            margin-bottom: var(--space-lg);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: var(--space-sm);
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: var(--space-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-family: var(--font-primary);
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-400);
+        }
+
+        .transactions-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-type {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .transaction-type i.buy {
+            color: var(--success-400);
+        }
+
+        .transaction-type i.sell {
+            color: var(--danger-400);
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+        }
+
+        .transaction-amount.positive {
+            color: var(--success-400);
+        }
+
+        .transaction-amount.negative {
+            color: var(--danger-400);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(45, 140, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-400);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: var(--space-md) var(--space-xl);
+            background: var(--bg-card-solid);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            z-index: 3000;
+            animation: slideIn 0.3s ease;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success-400);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger-400);
+        }
+
+        .toast.warning {
+            border-left: 4px solid var(--warning-400);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-3xl);
+            color: var(--text-tertiary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: var(--space-lg);
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: var(--space-lg);
+            }
+            
+            .users-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .action-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .modal {
+                padding: var(--space-xl);
+            }
+            
+            .detail-row {
+                flex-direction: column;
+                gap: var(--space-xs);
+            }
+            
+            .detail-label {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-container">
+                <img src="/static/images/uwblank.png" alt="UNITED WORLD" class="logo-img">
+                <div class="logo-text">UNITED <span>WORLD</span></div>
+            </div>
+            
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/admin" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-chart-pie"></i></span>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/users" class="nav-link active">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/deposits" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-arrow-down"></i></span>
+                        <span>Deposits</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/withdrawals" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-arrow-up"></i></span>
+                        <span>Withdrawals</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/pool" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-water"></i></span>
+                        <span>Pool Control</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/daily-limits" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-clock"></i></span>
+                        <span>Daily Limits</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/tax" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-percent"></i></span>
+                        <span>Tax Collection</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/admin/logs" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-history"></i></span>
+                        <span>Audit Logs</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="/trade" class="nav-link">
+                        <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                        <span>Back to Trading</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="page-title">User Management</h1>
+                    <p class="page-subtitle">Manage users, view details, and control access</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="admin-info">
+                    <div class="admin-avatar" id="adminAvatar">AW</div>
+                    <div class="admin-details">
+                        <div class="admin-name" id="adminName">Admin Wilson</div>
+                        <div class="admin-badge">SUPER ADMIN</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="window.location.href='/logout'">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value" id="totalUsers">0</div>
+                            <div class="stat-label">Total Users</div>
+                        </div>
+                        <div class="stat-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value" id="activeUsers">0</div>
+                            <div class="stat-label">Active Users</div>
+                        </div>
+                        <div class="stat-icon active">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value" id="limitedUsers">0</div>
+                            <div class="stat-label">At Daily Limit</div>
+                        </div>
+                        <div class="stat-icon limited">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-value" id="adminCount">0</div>
+                            <div class="stat-label">Admin Users</div>
+                        </div>
+                        <div class="stat-icon admins">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search and Filters -->
+            <div class="controls-section">
+                <div class="search-section">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search by name, email, or user ID...">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <button class="filter-btn active" data-filter="all" onclick="filterUsers('all')">
+                            <i class="fas fa-list"></i> All
+                        </button>
+                        <button class="filter-btn" data-filter="active" onclick="filterUsers('active')">
+                            <i class="fas fa-user-check"></i> Active
+                        </button>
+                        <button class="filter-btn warning" data-filter="limited" onclick="filterUsers('limited')">
+                            <i class="fas fa-clock"></i> At Limit
+                        </button>
+                        <button class="filter-btn danger" data-filter="inactive" onclick="filterUsers('inactive')">
+                            <i class="fas fa-user-slash"></i> Inactive
+                        </button>
+                        <button class="filter-btn" data-filter="admin" onclick="filterUsers('admin')">
+                            <i class="fas fa-shield-alt"></i> Admins
+                        </button>
+                    </div>
+                    
+                    <div class="summary-badge">
+                        <i class="fas fa-users"></i>
+                        Showing <span id="displayCount">0</span> of <span id="totalCount">0</span> users
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Users Table -->
+            <div class="table-container">
+                <div class="table-header">
+                    <h3>
+                        <i class="fas fa-users"></i>
+                        Registered Users
+                    </h3>
+                    <div class="table-controls">
+                        <button class="table-control-btn" onclick="exportUsers()" title="Export to CSV">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="table-control-btn" onclick="refreshUsers()" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <table class="users-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('name')">User <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('balance')">INR Balance <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('mrx')">Internal MRX <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('total')">Total Value <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable('daily')">Daily Usage <i class="fas fa-sort"></i></th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p>Loading users...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <button class="page-btn" onclick="changePage('prev')" id="prevPage">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span id="pageInfo">Page 1 of 1</span>
+                    <button class="page-btn" onclick="changePage('next')" id="nextPage">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- User Details Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-circle"></i> User Details</h2>
+                <button class="modal-close" onclick="closeModal('userModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="userDetails">
+                <!-- Dynamic content loaded via JS -->
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal('userModal')">Close</button>
+                <button class="modal-btn warning" id="resetLimitBtn" onclick="resetDailyLimit()">Reset Daily Limit</button>
+                <button class="modal-btn danger" id="toggleAdminBtn" onclick="toggleAdmin()">Toggle Admin</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Balance Modal -->
+    <div class="modal-overlay" id="editBalanceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-rupee-sign"></i> Adjust Balance</h2>
+                <button class="modal-close" onclick="closeModal('editBalanceModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="balanceForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="form-group">
+                        <label>Current INR Balance</label>
+                        <input type="text" id="currentBalance" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Adjustment Amount (₹)</label>
+                        <input type="number" id="adjustAmount" step="0.01" placeholder="Enter amount">
+                    </div>
+                    <div class="form-group">
+                        <label>Operation</label>
+                        <select id="adjustOperation">
+                            <option value="add">Add to balance</option>
+                            <option value="subtract">Subtract from balance</option>
+                            <option value="set">Set exact balance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <input type="text" id="adjustReason" placeholder="Enter reason for adjustment">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal('editBalanceModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="updateBalance()">Update Balance</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Modal -->
+    <div class="modal-overlay" id="transactionsModal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-history"></i> Transaction History</h2>
+                <button class="modal-close" onclick="closeModal('transactionsModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="transactionsList" class="transactions-list">
+                    <!-- Transactions loaded via JS -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal('transactionsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Confirm Action</h2>
+                <button class="modal-close" onclick="closeModal('confirmModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to perform this action?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="modal-btn danger" id="confirmActionBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast" style="display: none;"></div>
+
+    <script>
+        // Global variables
+        let allUsers = [];
+        let filteredUsers = [];
+        let currentPage = 1;
+        let pageSize = 10;
+        let currentSort = { field: 'name', direction: 'asc' };
+        let currentFilter = 'all';
+        let selectedUser = null;
+        let confirmCallback = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+            setupEventListeners();
+        });
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mobile menu
+            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+                document.getElementById('sidebarOverlay').classList.toggle('active');
+            });
+
+            document.getElementById('sidebarOverlay').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.remove('active');
+                document.getElementById('sidebarOverlay').classList.remove('active');
+            });
+
+            // Search input with debounce
+            let searchTimeout;
+            document.getElementById('searchInput').addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    filterUsers(currentFilter);
+                }, 300);
+            });
+        }
+
+        // Load users from API
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/admin/users');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allUsers = data.users;
+                    updateStats(data.users);
+                    filterUsers(currentFilter);
+                } else {
+                    showToast('Failed to load users', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showToast('Error loading users', 'error');
+            }
+        }
+
+        // Update statistics
+        function updateStats(users) {
+            const total = users.length;
+            const active = users.filter(u => u.inr_balance > 0 || u.internal_mrx_balance > 0).length;
+            const limited = users.filter(u => u.daily_limit_reached).length;
+            const admins = users.filter(u => u.is_admin).length;
+            
+            document.getElementById('totalUsers').textContent = total;
+            document.getElementById('activeUsers').textContent = active;
+            document.getElementById('limitedUsers').textContent = limited;
+            document.getElementById('adminCount').textContent = admins;
+            document.getElementById('totalCount').textContent = total;
+        }
+
+        // Filter users
+        function filterUsers(filter) {
+            currentFilter = filter;
+            currentPage = 1;
+            
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === filter) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Apply filters
+            filteredUsers = allUsers.filter(user => {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const matchesSearch = 
+                    user.full_name.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm) ||
+                    user.user_id.toLowerCase().includes(searchTerm);
+                
+                if (!matchesSearch) return false;
+                
+                switch(filter) {
+                    case 'active':
+                        return user.inr_balance > 0 || user.internal_mrx_balance > 0;
+                    case 'inactive':
+                        return user.inr_balance === 0 && user.internal_mrx_balance === 0;
+                    case 'limited':
+                        return user.daily_limit_reached;
+                    case 'admin':
+                        return user.is_admin;
+                    default:
+                        return true;
+                }
+            });
+            
+            // Sort users
+            sortUsers();
+            
+            // Update display
+            updateDisplayCount();
+            renderTable();
+        }
+
+        // Sort users
+        function sortUsers() {
+            filteredUsers.sort((a, b) => {
+                let valA, valB;
+                
+                switch(currentSort.field) {
+                    case 'name':
+                        valA = a.full_name.toLowerCase();
+                        valB = b.full_name.toLowerCase();
+                        break;
+                    case 'balance':
+                        valA = a.inr_balance;
+                        valB = b.inr_balance;
+                        break;
+                    case 'mrx':
+                        valA = a.internal_mrx_balance;
+                        valB = b.internal_mrx_balance;
+                        break;
+                    case 'total':
+                        valA = a.total_value;
+                        valB = b.total_value;
+                        break;
+                    case 'daily':
+                        valA = a.daily_trades_today;
+                        valB = b.daily_trades_today;
+                        break;
+                    default:
+                        valA = a.full_name;
+                        valB = b.full_name;
+                }
+                
+                if (currentSort.direction === 'asc') {
+                    return valA > valB ? 1 : -1;
+                } else {
+                    return valA < valB ? 1 : -1;
+                }
+            });
+        }
+
+        // Sort table
+        function sortTable(field) {
+            if (currentSort.field === field) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.field = field;
+                currentSort.direction = 'asc';
+            }
+            
+            sortUsers();
+            renderTable();
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('usersTableBody');
+            const start = (currentPage - 1) * pageSize;
+            const end = Math.min(start + pageSize, filteredUsers.length);
+            const pageUsers = filteredUsers.slice(start, end);
+            
+            if (pageUsers.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-users-slash"></i>
+                            <p>No users found</p>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbody.innerHTML = pageUsers.map(user => `
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">${getInitials(user.full_name)}</div>
+                                <div class="user-details">
+                                    <div class="user-name">${user.full_name}</div>
+                                    <div class="user-email">${user.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>₹${user.inr_balance.toFixed(2)}</td>
+                        <td>${user.internal_mrx_balance.toFixed(6)}</td>
+                        <td>₹${user.total_value.toFixed(2)}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                                <span>₹${user.daily_trades_today.toFixed(2)}</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill ${getProgressClass(user)}" 
+                                         style="width: ${(user.daily_trades_today / 10000 * 100)}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            ${user.is_admin ? '<span class="badge admin"><i class="fas fa-shield-alt"></i> Admin</span>' : ''}
+                            ${user.daily_limit_reached ? '<span class="badge warning"><i class="fas fa-clock"></i> Limited</span>' : ''}
+                            ${user.inr_balance === 0 && user.internal_mrx_balance === 0 ? 
+                              '<span class="badge warning"><i class="fas fa-bed"></i> Inactive</span>' : 
+                              '<span class="badge success"><i class="fas fa-check"></i> Active</span>'}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <div class="action-icon" onclick="viewUser('${user.email}')" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </div>
+                                <div class="action-icon" onclick="editBalance('${user.email}')" title="Adjust Balance">
+                                    <i class="fas fa-rupee-sign"></i>
+                                </div>
+                                <div class="action-icon" onclick="viewTransactions('${user.email}')" title="View Transactions">
+                                    <i class="fas fa-history"></i>
+                                </div>
+                                ${!user.is_admin ? `
+                                <div class="action-icon warning" onclick="resetUserLimit('${user.email}')" title="Reset Daily Limit">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Update pagination
+            updatePagination();
+        }
+
+        // Get user initials
+        function getInitials(name) {
+            return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        // Get progress bar class
+        function getProgressClass(user) {
+            const percentage = (user.daily_trades_today / 10000) * 100;
+            if (percentage >= 90) return 'danger';
+            if (percentage >= 70) return 'warning';
+            return '';
+        }
+
+        // Update display count
+        function updateDisplayCount() {
+            document.getElementById('displayCount').textContent = filteredUsers.length;
+        }
+
+        // Update pagination
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredUsers.length / pageSize);
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages || 1}`;
+            
+            document.getElementById('prevPage').classList.toggle('disabled', currentPage === 1);
+            document.getElementById('nextPage').classList.toggle('disabled', currentPage === totalPages || totalPages === 0);
+        }
+
+        // Change page
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredUsers.length / pageSize);
+            
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+                renderTable();
+            } else if (direction === 'next' && currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+            }
+        }
+
+        // View user details
+        async function viewUser(email) {
+            try {
+                const response = await fetch(`/api/admin/user/${email}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    selectedUser = data.user;
+                    displayUserDetails(data);
+                    openModal('userModal');
+                } else {
+                    showToast('Failed to load user details', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading user details:', error);
+                showToast('Error loading user details', 'error');
+            }
+        }
+
+        // Display user details in modal
+        function displayUserDetails(data) {
+            const user = data.user;
+            const transactions = data.transactions || [];
+            const deposits = data.deposit_requests || [];
+            const withdrawals = data.withdrawal_requests || [];
+            
+            const html = `
+                <div class="detail-row">
+                    <span class="detail-label">User ID:</span>
+                    <span class="detail-value">${user.user_id}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Full Name:</span>
+                    <span class="detail-value">${user.full_name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Email:</span>
+                    <span class="detail-value">${user.email}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Mobile:</span>
+                    <span class="detail-value">${user.mobile || 'N/A'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">INR Balance:</span>
+                    <span class="detail-value highlight">₹${user.inr_balance.toFixed(2)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Internal MRX:</span>
+                    <span class="detail-value">${user.internal_mrx_balance.toFixed(6)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Total Value:</span>
+                    <span class="detail-value highlight">₹${(user.inr_balance + (user.internal_mrx_balance * data.market_price)).toFixed(2)}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Daily Usage:</span>
+                    <span class="detail-value ${user.daily_limit_reached ? 'highlight' : ''}">
+                        ₹${user.daily_trades_today.toFixed(2)} / ₹10000
+                        ${user.daily_limit_reached ? '(Limit Reached)' : ''}
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Referral:</span>
+                    <span class="detail-value">${user.referral || 'None'}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Joined:</span>
+                    <span class="detail-value">${new Date(user.created_at * 1000).toLocaleString()}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Transactions:</span>
+                    <span class="detail-value">${transactions.length} total</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Deposits:</span>
+                    <span class="detail-value">${deposits.length} (${deposits.filter(d => d.status === 'pending').length} pending)</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Withdrawals:</span>
+                    <span class="detail-value">${withdrawals.length} (${withdrawals.filter(w => w.status === 'pending').length} pending)</span>
+                </div>
+            `;
+            
+            document.getElementById('userDetails').innerHTML = html;
+            
+            // Update modal buttons
+            document.getElementById('resetLimitBtn').style.display = user.daily_limit_reached ? 'inline-block' : 'none';
+            document.getElementById('toggleAdminBtn').innerHTML = user.is_admin ? 
+                '<i class="fas fa-user"></i> Remove Admin' : 
+                '<i class="fas fa-shield-alt"></i> Make Admin';
+        }
+
+        // Edit balance
+        function editBalance(email) {
+            const user = allUsers.find(u => u.email === email);
+            if (!user) return;
+            
+            selectedUser = user;
+            document.getElementById('editUserId').value = email;
+            document.getElementById('currentBalance').value = `₹${user.inr_balance.toFixed(2)}`;
+            document.getElementById('adjustAmount').value = '';
+            document.getElementById('adjustReason').value = '';
+            
+            openModal('editBalanceModal');
+        }
+
+        // Update balance
+        async function updateBalance() {
+            const email = document.getElementById('editUserId').value;
+            const amount = parseFloat(document.getElementById('adjustAmount').value);
+            const operation = document.getElementById('adjustOperation').value;
+            const reason = document.getElementById('adjustReason').value;
+            
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid amount', 'warning');
+                return;
+            }
+            
+            if (!reason) {
+                showToast('Please enter a reason for adjustment', 'warning');
+                return;
+            }
+            
+            let newBalance;
+            const currentBalance = selectedUser.inr_balance;
+            
+            switch(operation) {
+                case 'add':
+                    newBalance = currentBalance + amount;
+                    break;
+                case 'subtract':
+                    if (amount > currentBalance) {
+                        showToast('Cannot subtract more than current balance', 'warning');
+                        return;
+                    }
+                    newBalance = currentBalance - amount;
+                    break;
+                case 'set':
+                    newBalance = amount;
+                    break;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/adjust-user-balance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        new_balance: newBalance,
+                        reason: reason,
+                        operation: operation
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast(`Balance updated successfully`, 'success');
+                    closeModal('editBalanceModal');
+                    loadUsers(); // Refresh the list
+                } else {
+                    showToast(data.error || 'Failed to update balance', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating balance:', error);
+                showToast('Error updating balance', 'error');
+            }
+        }
+
+        // View transactions
+        async function viewTransactions(email) {
+            try {
+                const response = await fetch(`/api/admin/user/${email}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const transactions = data.transactions || [];
+                    
+                    const html = transactions.length === 0 ? 
+                        '<p class="empty-state">No transactions found</p>' :
+                        transactions.map(t => `
+                            <div class="transaction-item">
+                                <div class="transaction-type">
+                                    <i class="fas ${getTransactionIcon(t.type)} ${getTransactionClass(t.type)}"></i>
+                                    <span>${formatTransactionType(t.type)}</span>
+                                </div>
+                                <div>
+                                    <div class="transaction-amount ${getAmountClass(t.amount_inr)}">
+                                        ${t.amount_inr > 0 ? '+' : ''}₹${t.amount_inr.toFixed(2)}
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: var(--text-tertiary);">
+                                        ${new Date(t.timestamp * 1000).toLocaleString()}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    
+                    document.getElementById('transactionsList').innerHTML = html;
+                    openModal('transactionsModal');
+                }
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                showToast('Error loading transactions', 'error');
+            }
+        }
+
+        function getTransactionIcon(type) {
+            const icons = {
+                'accelerate_bullish': 'fa-arrow-up',
+                'withdrawal_requested': 'fa-arrow-down',
+                'withdrawal_approved': 'fa-check',
+                'withdrawal_rejected_refund': 'fa-undo',
+                'deposit_approved': 'fa-plus'
+            };
+            return icons[type] || 'fa-circle';
+        }
+
+        function getTransactionClass(type) {
+            if (type.includes('bullish') || type.includes('approved') || type.includes('deposit')) {
+                return 'buy';
+            }
+            return 'sell';
+        }
+
+        function formatTransactionType(type) {
+            return type.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+        }
+
+        function getAmountClass(amount) {
+            return amount > 0 ? 'positive' : 'negative';
+        }
+
+        // Reset user daily limit
+        function resetUserLimit(email) {
+            selectedUser = allUsers.find(u => u.email === email);
+            showConfirm(
+                `Reset daily trading limit for ${selectedUser.full_name}?`,
+                async () => {
+                    try {
+                        const response = await fetch('/api/admin/reset-daily-limit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ user_email: email })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showToast('Daily limit reset successfully', 'success');
+                            loadUsers(); // Refresh the list
+                        } else {
+                            showToast(data.error || 'Failed to reset limit', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error resetting limit:', error);
+                        showToast('Error resetting limit', 'error');
+                    }
+                }
+            );
+        }
+
+        // Toggle admin status
+        function toggleAdmin() {
+            if (!selectedUser) return;
+            
+            showConfirm(
+                `${selectedUser.is_admin ? 'Remove admin privileges from' : 'Grant admin privileges to'} ${selectedUser.full_name}?`,
+                async () => {
+                    try {
+                        const response = await fetch('/api/admin/toggle-admin', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email: selectedUser.email,
+                                make_admin: !selectedUser.is_admin
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showToast(`Admin status updated`, 'success');
+                            closeModal('userModal');
+                            loadUsers(); // Refresh the list
+                        } else {
+                            showToast(data.error || 'Failed to update admin status', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error toggling admin:', error);
+                        showToast('Error updating admin status', 'error');
+                    }
+                }
+            );
+        }
+
+        // Show confirmation modal
+        function showConfirm(message, callback) {
+            document.getElementById('confirmMessage').textContent = message;
+            confirmCallback = callback;
+            openModal('confirmModal');
+        }
+
+        // Confirm action
+        document.getElementById('confirmActionBtn').addEventListener('click', function() {
+            if (confirmCallback) {
+                confirmCallback();
+            }
+            closeModal('confirmModal');
+        });
+
+        // Export users to CSV
+        function exportUsers() {
+            const headers = ['User ID', 'Full Name', 'Email', 'Mobile', 'INR Balance', 'Internal MRX', 'Total Value', 'Daily Usage', 'Is Admin', 'Joined'];
+            const csvData = filteredUsers.map(user => [
+                user.user_id,
+                user.full_name,
+                user.email,
+                user.mobile || '',
+                user.inr_balance,
+                user.internal_mrx_balance,
+                user.total_value,
+                user.daily_trades_today,
+                user.is_admin ? 'Yes' : 'No',
+                new Date(user.created_at * 1000).toLocaleDateString()
+            ]);
+            
+            const csv = [headers, ...csvData].map(row => row.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `users_export_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            
+            showToast('Users exported successfully', 'success');
+        }
+
+        // Refresh users
+        function refreshUsers() {
+            loadUsers();
+            showToast('Refreshing user data...', 'info');
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            toast.style.display = 'flex';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modals on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(modal => {
+                    modal.style.display = 'none';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
