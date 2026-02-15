@@ -2523,6 +2523,157 @@ def admin_daily_limits():
 
     return render_template("admin/daily_limits.html")
 
+# ========================
+# NEW ADMIN POOL CONTROL ROUTE
+# ========================
+@app.route("/admin/pool")
+def admin_pool():
+    """Admin pool control page - ONLY admin email allowed"""
+    if "user" not in session:
+        return redirect(url_for("login"))
+    
+    # Strict admin check - only admin email allowed
+    if not is_admin(session["user"]):
+        log_admin_action(
+            session["user"] if "user" in session else "unknown",
+            "access_denied",
+            session.get("user", "unknown"),
+            "page",
+            f"Attempted to access admin pool page without admin privileges"
+        )
+        return "Access Denied - Admin Only", 403
+    
+    # Log access
+    log_admin_action(
+        session["user"],
+        "page_view",
+        session["user"],
+        "page",
+        "Accessed admin pool control page"
+    )
+    
+    return render_template("admin/pool.html")
+
+# ========================
+# NEW ADMIN UPDATE POOL API - SECURE
+# ========================
+@app.route("/api/admin/update-pool", methods=["POST"])
+def api_admin_update_pool():
+    """Secure API endpoint for admin to update pool - ONLY admin email allowed"""
+    
+    # Check if user is logged in
+    if "user" not in session:
+        return jsonify({
+            "success": False,
+            "error": "Unauthorized - Not logged in"
+        }), 401
+    
+    # Strict admin check - only admin email allowed
+    if not is_admin(session["user"]):
+        # Log unauthorized attempt
+        log_admin_action(
+            session["user"],
+            "unauthorized_api_attempt",
+            session["user"],
+            "api",
+            f"Attempted to access admin update-pool API without admin privileges"
+        )
+        
+        return jsonify({
+            "success": False,
+            "error": "Unauthorized - Admin access only"
+        }), 403
+    
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                "success": False,
+                "error": "Invalid request data"
+            }), 400
+        
+        # Get new pool values
+        new_inr_pool = float(data.get("inr_pool", 0))
+        new_mrx_pool = float(data.get("mrx_pool", 0))
+        
+        # Validation
+        if new_mrx_pool <= 0:
+            return jsonify({
+                "success": False,
+                "error": "MRX pool cannot be zero or negative"
+            }), 400
+        
+        if new_inr_pool < 0:
+            return jsonify({
+                "success": False,
+                "error": "INR pool cannot be negative"
+            }), 400
+        
+        # Calculate new price
+        new_price = new_inr_pool / new_mrx_pool
+        
+        # Check price floor (₹1 minimum)
+        if new_price < PRICE_FLOOR:
+            return jsonify({
+                "success": False,
+                "error": f"Cannot set pool. Price would be ₹{new_price:.4f} which is below ₹{PRICE_FLOOR:.2f} floor",
+                "current_price_floor": PRICE_FLOOR,
+                "attempted_price": round(new_price, 4),
+                "minimum_inr_for_mrx": new_mrx_pool * PRICE_FLOOR,
+                "maximum_mrx_for_inr": new_inr_pool / PRICE_FLOOR if PRICE_FLOOR > 0 else 0
+            }), 400
+        
+        # Check INR pool minimum (₹1000)
+        if new_inr_pool < MIN_INR_POOL:
+            return jsonify({
+                "success": False,
+                "error": f"Cannot set pool. INR pool would be ₹{new_inr_pool:.2f} which is below minimum ₹{MIN_INR_POOL:.2f}",
+                "min_inr_pool": MIN_INR_POOL
+            }), 400
+        
+        # Read current market state (for logging)
+        old_inr_pool, old_mrx_pool = read_market()
+        old_price = old_inr_pool / old_mrx_pool if old_mrx_pool > 0 else 0
+        
+        # Write new market state
+        write_market(new_inr_pool, new_mrx_pool)
+        
+        # Log the admin action
+        log_admin_action(
+            session["user"],
+            "update_pool",
+            "market",
+            "pool",
+            f"Updated pool from ₹{old_inr_pool:.2f}/{old_mrx_pool:.6f} MRX (₹{old_price:.4f}) to ₹{new_inr_pool:.2f}/{new_mrx_pool:.6f} MRX (₹{new_price:.4f})"
+        )
+        
+        # Return success response
+        return jsonify({
+            "success": True,
+            "new_price": round(new_price, 4),
+            "inr_pool": round(new_inr_pool, 2),
+            "mrx_pool": round(new_mrx_pool, 6),
+            "old_price": round(old_price, 4),
+            "price_floor": PRICE_FLOOR,
+            "above_floor": new_price >= PRICE_FLOOR,
+            "min_inr_pool": MIN_INR_POOL,
+            "inr_pool_above_min": new_inr_pool >= MIN_INR_POOL,
+            "message": f"Pool updated successfully. New price: ₹{new_price:.4f}"
+        })
+        
+    except ValueError as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 400
+    except Exception as e:
+        # Log error
+        print(f"Error updating pool: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": "Internal server error"
+        }), 500
+
 # -------------------------
 # DEBUG ENDPOINTS
 # -------------------------
