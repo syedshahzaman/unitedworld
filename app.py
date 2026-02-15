@@ -6,7 +6,8 @@ import re
 from datetime import datetime, date
 
 # -------------------------
-# APP CONFIG                                                                              # -------------------------
+# APP CONFIG
+# -------------------------
 app = Flask(__name__)
 app.secret_key = "unitedworld-secret-key"
 
@@ -20,7 +21,7 @@ ADMIN_LOG_FILE = os.path.join(DATA_DIR, "admin_log.tsv")
 TAX_COLLECTION_FILE = os.path.join(DATA_DIR, "tax_collection.tsv")
 ORDERS_FILE = os.path.join(DATA_DIR, "orders.tsv")
 INTERNAL_MRX_FILE = os.path.join(DATA_DIR, "internal_mrx.tsv")
-DAILY_TRADES_FILE = os.path.join(DATA_DIR, "daily_trades.tsv")  # NEW
+DAILY_TRADES_FILE = os.path.join(DATA_DIR, "daily_trades.tsv")
 
 # -------------------------
 # FILE HEADERS
@@ -67,7 +68,6 @@ INTERNAL_MRX_HEADER = (
     "user_email\tinternal_mrx_balance\tlast_updated\n"
 )
 
-# NEW: Daily trades tracking
 DAILY_TRADES_HEADER = (
     "date\tuser_email\ttotal_amount\ttransaction_count\tlast_updated\n"
 )
@@ -75,11 +75,11 @@ DAILY_TRADES_HEADER = (
 # -------------------------
 # CONSTANTS
 # -------------------------
-PRICE_FLOOR = 1.0  # Minimum ₹1 per MRX - CANNOT GO BELOW THIS
-TAX_RATE = 0.05  # 5% tax ONLY on BUY orders (NO tax on sell/withdraw)
-MAX_SINGLE_ORDER = 1000.00  # Maximum ₹1000 per single order
-DAILY_TRADING_LIMIT = 10000.00  # NEW: ₹10,000 daily limit per user
-MIN_INR_POOL = 1000.00  # NEW: Minimum INR pool balance
+PRICE_FLOOR = 1.0
+TAX_RATE = 0.05
+MAX_SINGLE_ORDER = 1000.00
+DAILY_TRADING_LIMIT = 10000.00
+MIN_INR_POOL = 1000.00
 
 # -------------------------
 # FILE INITIALIZATION
@@ -130,13 +130,12 @@ def ensure_files():
         with open(INTERNAL_MRX_FILE, "w") as f:
             f.write(INTERNAL_MRX_HEADER)
 
-    # NEW: Initialize daily trades file
     if not os.path.exists(DAILY_TRADES_FILE):
         with open(DAILY_TRADES_FILE, "w") as f:
             f.write(DAILY_TRADES_HEADER)
 
 # -------------------------
-# DAILY TRADING LIMIT HELPERS (NEW)
+# DAILY TRADING LIMIT HELPERS
 # -------------------------
 def get_user_daily_trades(user_email):
     """Get user's total trades for today"""
@@ -773,7 +772,7 @@ def get_recent_transactions(limit=50):
     return transactions[:limit]
 
 # -------------------------
-# WITHDRAWAL REQUEST HELPERS - UPDATED WITH INR POOL PROTECTION
+# WITHDRAWAL REQUEST HELPERS
 # -------------------------
 def save_withdraw_request(user_email, user_name, amount, bank_name, account_number, ifsc_code):
     """Save withdrawal request and DEDUCT amount immediately"""
@@ -1232,13 +1231,12 @@ def get_dashboard_stats():
         'withdrawal_stats': withdrawal_stats,
         'tax_stats': tax_stats,
         'internal_mrx_reconciliation': round(mrx_pool + total_internal_mrx, 6),
-        'min_inr_pool': MIN_INR_POOL,  # NEW: Include min INR pool in stats
-        'inr_pool_above_min': inr_pool >= MIN_INR_POOL  # NEW: Check if above minimum
+        'min_inr_pool': MIN_INR_POOL,
+        'inr_pool_above_min': inr_pool >= MIN_INR_POOL
     }
 
 # ========================
-# CORRECTED ACCELERATE-ORDER ENDPOINT
-# User's wallet shows: remaining INR + value of MRX investment
+# ACCELERATE-ORDER ENDPOINT
 # ========================
 @app.route("/api/accelerate-order", methods=["POST"])
 def accelerate_order():
@@ -1571,7 +1569,7 @@ def api_deposit_history():
     })
 
 # -------------------------
-# WITHDRAWAL API - UPDATED WITH INR POOL PROTECTION
+# WITHDRAWAL API
 # -------------------------
 @app.route("/api/withdraw", methods=["POST"])
 def api_withdraw():
@@ -1647,7 +1645,7 @@ def api_withdrawal_requests():
     })
 
 # -------------------------
-# DAILY LIMIT API (NEW)
+# DAILY LIMIT API
 # -------------------------
 @app.route("/api/daily-limit")
 def api_daily_limit():
@@ -1851,7 +1849,7 @@ def api_admin_users():
         user['is_admin'] = is_admin(user['email'])
         user['internal_mrx_balance'] = get_internal_mrx_balance(user['email'])
 
-        # NEW: Add daily trading info
+        # Add daily trading info
         user['daily_trades_today'] = round(get_user_daily_trades(user['email']), 2)
         user['daily_remaining'] = round(DAILY_TRADING_LIMIT - user['daily_trades_today'], 2)
         user['daily_limit_reached'] = user['daily_trades_today'] >= DAILY_TRADING_LIMIT
@@ -1881,7 +1879,7 @@ def api_admin_user_detail(user_email):
     withdrawal_requests = get_user_withdrawal_requests(user_email)
     internal_mrx_balance = get_internal_mrx_balance(user_email)
 
-    # NEW: Get daily trading stats
+    # Get daily trading stats
     daily_trades = get_user_daily_trades(user_email)
     daily_remaining = DAILY_TRADING_LIMIT - daily_trades
 
@@ -1904,7 +1902,8 @@ def api_admin_user_detail(user_email):
         "transactions": transactions,
         "deposit_requests": deposit_requests,
         "withdrawal_requests": withdrawal_requests,
-        "transaction_count": len(transactions)
+        "transaction_count": len(transactions),
+        "market_price": inr_pool / mrx_pool if mrx_pool > 0 else 0
     })
 
 @app.route("/api/admin/logs")
@@ -2001,7 +2000,7 @@ def api_admin_system_health():
             (TAX_COLLECTION_FILE, "tax_collection.tsv"),
             (ORDERS_FILE, "orders.tsv"),
             (INTERNAL_MRX_FILE, "internal_mrx.tsv"),
-            (DAILY_TRADES_FILE, "daily_trades.tsv")  # NEW
+            (DAILY_TRADES_FILE, "daily_trades.tsv")
         ]:
             if os.path.exists(file_path):
                 size = os.path.getsize(file_path)
@@ -2025,7 +2024,7 @@ def api_admin_system_health():
         total_internal_mrx = get_total_internal_mrx()
         initial_mrx = 1000.0
 
-        # NEW: Daily limit stats
+        # Daily limit stats
         today = date.today().isoformat()
         daily_trades = []
         if os.path.exists(DAILY_TRADES_FILE):
@@ -2084,6 +2083,200 @@ def api_admin_system_health():
             "error": str(e),
             "timestamp": int(time.time())
         }), 500
+
+# ========================
+# NEW ADMIN USER MANAGEMENT APIs
+# ========================
+
+@app.route("/api/admin/adjust-user-balance", methods=["POST"])
+def api_admin_adjust_user_balance():
+    """Adjust user balance with audit trail"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    data = request.get_json()
+    email = data.get("email")
+    new_balance = float(data.get("new_balance", 0))
+    reason = data.get("reason", "")
+    operation = data.get("operation", "set")
+
+    if not email or new_balance < 0:
+        return jsonify({"success": False, "error": "Invalid request"}), 400
+
+    # Get current user data
+    user = get_user(email)
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    current_balance = float(user[6])
+    
+    # Update user balance
+    update_user_balances(email, new_balance, 0)
+    
+    # Log the transaction
+    save_transaction(
+        email,
+        f'admin_balance_adjustment_{operation}',
+        new_balance - current_balance,
+        0,
+        0
+    )
+    
+    # Log admin action
+    log_admin_action(
+        session["user"],
+        f"balance_adjustment_{operation}",
+        email,
+        "user",
+        f"Adjusted balance from ₹{current_balance:.2f} to ₹{new_balance:.2f}. Reason: {reason}"
+    )
+    
+    return jsonify({
+        "success": True,
+        "message": f"Balance updated successfully from ₹{current_balance:.2f} to ₹{new_balance:.2f}",
+        "old_balance": current_balance,
+        "new_balance": new_balance,
+        "difference": new_balance - current_balance
+    })
+
+@app.route("/api/admin/toggle-admin", methods=["POST"])
+def api_admin_toggle_admin():
+    """Toggle admin status for a user"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    data = request.get_json()
+    email = data.get("email")
+    make_admin = data.get("make_admin", False)
+
+    if not email:
+        return jsonify({"success": False, "error": "Email required"}), 400
+
+    # Get current user data
+    user = get_user(email)
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    # Update user_id to indicate admin status
+    rows = []
+    with open(USERS_FILE, "r") as f:
+        rows = f.readlines()
+
+    with open(USERS_FILE, "w") as f:
+        for line in rows:
+            if line.startswith("user_id"):
+                f.write(line)
+                continue
+
+            cols = line.strip().split("\t")
+            if cols[2] == email:
+                if make_admin:
+                    # Make admin - prefix user_id with ADMIN if not already
+                    if not cols[0].startswith('ADM'):
+                        cols[0] = f"ADMIN{cols[0]}"
+                else:
+                    # Remove admin - remove ADMIN prefix if exists
+                    if cols[0].startswith('ADMIN'):
+                        cols[0] = cols[0].replace('ADMIN', '')
+                f.write("\t".join(cols) + "\n")
+            else:
+                f.write(line)
+
+    # Log admin action
+    log_admin_action(
+        session["user"],
+        f"toggle_admin_{'grant' if make_admin else 'revoke'}",
+        email,
+        "user",
+        f"{'Granted' if make_admin else 'Revoked'} admin privileges"
+    )
+    
+    return jsonify({
+        "success": True,
+        "message": f"Admin status {'granted to' if make_admin else 'revoked from'} {email}",
+        "is_admin": make_admin
+    })
+
+@app.route("/api/admin/reset-daily-limit", methods=["POST"])
+def api_admin_reset_daily_limit():
+    """Reset daily trading limit for a user"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    if not is_admin(session["user"]):
+        return jsonify({"success": False, "error": "Access denied"}), 403
+
+    data = request.get_json()
+    user_email = data.get("user_email", "").strip()
+
+    if not user_email:
+        return jsonify({"success": False, "error": "User email required"}), 400
+
+    # Reset daily trades for specific user
+    ensure_files()
+    today = date.today().isoformat()
+
+    if not os.path.exists(DAILY_TRADES_FILE):
+        return jsonify({"success": True, "message": "Daily trades file doesn't exist"})
+
+    rows = []
+    old_amount = 0
+    
+    with open(DAILY_TRADES_FILE, "r") as f:
+        rows = f.readlines()
+
+    with open(DAILY_TRADES_FILE, "w") as f:
+        f.write(rows[0])  # Header
+        for line in rows[1:]:
+            cols = line.strip().split("\t")
+            if len(cols) >= 3 and cols[0] == today and cols[1] == user_email:
+                old_amount = float(cols[2]) if cols[2] else 0
+                # Skip this line (reset)
+                log_admin_action(
+                    session["user"],
+                    "reset_daily_limit",
+                    user_email,
+                    "user",
+                    f"Reset daily trading limit for {user_email}. Was: ₹{old_amount}"
+                )
+            else:
+                f.write(line)
+
+    return jsonify({
+        "success": True,
+        "message": f"Daily trading limit reset for {user_email}",
+        "user_email": user_email,
+        "old_amount": old_amount,
+        "date": today
+    })
+
+@app.route("/api/admin/user/data")
+def api_admin_user_data():
+    """Get current admin user data for header"""
+    if "user" not in session:
+        return jsonify({"success": False, "error": "Not logged in"}), 401
+
+    user = get_user(session["user"])
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    # Get initials for avatar
+    name_parts = user[1].split()
+    initials = ''.join([p[0] for p in name_parts[:2]]).upper()
+
+    return jsonify({
+        "success": True,
+        "full_name": user[1],
+        "email": user[2],
+        "avatar_initials": initials,
+        "is_admin": is_admin(session["user"])
+    })
 
 @app.route("/api/admin/adjust-pool", methods=["POST"])
 def api_admin_adjust_pool():
@@ -2149,55 +2342,6 @@ def api_admin_get_price_floor():
         "margin": round(current_price - PRICE_FLOOR, 4) if current_price >= PRICE_FLOOR else 0,
         "min_inr_pool": MIN_INR_POOL,
         "inr_pool_above_min": inr_pool >= MIN_INR_POOL
-    })
-
-# NEW: Admin reset daily limit endpoint
-@app.route("/api/admin/reset-daily-limit", methods=["POST"])
-def api_admin_reset_daily_limit():
-    if "user" not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
-
-    if not is_admin(session["user"]):
-        return jsonify({"success": False, "error": "Access denied"}), 403
-
-    data = request.get_json()
-    user_email = data.get("user_email", "").strip()
-
-    if not user_email:
-        return jsonify({"success": False, "error": "User email required"}), 400
-
-    # Reset daily trades for specific user
-    ensure_files()
-    today = date.today().isoformat()
-
-    if not os.path.exists(DAILY_TRADES_FILE):
-        return jsonify({"success": True, "message": "Daily trades file doesn't exist"})
-
-    rows = []
-    with open(DAILY_TRADES_FILE, "r") as f:
-        rows = f.readlines()
-
-    with open(DAILY_TRADES_FILE, "w") as f:
-        f.write(rows[0])  # Header
-        for line in rows[1:]:
-            cols = line.strip().split("\t")
-            if len(cols) >= 3 and cols[0] == today and cols[1] == user_email:
-                # Skip this line (reset)
-                log_admin_action(
-                    session["user"],
-                    "reset_daily_limit",
-                    user_email,
-                    "user",
-                    f"Reset daily trading limit for {user_email}. Was: ₹{cols[2]}"
-                )
-            else:
-                f.write(line)
-
-    return jsonify({
-        "success": True,
-        "message": f"Daily trading limit reset for {user_email}",
-        "user_email": user_email,
-        "date": today
     })
 
 @app.route("/api/market/stats")
@@ -2512,7 +2656,6 @@ def admin_tax():
 
     return render_template("admin/tax.html")
 
-# NEW: Admin daily limits page
 @app.route("/admin/daily-limits")
 def admin_daily_limits():
     if "user" not in session:
@@ -2523,9 +2666,6 @@ def admin_daily_limits():
 
     return render_template("admin/daily_limits.html")
 
-# ========================
-# NEW ADMIN POOL CONTROL ROUTE
-# ========================
 @app.route("/admin/pool")
 def admin_pool():
     """Admin pool control page - ONLY admin email allowed"""
@@ -2554,9 +2694,6 @@ def admin_pool():
     
     return render_template("admin/pool.html")
 
-# ========================
-# NEW ADMIN UPDATE POOL API - SECURE
-# ========================
 @app.route("/api/admin/update-pool", methods=["POST"])
 def api_admin_update_pool():
     """Secure API endpoint for admin to update pool - ONLY admin email allowed"""
