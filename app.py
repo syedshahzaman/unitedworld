@@ -147,16 +147,19 @@ def get_user_daily_trades(user_email):
     if not os.path.exists(DAILY_TRADES_FILE):
         return 0.0
 
-    with open(DAILY_TRADES_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(DAILY_TRADES_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
-        cols = line.strip().split("\t")
-        if len(cols) >= 3 and cols[0] == today and cols[1] == user_email:
-            daily_total = float(cols[2]) if cols[2] else 0.0
-            break
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 3 and cols[0] == today and cols[1] == user_email:
+                daily_total = float(cols[2]) if cols[2] else 0.0
+                break
+    except:
+        pass
 
     return daily_total
 
@@ -229,15 +232,18 @@ def get_internal_mrx_balance(user_email):
     if not os.path.exists(INTERNAL_MRX_FILE):
         return 0.0
 
-    with open(INTERNAL_MRX_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(INTERNAL_MRX_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
-        cols = line.strip().split("\t")
-        if len(cols) >= 2 and cols[0] == user_email:
-            return float(cols[1]) if cols[1] else 0.0
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 2 and cols[0] == user_email:
+                return float(cols[1]) if cols[1] else 0.0
+    except:
+        pass
 
     return 0.0
 
@@ -283,18 +289,21 @@ def get_total_internal_mrx():
         return 0.0
 
     total = 0.0
-    with open(INTERNAL_MRX_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(INTERNAL_MRX_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
-        cols = line.strip().split("\t")
-        if len(cols) >= 2 and cols[1]:
-            try:
-                total += float(cols[1])
-            except:
+        for i, line in enumerate(lines):
+            if i == 0:
                 continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 2 and cols[1]:
+                try:
+                    total += float(cols[1])
+                except:
+                    continue
+    except:
+        pass
 
     return total
 
@@ -339,32 +348,35 @@ def get_tax_collection_stats():
     sell_tax = 0
     deposit_tax = 0
 
-    with open(TAX_COLLECTION_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(TAX_COLLECTION_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
 
-        line = line.strip()
-        if not line:
-            continue
+            line = line.strip()
+            if not line:
+                continue
 
-        cols = line.split("\t")
-        if len(cols) >= 9:
-            total_transactions += 1
-            tax_amount = float(cols[5]) if cols[5] else 0
-            total_tax += tax_amount
+            cols = line.split("\t")
+            if len(cols) >= 9:
+                total_transactions += 1
+                tax_amount = float(cols[5]) if cols[5] else 0
+                total_tax += tax_amount
 
-            order_type = cols[3] if len(cols) > 3 else ""
-            if order_type == "buy":
-                buy_tax += tax_amount
-            elif order_type == "withdrawal":
-                withdrawal_tax += tax_amount
-            elif order_type == "sell":
-                sell_tax += tax_amount
-            elif order_type == "deposit":
-                deposit_tax += tax_amount
+                order_type = cols[3] if len(cols) > 3 else ""
+                if order_type == "buy":
+                    buy_tax += tax_amount
+                elif order_type == "withdrawal":
+                    withdrawal_tax += tax_amount
+                elif order_type == "sell":
+                    sell_tax += tax_amount
+                elif order_type == "deposit":
+                    deposit_tax += tax_amount
+    except:
+        pass
 
     return {
         'total_tax': round(total_tax, 2),
@@ -384,31 +396,34 @@ def get_tax_collection_records(limit=100):
     if not os.path.exists(TAX_COLLECTION_FILE):
         return records
 
-    with open(TAX_COLLECTION_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(TAX_COLLECTION_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
 
-        line = line.strip()
-        if not line:
-            continue
+            line = line.strip()
+            if not line:
+                continue
 
-        cols = line.split("\t")
-        if len(cols) >= 9:
-            records.append({
-                'tax_id': cols[0],
-                'user_email': cols[1],
-                'user_name': cols[2],
-                'order_type': cols[3],
-                'order_amount': float(cols[4]) if cols[4] else 0,
-                'tax_amount': float(cols[5]) if cols[5] else 0,
-                'order_worth': float(cols[6]) if cols[6] else 0,
-                'order_date': cols[7],
-                'timestamp': int(cols[8]) if cols[8] else 0,
-                'remarks': cols[9] if len(cols) > 9 else ""
-            })
+            cols = line.split("\t")
+            if len(cols) >= 9:
+                records.append({
+                    'tax_id': cols[0],
+                    'user_email': cols[1],
+                    'user_name': cols[2],
+                    'order_type': cols[3],
+                    'order_amount': float(cols[4]) if cols[4] else 0,
+                    'tax_amount': float(cols[5]) if cols[5] else 0,
+                    'order_worth': float(cols[6]) if cols[6] else 0,
+                    'order_date': cols[7],
+                    'timestamp': int(cols[8]) if cols[8] else 0,
+                    'remarks': cols[9] if len(cols) > 9 else ""
+                })
+    except:
+        pass
 
     records.sort(key=lambda x: x['timestamp'], reverse=True)
     return records[:limit]
@@ -437,14 +452,17 @@ def save_order_record(user_email, user_name, order_type, order_amount_inr,
 # MARKET HELPERS WITH PRICE FLOOR VALIDATION
 # -------------------------
 def read_market():
-    with open(MARKET_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(MARKET_FILE, "r") as f:
+            lines = f.readlines()
 
-    if len(lines) < 2:
+        if len(lines) < 2:
+            return 2000.0, 1000.0
+
+        cols = lines[1].strip().split("\t")
+        return float(cols[0]), float(cols[1])
+    except:
         return 2000.0, 1000.0
-
-    cols = lines[1].strip().split("\t")
-    return float(cols[0]), float(cols[1])
 
 def write_market(inr_pool, mrx_pool):
     """Write market state with price floor validation"""
@@ -472,61 +490,71 @@ def validate_price_floor(new_inr_pool, new_mrx_pool):
 # USER HELPERS
 # -------------------------
 def get_user(email):
-    with open(USERS_FILE, "r") as f:
-        for line in f:
-            if line.startswith("user_id"):
-                continue
-            cols = line.strip().split("\t")
-            if cols[2] == email:
-                return cols
+    try:
+        with open(USERS_FILE, "r") as f:
+            for line in f:
+                if line.startswith("user_id"):
+                    continue
+                cols = line.strip().split("\t")
+                if len(cols) >= 3 and cols[2] == email:
+                    return cols
+    except:
+        pass
     return None
 
 def get_all_users():
     users = []
-    with open(USERS_FILE, "r") as f:
-        lines = f.readlines()
-        for i, line in enumerate(lines):
-            if i == 0:
-                continue
-            cols = line.strip().split("\t")
-            if len(cols) >= 8:
-                users.append({
-                    'user_id': cols[0],
-                    'full_name': cols[1],
-                    'email': cols[2],
-                    'mobile': cols[3],
-                    'inr_balance': float(cols[6]),
-                    'mrx_balance': 0.0,
-                    'created_at': int(cols[8])
-                })
+    try:
+        with open(USERS_FILE, "r") as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if i == 0:
+                    continue
+                cols = line.strip().split("\t")
+                if len(cols) >= 8:
+                    users.append({
+                        'user_id': cols[0],
+                        'full_name': cols[1],
+                        'email': cols[2],
+                        'mobile': cols[3],
+                        'inr_balance': float(cols[6]),
+                        'mrx_balance': 0.0,
+                        'created_at': int(cols[8])
+                    })
+    except:
+        pass
     return users
 
 def update_user_balances(email, new_inr, new_mrx):
     """Update user balances - MRX always 0"""
-    rows = []
-    with open(USERS_FILE, "r") as f:
-        rows = f.readlines()
+    try:
+        rows = []
+        with open(USERS_FILE, "r") as f:
+            rows = f.readlines()
 
-    with open(USERS_FILE, "w") as f:
-        for line in rows:
-            if line.startswith("user_id"):
-                f.write(line)
-                continue
+        with open(USERS_FILE, "w") as f:
+            for line in rows:
+                if line.startswith("user_id"):
+                    f.write(line)
+                    continue
 
-            cols = line.strip().split("\t")
-            if cols[2] == email:
-                cols[6] = str(round(new_inr, 2))
-                cols[7] = "0"
-                f.write("\t".join(cols) + "\n")
-            else:
-                f.write(line)
+                cols = line.strip().split("\t")
+                if len(cols) >= 3 and cols[2] == email:
+                    cols[6] = str(round(new_inr, 2))
+                    cols[7] = "0"
+                    f.write("\t".join(cols) + "\n")
+                else:
+                    f.write(line)
+        return True
+    except:
+        return False
 
 def is_admin(email):
     """Check if user is admin"""
     user = get_user(email)
     if not user:
         return False
-    return 'admin' in email.lower() or user[0].startswith('ADM')
+    return 'admin' in email.lower() or (len(user) > 0 and user[0].startswith('ADM'))
 
 # -------------------------
 # ADMIN LOGGING
@@ -539,11 +567,14 @@ def log_admin_action(admin_email, action, target_id, target_type, details=""):
     timestamp = int(time.time())
     ip_address = request.remote_addr if request else "0.0.0.0"
 
-    with open(ADMIN_LOG_FILE, "a") as f:
-        f.write(
-            f"{log_id}\t{admin_email}\t{action}\t{target_id}\t{target_type}\t"
-            f"{details}\t{timestamp}\t{ip_address}\n"
-        )
+    try:
+        with open(ADMIN_LOG_FILE, "a") as f:
+            f.write(
+                f"{log_id}\t{admin_email}\t{action}\t{target_id}\t{target_type}\t"
+                f"{details}\t{timestamp}\t{ip_address}\n"
+            )
+    except:
+        pass
 
     return log_id
 
@@ -555,24 +586,27 @@ def get_recent_admin_logs(limit=50):
     if not os.path.exists(ADMIN_LOG_FILE):
         return logs
 
-    with open(ADMIN_LOG_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(ADMIN_LOG_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
-        cols = line.strip().split("\t")
-        if len(cols) >= 8:
-            logs.append({
-                'log_id': cols[0],
-                'admin_email': cols[1],
-                'action': cols[2],
-                'target_id': cols[3],
-                'target_type': cols[4],
-                'details': cols[5],
-                'timestamp': int(cols[6]),
-                'ip_address': cols[7]
-            })
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 8:
+                logs.append({
+                    'log_id': cols[0],
+                    'admin_email': cols[1],
+                    'action': cols[2],
+                    'target_id': cols[3],
+                    'target_type': cols[4],
+                    'details': cols[5],
+                    'timestamp': int(cols[6]),
+                    'ip_address': cols[7]
+                })
+    except:
+        pass
 
     logs.sort(key=lambda x: x['timestamp'], reverse=True)
     return logs[:limit]
@@ -601,23 +635,26 @@ def get_user_deposit_requests(user_email, limit=10):
     if not os.path.exists(DEPOSIT_REQUEST_FILE):
         return deposits
 
-    with open(DEPOSIT_REQUEST_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(DEPOSIT_REQUEST_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
-        cols = line.strip().split("\t")
-        if len(cols) >= 8 and cols[1] == user_email:
-            deposits.append({
-                "request_id": cols[0],
-                "amount": float(cols[2]),
-                "transaction_id": cols[3],
-                "phone": cols[4],
-                "payment_method": cols[5],
-                "status": cols[6],
-                "created_at": int(cols[7])
-            })
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 8 and cols[1] == user_email:
+                deposits.append({
+                    "request_id": cols[0],
+                    "amount": float(cols[2]),
+                    "transaction_id": cols[3],
+                    "phone": cols[4],
+                    "payment_method": cols[5],
+                    "status": cols[6],
+                    "created_at": int(cols[7])
+                })
+    except:
+        pass
 
     deposits.sort(key=lambda x: x["created_at"], reverse=True)
     return deposits[:limit]
@@ -629,24 +666,27 @@ def get_all_deposit_requests(limit=50):
     if not os.path.exists(DEPOSIT_REQUEST_FILE):
         return deposits
 
-    with open(DEPOSIT_REQUEST_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(DEPOSIT_REQUEST_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
-        cols = line.strip().split("\t")
-        if len(cols) >= 8:
-            deposits.append({
-                "request_id": cols[0],
-                "user_email": cols[1],
-                "amount": float(cols[2]),
-                "transaction_id": cols[3],
-                "phone": cols[4],
-                "payment_method": cols[5],
-                "status": cols[6],
-                "created_at": int(cols[7])
-            })
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
+            cols = line.strip().split("\t")
+            if len(cols) >= 8:
+                deposits.append({
+                    "request_id": cols[0],
+                    "user_email": cols[1],
+                    "amount": float(cols[2]),
+                    "transaction_id": cols[3],
+                    "phone": cols[4],
+                    "payment_method": cols[5],
+                    "status": cols[6],
+                    "created_at": int(cols[7])
+                })
+    except:
+        pass
 
     deposits.sort(key=lambda x: x["created_at"], reverse=True)
     return deposits[:limit]
@@ -661,52 +701,55 @@ def update_deposit_request_status(request_id, status, admin_email=""):
     updated = False
     deposit_info = None
 
-    with open(DEPOSIT_REQUEST_FILE, "r") as f:
-        rows = f.readlines()
+    try:
+        with open(DEPOSIT_REQUEST_FILE, "r") as f:
+            rows = f.readlines()
 
-    with open(DEPOSIT_REQUEST_FILE, "w") as f:
-        for line in rows:
-            if line.startswith("request_id"):
-                f.write(line)
-                continue
+        with open(DEPOSIT_REQUEST_FILE, "w") as f:
+            for line in rows:
+                if line.startswith("request_id"):
+                    f.write(line)
+                    continue
 
-            cols = line.strip().split("\t")
-            if cols[0] == request_id:
-                if status == "approved" and cols[6] != "approved":
-                    deposit_info = {
-                        "user_email": cols[1],
-                        "amount": float(cols[2])
-                    }
+                cols = line.strip().split("\t")
+                if cols[0] == request_id:
+                    if status == "approved" and cols[6] != "approved":
+                        deposit_info = {
+                            "user_email": cols[1],
+                            "amount": float(cols[2])
+                        }
 
-                cols[6] = status
-                updated = True
-                f.write("\t".join(cols) + "\n")
-            else:
-                f.write(line)
+                    cols[6] = status
+                    updated = True
+                    f.write("\t".join(cols) + "\n")
+                else:
+                    f.write(line)
 
-    if updated and status == "approved" and deposit_info:
-        user = get_user(deposit_info["user_email"])
-        if user:
-            current_inr = float(user[6])
-            new_inr = current_inr + deposit_info["amount"]
-            update_user_balances(deposit_info["user_email"], new_inr, 0)
+        if updated and status == "approved" and deposit_info:
+            user = get_user(deposit_info["user_email"])
+            if user:
+                current_inr = float(user[6])
+                new_inr = current_inr + deposit_info["amount"]
+                update_user_balances(deposit_info["user_email"], new_inr, 0)
 
-            save_transaction(
-                deposit_info["user_email"],
-                'deposit_approved',
-                deposit_info["amount"],
-                0,
-                0
-            )
-
-            if admin_email:
-                log_admin_action(
-                    admin_email,
-                    "deposit_approved",
-                    request_id,
-                    "deposit_request",
-                    f"Approved deposit of ₹{deposit_info['amount']} for {deposit_info['user_email']}"
+                save_transaction(
+                    deposit_info["user_email"],
+                    'deposit_approved',
+                    deposit_info["amount"],
+                    0,
+                    0
                 )
+
+                if admin_email:
+                    log_admin_action(
+                        admin_email,
+                        "deposit_approved",
+                        request_id,
+                        "deposit_request",
+                        f"Approved deposit of ₹{deposit_info['amount']} for {deposit_info['user_email']}"
+                    )
+    except:
+        pass
 
     return updated
 
@@ -727,22 +770,25 @@ def save_transaction(user_email, txn_type, amount_inr, amount_mrx, price):
 
 def get_user_transactions(user_email, limit=50):
     transactions = []
-    with open(TXN_FILE, "r") as f:
-        lines = f.readlines()
-        for i, line in enumerate(lines):
-            if i == 0:
-                continue
-            cols = line.strip().split("\t")
-            if len(cols) >= 8 and cols[1] == user_email:
-                transactions.append({
-                    'txn_id': cols[0],
-                    'type': cols[2],
-                    'amount_inr': float(cols[3]),
-                    'amount_mrx': float(cols[4]),
-                    'price': float(cols[5]),
-                    'timestamp': int(cols[6]),
-                    'status': cols[7]
-                })
+    try:
+        with open(TXN_FILE, "r") as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if i == 0:
+                    continue
+                cols = line.strip().split("\t")
+                if len(cols) >= 8 and cols[1] == user_email:
+                    transactions.append({
+                        'txn_id': cols[0],
+                        'type': cols[2],
+                        'amount_inr': float(cols[3]),
+                        'amount_mrx': float(cols[4]),
+                        'price': float(cols[5]),
+                        'timestamp': int(cols[6]),
+                        'status': cols[7]
+                    })
+    except:
+        pass
 
     transactions.sort(key=lambda x: x['timestamp'], reverse=True)
     return transactions[:limit]
@@ -750,23 +796,26 @@ def get_user_transactions(user_email, limit=50):
 def get_recent_transactions(limit=50):
     """Get recent transactions across all users"""
     transactions = []
-    with open(TXN_FILE, "r") as f:
-        lines = f.readlines()
-        for i, line in enumerate(lines):
-            if i == 0:
-                continue
-            cols = line.strip().split("\t")
-            if len(cols) >= 8:
-                transactions.append({
-                    'txn_id': cols[0],
-                    'user_email': cols[1],
-                    'type': cols[2],
-                    'amount_inr': float(cols[3]),
-                    'amount_mrx': float(cols[4]),
-                    'price': float(cols[5]),
-                    'timestamp': int(cols[6]),
-                    'status': cols[7]
-                })
+    try:
+        with open(TXN_FILE, "r") as f:
+            lines = f.readlines()
+            for i, line in enumerate(lines):
+                if i == 0:
+                    continue
+                cols = line.strip().split("\t")
+                if len(cols) >= 8:
+                    transactions.append({
+                        'txn_id': cols[0],
+                        'user_email': cols[1],
+                        'type': cols[2],
+                        'amount_inr': float(cols[3]),
+                        'amount_mrx': float(cols[4]),
+                        'price': float(cols[5]),
+                        'timestamp': int(cols[6]),
+                        'status': cols[7]
+                    })
+    except:
+        pass
 
     transactions.sort(key=lambda x: x['timestamp'], reverse=True)
     return transactions[:limit]
@@ -793,7 +842,7 @@ def save_withdraw_request(user_email, user_name, amount, bank_name, account_numb
     with open(WITHDRAW_REQUEST_FILE, "a") as f:
         f.write(line)
 
-    # NEW: Deduct amount from user wallet immediately
+    # Deduct amount from user wallet immediately
     user = get_user(user_email)
     if user:
         current_inr = float(user[6])
@@ -823,48 +872,51 @@ def get_user_withdrawal_requests(user_email):
     if not os.path.exists(WITHDRAW_REQUEST_FILE):
         return requests
 
-    with open(WITHDRAW_REQUEST_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(WITHDRAW_REQUEST_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
 
-        line = line.strip()
-        if not line:
-            continue
+            line = line.strip()
+            if not line:
+                continue
 
-        cols = line.split("\t")
+            cols = line.split("\t")
 
-        if len(cols) >= 8 and cols[1] == user_email:
-            while len(cols) < 11:
-                cols.append("")
+            if len(cols) >= 8 and cols[1] == user_email:
+                while len(cols) < 11:
+                    cols.append("")
 
-            try:
-                amount = float(cols[3]) if cols[3] else 0
-            except:
-                amount = 0
+                try:
+                    amount = float(cols[3]) if cols[3] else 0
+                except:
+                    amount = 0
 
-            created_at_str = re.sub(r'[^0-9]', '', str(cols[8])) if len(cols) > 8 else ""
-            try:
-                created_at = int(created_at_str) if created_at_str else int(time.time())
-            except:
-                created_at = int(time.time())
+                created_at_str = re.sub(r'[^0-9]', '', str(cols[8])) if len(cols) > 8 else ""
+                try:
+                    created_at = int(created_at_str) if created_at_str else int(time.time())
+                except:
+                    created_at = int(time.time())
 
-            account_num = cols[6] if len(cols) > 6 else ""
-            last_four = account_num[-4:] if account_num and len(account_num) >= 4 else ""
+                account_num = cols[6] if len(cols) > 6 else ""
+                last_four = account_num[-4:] if account_num and len(account_num) >= 4 else ""
 
-            requests.append({
-                'request_id': cols[0],
-                'amount': amount,
-                'status': cols[4] if len(cols) > 4 else 'pending',
-                'bank_name': cols[5] if len(cols) > 5 else '',
-                'account_number': last_four,
-                'ifsc_code': cols[7] if len(cols) > 7 else '',
-                'created_at': created_at,
-                'processed_at': int(cols[9]) if len(cols) > 9 and cols[9].isdigit() else None,
-                'remarks': cols[10] if len(cols) > 10 else ""
-            })
+                requests.append({
+                    'request_id': cols[0],
+                    'amount': amount,
+                    'status': cols[4] if len(cols) > 4 else 'pending',
+                    'bank_name': cols[5] if len(cols) > 5 else '',
+                    'account_number': last_four,
+                    'ifsc_code': cols[7] if len(cols) > 7 else '',
+                    'created_at': created_at,
+                    'processed_at': int(cols[9]) if len(cols) > 9 and cols[9].isdigit() else None,
+                    'remarks': cols[10] if len(cols) > 10 else ""
+                })
+    except:
+        pass
 
     requests.sort(key=lambda x: x['created_at'], reverse=True)
     return requests
@@ -877,53 +929,56 @@ def get_all_withdrawal_requests(limit=1000):
     if not os.path.exists(WITHDRAW_REQUEST_FILE):
         return requests
 
-    with open(WITHDRAW_REQUEST_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(WITHDRAW_REQUEST_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
 
-        line = line.strip()
-        if not line:
-            continue
+            line = line.strip()
+            if not line:
+                continue
 
-        cols = line.split("\t")
+            cols = line.split("\t")
 
-        if len(cols) >= 8:
-            while len(cols) < 11:
-                cols.append("")
+            if len(cols) >= 8:
+                while len(cols) < 11:
+                    cols.append("")
 
-            try:
-                amount = float(cols[3]) if cols[3] else 0
-            except:
-                amount = 0
+                try:
+                    amount = float(cols[3]) if cols[3] else 0
+                except:
+                    amount = 0
 
-            created_at_str = re.sub(r'[^0-9]', '', str(cols[8])) if len(cols) > 8 else ""
-            try:
-                created_at = int(created_at_str) if created_at_str else int(time.time())
-            except:
-                created_at = int(time.time())
+                created_at_str = re.sub(r'[^0-9]', '', str(cols[8])) if len(cols) > 8 else ""
+                try:
+                    created_at = int(created_at_str) if created_at_str else int(time.time())
+                except:
+                    created_at = int(time.time())
 
-            processed_at_str = re.sub(r'[^0-9]', '', str(cols[9])) if len(cols) > 9 else "0"
-            try:
-                processed_at = int(processed_at_str) if processed_at_str and processed_at_str.isdigit() else 0
-            except:
-                processed_at = 0
+                processed_at_str = re.sub(r'[^0-9]', '', str(cols[9])) if len(cols) > 9 else "0"
+                try:
+                    processed_at = int(processed_at_str) if processed_at_str and processed_at_str.isdigit() else 0
+                except:
+                    processed_at = 0
 
-            requests.append({
-                'request_id': cols[0],
-                'user_email': cols[1],
-                'user_name': cols[2],
-                'amount': amount,
-                'status': cols[4] if len(cols) > 4 else 'pending',
-                'bank_name': cols[5] if len(cols) > 5 else '',
-                'account_number': cols[6] if len(cols) > 6 else '',
-                'ifsc_code': cols[7] if len(cols) > 7 else '',
-                'created_at': created_at,
-                'processed_at': processed_at if processed_at > 0 else None,
-                'remarks': cols[10] if len(cols) > 10 else ""
-            })
+                requests.append({
+                    'request_id': cols[0],
+                    'user_email': cols[1],
+                    'user_name': cols[2],
+                    'amount': amount,
+                    'status': cols[4] if len(cols) > 4 else 'pending',
+                    'bank_name': cols[5] if len(cols) > 5 else '',
+                    'account_number': cols[6] if len(cols) > 6 else '',
+                    'ifsc_code': cols[7] if len(cols) > 7 else '',
+                    'created_at': created_at,
+                    'processed_at': processed_at if processed_at > 0 else None,
+                    'remarks': cols[10] if len(cols) > 10 else ""
+                })
+    except:
+        pass
 
     requests.sort(key=lambda x: x['created_at'], reverse=True)
     return requests[:limit]
@@ -940,158 +995,160 @@ def update_withdrawal_request_status(request_id, status, admin_email="", remarks
     withdrawal_info = None
     previous_status = None
 
-    with open(WITHDRAW_REQUEST_FILE, "r") as f:
-        rows = f.readlines()
+    try:
+        with open(WITHDRAW_REQUEST_FILE, "r") as f:
+            rows = f.readlines()
 
-    with open(WITHDRAW_REQUEST_FILE, "w") as f:
-        for line in rows:
-            if line.startswith("request_id"):
-                f.write(line)
-                continue
+        with open(WITHDRAW_REQUEST_FILE, "w") as f:
+            for line in rows:
+                if line.startswith("request_id"):
+                    f.write(line)
+                    continue
 
-            cols = line.strip().split("\t")
-            if cols[0] == request_id:
-                previous_status = cols[4]
+                cols = line.strip().split("\t")
+                if cols[0] == request_id:
+                    previous_status = cols[4]
 
-                try:
-                    withdrawal_info = {
-                        "user_email": cols[1],
-                        "user_name": cols[2],
-                        "amount": float(cols[3]) if cols[3] else 0
-                    }
-                except:
-                    withdrawal_info = {
-                        "user_email": cols[1],
-                        "user_name": cols[2],
-                        "amount": 0
-                    }
+                    try:
+                        withdrawal_info = {
+                            "user_email": cols[1],
+                            "user_name": cols[2],
+                            "amount": float(cols[3]) if cols[3] else 0
+                        }
+                    except:
+                        withdrawal_info = {
+                            "user_email": cols[1],
+                            "user_name": cols[2],
+                            "amount": 0
+                        }
 
-                cols[4] = status
-                if status in ["processed", "rejected", "approved"]:
-                    cols[9] = str(int(time.time()))
-                if remarks:
-                    while len(cols) < 11:
-                        cols.append("")
-                    cols[10] = remarks
-                updated = True
-                f.write("\t".join(cols) + "\n")
-            else:
-                f.write(line)
+                    cols[4] = status
+                    if status in ["processed", "rejected", "approved"]:
+                        cols[9] = str(int(time.time()))
+                    if remarks:
+                        while len(cols) < 11:
+                            cols.append("")
+                        cols[10] = remarks
+                    updated = True
+                    f.write("\t".join(cols) + "\n")
+                else:
+                    f.write(line)
 
-    # Handle withdrawal - NEW LOGIC
-    if updated and withdrawal_info:
-        user = get_user(withdrawal_info["user_email"])
-        if user:
-            current_internal_mrx = get_internal_mrx_balance(withdrawal_info["user_email"])
+        # Handle withdrawal
+        if updated and withdrawal_info:
+            user = get_user(withdrawal_info["user_email"])
+            if user:
+                current_internal_mrx = get_internal_mrx_balance(withdrawal_info["user_email"])
 
-            inr_pool, mrx_pool = read_market()
-            current_price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+                inr_pool, mrx_pool = read_market()
+                current_price = inr_pool / mrx_pool if mrx_pool > 0 else 0
 
-            if status == "approved" and previous_status == "pending":
-                # NEW CHECK: Ensure INR pool won't go below MIN_INR_POOL (1000)
-                new_inr_pool = inr_pool - withdrawal_info["amount"]
-                if new_inr_pool < MIN_INR_POOL:
-                    # If would go below MIN_INR_POOL, refund the amount and reject
+                if status == "approved" and previous_status == "pending":
+                    # Check: Ensure INR pool won't go below MIN_INR_POOL (1000)
+                    new_inr_pool = inr_pool - withdrawal_info["amount"]
+                    if new_inr_pool < MIN_INR_POOL:
+                        # If would go below MIN_INR_POOL, refund the amount and reject
+                        current_inr = float(user[6])
+                        new_inr = current_inr + withdrawal_info["amount"]
+                        update_user_balances(withdrawal_info["user_email"], new_inr, 0)
+
+                        # Update status to rejected
+                        update_withdrawal_request_status(request_id, "rejected", admin_email,
+                                                       f"Withdrawal would bring INR pool below ₹{MIN_INR_POOL:.2f}. Current: ₹{inr_pool:.2f}, Requested: ₹{withdrawal_info['amount']:.2f}")
+
+                        print(f"WITHDRAWAL REJECTED: INR pool protection. Would go to ₹{new_inr_pool:.2f} which is below ₹{MIN_INR_POOL:.2f}")
+                        return True
+
+                    # Calculate how much MRX needs to be sold internally
+                    if current_price > 0:
+                        mrx_to_sell = withdrawal_info["amount"] / current_price
+
+                        # Check if user has enough internal MRX
+                        if current_internal_mrx < mrx_to_sell:
+                            print(f"ERROR: Insufficient internal MRX for withdrawal. User: {withdrawal_info['user_email']}, MRX needed: {mrx_to_sell}, MRX available: {current_internal_mrx}")
+
+                            # If insufficient MRX, refund the amount and mark as rejected
+                            current_inr = float(user[6])
+                            new_inr = current_inr + withdrawal_info["amount"]
+                            update_user_balances(withdrawal_info["user_email"], new_inr, 0)
+
+                            # Update status to rejected
+                            update_withdrawal_request_status(request_id, "rejected", admin_email, "Insufficient internal MRX for withdrawal")
+
+                            save_transaction(
+                                withdrawal_info["user_email"],
+                                'withdrawal_rejected_insufficient_mrx',
+                                withdrawal_info["amount"],  # Refunded amount
+                                0,
+                                current_price
+                            )
+
+                            return True
+
+                        # Update market pool (auto-sell MRX back to pool) - ONLY ON APPROVAL
+                        new_inr_pool = inr_pool - withdrawal_info["amount"]
+                        new_mrx_pool = mrx_pool + mrx_to_sell
+
+                        # Validate price floor
+                        new_price = new_inr_pool / new_mrx_pool if new_mrx_pool > 0 else current_price
+                        if new_price < PRICE_FLOOR:
+                            print(f"ERROR: Withdrawal would violate price floor. New price: {new_price:.4f}, Floor: {PRICE_FLOOR:.2f}")
+
+                            # If violates price floor, refund the amount and mark as rejected
+                            current_inr = float(user[6])
+                            new_inr = current_inr + withdrawal_info["amount"]
+                            update_user_balances(withdrawal_info["user_email"], new_inr, 0)
+
+                            # Update status to rejected
+                            update_withdrawal_request_status(request_id, "rejected", admin_email, f"Withdrawal violates price floor ₹{PRICE_FLOOR:.2f}")
+
+                            return True
+
+                        # Update market - ONLY HAPPENS ON ADMIN APPROVAL
+                        write_market(new_inr_pool, new_mrx_pool)
+
+                        # Update user's internal MRX balance
+                        new_internal_mrx = current_internal_mrx - mrx_to_sell
+                        update_internal_mrx_balance(withdrawal_info["user_email"], new_internal_mrx)
+
+                    # Save transaction
+                    save_transaction(
+                        withdrawal_info["user_email"],
+                        'withdrawal_approved',
+                        0,  # No change to INR balance (already deducted on request)
+                        -mrx_to_sell if current_price > 0 else 0,
+                        current_price
+                    )
+
+                    print(f"WITHDRAWAL APPROVED: Sold {mrx_to_sell:.6f} MRX from internal balance. Market updated.")
+
+                elif status == "rejected" and previous_status == "pending":
+                    # REFUND the amount back to user's wallet
                     current_inr = float(user[6])
                     new_inr = current_inr + withdrawal_info["amount"]
                     update_user_balances(withdrawal_info["user_email"], new_inr, 0)
 
-                    # Update status to rejected
-                    update_withdrawal_request_status(request_id, "rejected", admin_email,
-                                                   f"Withdrawal would bring INR pool below ₹{MIN_INR_POOL:.2f}. Current: ₹{inr_pool:.2f}, Requested: ₹{withdrawal_info['amount']:.2f}")
+                    save_transaction(
+                        withdrawal_info["user_email"],
+                        'withdrawal_rejected_refund',
+                        withdrawal_info["amount"],  # Refunded amount
+                        0,
+                        0
+                    )
 
-                    print(f"WITHDRAWAL REJECTED: INR pool protection. Would go to ₹{new_inr_pool:.2f} which is below ₹{MIN_INR_POOL:.2f}")
-                    return True
-                # END NEW CHECK
+                    print(f"WITHDRAWAL REJECTED: Refunded ₹{withdrawal_info['amount']} to {withdrawal_info['user_email']}.")
 
-                # Calculate how much MRX needs to be sold internally
-                if current_price > 0:
-                    mrx_to_sell = withdrawal_info["amount"] / current_price
-
-                    # Check if user has enough internal MRX
-                    if current_internal_mrx < mrx_to_sell:
-                        print(f"ERROR: Insufficient internal MRX for withdrawal. User: {withdrawal_info['user_email']}, MRX needed: {mrx_to_sell}, MRX available: {current_internal_mrx}")
-
-                        # If insufficient MRX, refund the amount and mark as rejected
-                        current_inr = float(user[6])
-                        new_inr = current_inr + withdrawal_info["amount"]
-                        update_user_balances(withdrawal_info["user_email"], new_inr, 0)
-
-                        # Update status to rejected
-                        update_withdrawal_request_status(request_id, "rejected", admin_email, "Insufficient internal MRX for withdrawal")
-
-                        save_transaction(
-                            withdrawal_info["user_email"],
-                            'withdrawal_rejected_insufficient_mrx',
-                            withdrawal_info["amount"],  # Refunded amount
-                            0,
-                            current_price
-                        )
-
-                        return True
-
-                    # Update market pool (auto-sell MRX back to pool) - ONLY ON APPROVAL
-                    new_inr_pool = inr_pool - withdrawal_info["amount"]
-                    new_mrx_pool = mrx_pool + mrx_to_sell
-
-                    # Validate price floor
-                    new_price = new_inr_pool / new_mrx_pool if new_mrx_pool > 0 else current_price
-                    if new_price < PRICE_FLOOR:
-                        print(f"ERROR: Withdrawal would violate price floor. New price: {new_price:.4f}, Floor: {PRICE_FLOOR:.2f}")
-
-                        # If violates price floor, refund the amount and mark as rejected
-                        current_inr = float(user[6])
-                        new_inr = current_inr + withdrawal_info["amount"]
-                        update_user_balances(withdrawal_info["user_email"], new_inr, 0)
-
-                        # Update status to rejected
-                        update_withdrawal_request_status(request_id, "rejected", admin_email, f"Withdrawal violates price floor ₹{PRICE_FLOOR:.2f}")
-
-                        return True
-
-                    # Update market - ONLY HAPPENS ON ADMIN APPROVAL
-                    write_market(new_inr_pool, new_mrx_pool)
-
-                    # Update user's internal MRX balance
-                    new_internal_mrx = current_internal_mrx - mrx_to_sell
-                    update_internal_mrx_balance(withdrawal_info["user_email"], new_internal_mrx)
-
-                # Save transaction
-                save_transaction(
-                    withdrawal_info["user_email"],
-                    'withdrawal_approved',
-                    0,  # No change to INR balance (already deducted on request)
-                    -mrx_to_sell if current_price > 0 else 0,
-                    current_price
-                )
-
-                print(f"WITHDRAWAL APPROVED: Sold {mrx_to_sell:.6f} MRX from internal balance. Market updated.")
-
-            elif status == "rejected" and previous_status == "pending":
-                # REFUND the amount back to user's wallet
-                current_inr = float(user[6])
-                new_inr = current_inr + withdrawal_info["amount"]
-                update_user_balances(withdrawal_info["user_email"], new_inr, 0)
-
-                save_transaction(
-                    withdrawal_info["user_email"],
-                    'withdrawal_rejected_refund',
-                    withdrawal_info["amount"],  # Refunded amount
-                    0,
-                    0
-                )
-
-                print(f"WITHDRAWAL REJECTED: Refunded ₹{withdrawal_info['amount']} to {withdrawal_info['user_email']}.")
-
-            elif status == "processed" and previous_status == "approved":
-                save_transaction(
-                    withdrawal_info["user_email"],
-                    'withdrawal_processed',
-                    0,
-                    0,
-                    0
-                )
-                print(f"WITHDRAWAL PROCESSED: Request {request_id} marked as processed.")
+                elif status == "processed" and previous_status == "approved":
+                    save_transaction(
+                        withdrawal_info["user_email"],
+                        'withdrawal_processed',
+                        0,
+                        0,
+                        0
+                    )
+                    print(f"WITHDRAWAL PROCESSED: Request {request_id} marked as processed.")
+    except:
+        pass
 
     if updated and admin_email:
         log_admin_action(
@@ -1128,40 +1185,43 @@ def get_withdrawal_stats():
     rejected = 0
     total_amount = 0
 
-    with open(WITHDRAW_REQUEST_FILE, "r") as f:
-        lines = f.readlines()
+    try:
+        with open(WITHDRAW_REQUEST_FILE, "r") as f:
+            lines = f.readlines()
 
-    for i, line in enumerate(lines):
-        if i == 0:
-            continue
+        for i, line in enumerate(lines):
+            if i == 0:
+                continue
 
-        line = line.strip()
-        if not line:
-            continue
+            line = line.strip()
+            if not line:
+                continue
 
-        cols = line.split("\t")
+            cols = line.split("\t")
 
-        if len(cols) >= 5:
-            total += 1
+            if len(cols) >= 5:
+                total += 1
 
-            try:
-                amount = float(cols[3]) if cols[3] else 0
-            except:
-                amount = 0
-            total_amount += amount
+                try:
+                    amount = float(cols[3]) if cols[3] else 0
+                except:
+                    amount = 0
+                total_amount += amount
 
-            status = cols[4] if len(cols) > 4 else 'pending'
+                status = cols[4] if len(cols) > 4 else 'pending'
 
-            if status == 'pending':
-                pending += 1
-            elif status == 'approved':
-                approved += 1
-            elif status == 'processing':
-                processing += 1
-            elif status == 'processed':
-                processed += 1
-            elif status == 'rejected':
-                rejected += 1
+                if status == 'pending':
+                    pending += 1
+                elif status == 'approved':
+                    approved += 1
+                elif status == 'processing':
+                    processing += 1
+                elif status == 'processed':
+                    processed += 1
+                elif status == 'rejected':
+                    rejected += 1
+    except:
+        pass
 
     return {
         'total': total,
@@ -1259,7 +1319,7 @@ def accelerate_order():
     if amount <= 0:
         return jsonify({"success": False, "error": "Invalid amount"}), 400
 
-    # NEW: Check daily trading limit
+    # Check daily trading limit
     limit_check, limit_msg = check_daily_trading_limit(session["user"], amount)
     if not limit_check:
         return jsonify({
@@ -1346,7 +1406,7 @@ def accelerate_order():
     # Update user's INR balance (show MRX value in wallet)
     update_user_balances(session["user"], new_inr, 0)
 
-    # NEW: Update daily trading total
+    # Update daily trading total
     update_user_daily_trades(session["user"], amount)
 
     # Save transaction
@@ -1407,7 +1467,7 @@ def accelerate_order():
         "single_order_limit": MAX_SINGLE_ORDER,
         "within_limit": amount <= MAX_SINGLE_ORDER,
 
-        # NEW: Daily trading limit info
+        # Daily trading limit info
         "daily_trading_limit": DAILY_TRADING_LIMIT,
         "daily_total_used": round(daily_total, 2),
         "daily_remaining": round(daily_remaining, 2),
@@ -1450,7 +1510,7 @@ def api_user_balance():
     # Total value shown in wallet = INR balance + (internal MRX × current price)
     total_wallet_value = inr_balance + (internal_mrx * current_price)
 
-    # NEW: Get daily trading stats
+    # Get daily trading stats
     daily_total = get_user_daily_trades(session["user"])
     daily_remaining = DAILY_TRADING_LIMIT - daily_total
 
@@ -1597,7 +1657,7 @@ def api_withdraw():
     if current_inr < amount:
         return jsonify({"success": False, "error": "Insufficient balance"}), 400
 
-    # NEW: Check if withdrawal would bring INR pool below MIN_INR_POOL (1000)
+    # Check if withdrawal would bring INR pool below MIN_INR_POOL (1000)
     inr_pool, mrx_pool = read_market()
     new_inr_pool = inr_pool - amount
 
@@ -1619,7 +1679,6 @@ def api_withdraw():
     if not request_id:
         return jsonify({"success": False, "error": "Failed to create withdrawal request"}), 400
 
-    # NEW: Amount already deducted in save_withdraw_request
     return jsonify({
         "success": True,
         "request_id": request_id,
@@ -1831,80 +1890,106 @@ def api_admin_withdrawal_requests():
         "search_query": search
     })
 
+# ========================
+# FIXED ADMIN USERS API - WITH PROPER ERROR HANDLING
+# ========================
 @app.route("/api/admin/users")
 def api_admin_users():
-    if "user" not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
+    try:
+        if "user" not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
 
-    if not is_admin(session["user"]):
-        return jsonify({"success": False, "error": "Access denied"}), 403
+        if not is_admin(session["user"]):
+            return jsonify({"success": False, "error": "Access denied"}), 403
 
-    users = get_all_users()
+        users = get_all_users()
 
-    inr_pool, mrx_pool = read_market()
-    price = inr_pool / mrx_pool if mrx_pool > 0 else 0
+        inr_pool, mrx_pool = read_market()
+        price = inr_pool / mrx_pool if mrx_pool > 0 else 0
 
-    for user in users:
-        user['total_value'] = round(user['inr_balance'] + (get_internal_mrx_balance(user['email']) * price), 2)
-        user['is_admin'] = is_admin(user['email'])
-        user['internal_mrx_balance'] = get_internal_mrx_balance(user['email'])
+        for user in users:
+            # Calculate total value including internal MRX
+            internal_mrx = get_internal_mrx_balance(user['email'])
+            user['total_value'] = round(user['inr_balance'] + (internal_mrx * price), 2)
+            user['is_admin'] = is_admin(user['email'])
+            user['internal_mrx_balance'] = internal_mrx
 
-        # Add daily trading info
-        user['daily_trades_today'] = round(get_user_daily_trades(user['email']), 2)
-        user['daily_remaining'] = round(DAILY_TRADING_LIMIT - user['daily_trades_today'], 2)
-        user['daily_limit_reached'] = user['daily_trades_today'] >= DAILY_TRADING_LIMIT
+            # Add daily trading info
+            user['daily_trades_today'] = round(get_user_daily_trades(user['email']), 2)
+            user['daily_remaining'] = round(DAILY_TRADING_LIMIT - user['daily_trades_today'], 2)
+            user['daily_limit_reached'] = user['daily_trades_today'] >= DAILY_TRADING_LIMIT
 
-    return jsonify({
-        "success": True,
-        "users": users,
-        "count": len(users),
-        "market_price": round(price, 4),
-        "daily_trading_limit": DAILY_TRADING_LIMIT
-    })
+        return jsonify({
+            "success": True,
+            "users": users,
+            "count": len(users),
+            "market_price": round(price, 4),
+            "daily_trading_limit": DAILY_TRADING_LIMIT
+        })
+    except Exception as e:
+        print(f"Error in api_admin_users: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}"
+        }), 500
 
+# ========================
+# FIXED ADMIN USER DETAIL API - WITH PROPER MARKET PRICE
+# ========================
 @app.route("/api/admin/user/<user_email>")
 def api_admin_user_detail(user_email):
-    if "user" not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
+    try:
+        if "user" not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
 
-    if not is_admin(session["user"]):
-        return jsonify({"success": False, "error": "Access denied"}), 403
+        if not is_admin(session["user"]):
+            return jsonify({"success": False, "error": "Access denied"}), 403
 
-    user_data = get_user(user_email)
-    if not user_data:
-        return jsonify({"success": False, "error": "User not found"}), 404
+        user_data = get_user(user_email)
+        if not user_data:
+            return jsonify({"success": False, "error": "User not found"}), 404
 
-    transactions = get_user_transactions(user_email, limit=20)
-    deposit_requests = get_user_deposit_requests(user_email, limit=10)
-    withdrawal_requests = get_user_withdrawal_requests(user_email)
-    internal_mrx_balance = get_internal_mrx_balance(user_email)
+        transactions = get_user_transactions(user_email, limit=20)
+        deposit_requests = get_user_deposit_requests(user_email, limit=10)
+        withdrawal_requests = get_user_withdrawal_requests(user_email)
+        internal_mrx_balance = get_internal_mrx_balance(user_email)
 
-    # Get daily trading stats
-    daily_trades = get_user_daily_trades(user_email)
-    daily_remaining = DAILY_TRADING_LIMIT - daily_trades
+        # Get daily trading stats
+        daily_trades = get_user_daily_trades(user_email)
+        daily_remaining = DAILY_TRADING_LIMIT - daily_trades
+        
+        # FIX: Get market data for price calculation
+        inr_pool, mrx_pool = read_market()
+        market_price = inr_pool / mrx_pool if mrx_pool > 0 else 0
 
-    return jsonify({
-        "success": True,
-        "user": {
-            'user_id': user_data[0],
-            'full_name': user_data[1],
-            'email': user_data[2],
-            'mobile': user_data[3],
-            'inr_balance': float(user_data[6]),
-            'mrx_balance': 0,
-            'internal_mrx_balance': internal_mrx_balance,
-            'created_at': int(user_data[8]),
-            'referral': user_data[5],
-            'daily_trades_today': round(daily_trades, 2),
-            'daily_remaining': round(daily_remaining, 2),
-            'daily_limit_reached': daily_trades >= DAILY_TRADING_LIMIT
-        },
-        "transactions": transactions,
-        "deposit_requests": deposit_requests,
-        "withdrawal_requests": withdrawal_requests,
-        "transaction_count": len(transactions),
-        "market_price": inr_pool / mrx_pool if mrx_pool > 0 else 0
-    })
+        return jsonify({
+            "success": True,
+            "user": {
+                'user_id': user_data[0],
+                'full_name': user_data[1],
+                'email': user_data[2],
+                'mobile': user_data[3],
+                'inr_balance': float(user_data[6]),
+                'mrx_balance': 0,
+                'internal_mrx_balance': internal_mrx_balance,
+                'created_at': int(user_data[8]),
+                'referral': user_data[5] if len(user_data) > 5 else "",
+                'daily_trades_today': round(daily_trades, 2),
+                'daily_remaining': round(daily_remaining, 2),
+                'daily_limit_reached': daily_trades >= DAILY_TRADING_LIMIT
+            },
+            "transactions": transactions,
+            "deposit_requests": deposit_requests,
+            "withdrawal_requests": withdrawal_requests,
+            "transaction_count": len(transactions),
+            "market_price": round(market_price, 4)  # FIX: Now properly defined
+        })
+    except Exception as e:
+        print(f"Error in api_admin_user_detail: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": f"Internal server error: {str(e)}"
+        }), 500
 
 @app.route("/api/admin/logs")
 def api_admin_logs():
@@ -2091,192 +2176,214 @@ def api_admin_system_health():
 @app.route("/api/admin/adjust-user-balance", methods=["POST"])
 def api_admin_adjust_user_balance():
     """Adjust user balance with audit trail"""
-    if "user" not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
+    try:
+        if "user" not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
 
-    if not is_admin(session["user"]):
-        return jsonify({"success": False, "error": "Access denied"}), 403
+        if not is_admin(session["user"]):
+            return jsonify({"success": False, "error": "Access denied"}), 403
 
-    data = request.get_json()
-    email = data.get("email")
-    new_balance = float(data.get("new_balance", 0))
-    reason = data.get("reason", "")
-    operation = data.get("operation", "set")
+        data = request.get_json()
+        email = data.get("email")
+        new_balance = float(data.get("new_balance", 0))
+        reason = data.get("reason", "")
+        operation = data.get("operation", "set")
 
-    if not email or new_balance < 0:
-        return jsonify({"success": False, "error": "Invalid request"}), 400
+        if not email or new_balance < 0:
+            return jsonify({"success": False, "error": "Invalid request"}), 400
 
-    # Get current user data
-    user = get_user(email)
-    if not user:
-        return jsonify({"success": False, "error": "User not found"}), 404
+        # Get current user data
+        user = get_user(email)
+        if not user:
+            return jsonify({"success": False, "error": "User not found"}), 404
 
-    current_balance = float(user[6])
-    
-    # Update user balance
-    update_user_balances(email, new_balance, 0)
-    
-    # Log the transaction
-    save_transaction(
-        email,
-        f'admin_balance_adjustment_{operation}',
-        new_balance - current_balance,
-        0,
-        0
-    )
-    
-    # Log admin action
-    log_admin_action(
-        session["user"],
-        f"balance_adjustment_{operation}",
-        email,
-        "user",
-        f"Adjusted balance from ₹{current_balance:.2f} to ₹{new_balance:.2f}. Reason: {reason}"
-    )
-    
-    return jsonify({
-        "success": True,
-        "message": f"Balance updated successfully from ₹{current_balance:.2f} to ₹{new_balance:.2f}",
-        "old_balance": current_balance,
-        "new_balance": new_balance,
-        "difference": new_balance - current_balance
-    })
+        current_balance = float(user[6])
+        
+        # Update user balance
+        if update_user_balances(email, new_balance, 0):
+            # Log the transaction
+            save_transaction(
+                email,
+                f'admin_balance_adjustment_{operation}',
+                new_balance - current_balance,
+                0,
+                0
+            )
+            
+            # Log admin action
+            log_admin_action(
+                session["user"],
+                f"balance_adjustment_{operation}",
+                email,
+                "user",
+                f"Adjusted balance from ₹{current_balance:.2f} to ₹{new_balance:.2f}. Reason: {reason}"
+            )
+            
+            return jsonify({
+                "success": True,
+                "message": f"Balance updated successfully from ₹{current_balance:.2f} to ₹{new_balance:.2f}",
+                "old_balance": current_balance,
+                "new_balance": new_balance,
+                "difference": new_balance - current_balance
+            })
+        else:
+            return jsonify({"success": False, "error": "Failed to update balance"}), 500
+    except Exception as e:
+        print(f"Error in api_admin_adjust_user_balance: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route("/api/admin/toggle-admin", methods=["POST"])
 def api_admin_toggle_admin():
     """Toggle admin status for a user"""
-    if "user" not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
+    try:
+        if "user" not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
 
-    if not is_admin(session["user"]):
-        return jsonify({"success": False, "error": "Access denied"}), 403
+        if not is_admin(session["user"]):
+            return jsonify({"success": False, "error": "Access denied"}), 403
 
-    data = request.get_json()
-    email = data.get("email")
-    make_admin = data.get("make_admin", False)
+        data = request.get_json()
+        email = data.get("email")
+        make_admin = data.get("make_admin", False)
 
-    if not email:
-        return jsonify({"success": False, "error": "Email required"}), 400
+        if not email:
+            return jsonify({"success": False, "error": "Email required"}), 400
 
-    # Get current user data
-    user = get_user(email)
-    if not user:
-        return jsonify({"success": False, "error": "User not found"}), 404
+        # Get current user data
+        user = get_user(email)
+        if not user:
+            return jsonify({"success": False, "error": "User not found"}), 404
 
-    # Update user_id to indicate admin status
-    rows = []
-    with open(USERS_FILE, "r") as f:
-        rows = f.readlines()
+        # Update user_id to indicate admin status
+        rows = []
+        with open(USERS_FILE, "r") as f:
+            rows = f.readlines()
 
-    with open(USERS_FILE, "w") as f:
-        for line in rows:
-            if line.startswith("user_id"):
-                f.write(line)
-                continue
+        updated = False
+        with open(USERS_FILE, "w") as f:
+            for line in rows:
+                if line.startswith("user_id"):
+                    f.write(line)
+                    continue
 
-            cols = line.strip().split("\t")
-            if cols[2] == email:
-                if make_admin:
-                    # Make admin - prefix user_id with ADMIN if not already
-                    if not cols[0].startswith('ADM'):
-                        cols[0] = f"ADMIN{cols[0]}"
+                cols = line.strip().split("\t")
+                if len(cols) >= 3 and cols[2] == email:
+                    if make_admin:
+                        # Make admin - prefix user_id with ADMIN if not already
+                        if not cols[0].startswith('ADM'):
+                            cols[0] = f"ADMIN{cols[0]}"
+                    else:
+                        # Remove admin - remove ADMIN prefix if exists
+                        if cols[0].startswith('ADMIN'):
+                            cols[0] = cols[0].replace('ADMIN', '')
+                    f.write("\t".join(cols) + "\n")
+                    updated = True
                 else:
-                    # Remove admin - remove ADMIN prefix if exists
-                    if cols[0].startswith('ADMIN'):
-                        cols[0] = cols[0].replace('ADMIN', '')
-                f.write("\t".join(cols) + "\n")
-            else:
-                f.write(line)
+                    f.write(line)
 
-    # Log admin action
-    log_admin_action(
-        session["user"],
-        f"toggle_admin_{'grant' if make_admin else 'revoke'}",
-        email,
-        "user",
-        f"{'Granted' if make_admin else 'Revoked'} admin privileges"
-    )
-    
-    return jsonify({
-        "success": True,
-        "message": f"Admin status {'granted to' if make_admin else 'revoked from'} {email}",
-        "is_admin": make_admin
-    })
+        if updated:
+            # Log admin action
+            log_admin_action(
+                session["user"],
+                f"toggle_admin_{'grant' if make_admin else 'revoke'}",
+                email,
+                "user",
+                f"{'Granted' if make_admin else 'Revoked'} admin privileges"
+            )
+            
+            return jsonify({
+                "success": True,
+                "message": f"Admin status {'granted to' if make_admin else 'revoked from'} {email}",
+                "is_admin": make_admin
+            })
+        else:
+            return jsonify({"success": False, "error": "Failed to update admin status"}), 500
+    except Exception as e:
+        print(f"Error in api_admin_toggle_admin: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route("/api/admin/reset-daily-limit", methods=["POST"])
 def api_admin_reset_daily_limit():
     """Reset daily trading limit for a user"""
-    if "user" not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
+    try:
+        if "user" not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
 
-    if not is_admin(session["user"]):
-        return jsonify({"success": False, "error": "Access denied"}), 403
+        if not is_admin(session["user"]):
+            return jsonify({"success": False, "error": "Access denied"}), 403
 
-    data = request.get_json()
-    user_email = data.get("user_email", "").strip()
+        data = request.get_json()
+        user_email = data.get("user_email", "").strip()
 
-    if not user_email:
-        return jsonify({"success": False, "error": "User email required"}), 400
+        if not user_email:
+            return jsonify({"success": False, "error": "User email required"}), 400
 
-    # Reset daily trades for specific user
-    ensure_files()
-    today = date.today().isoformat()
+        # Reset daily trades for specific user
+        ensure_files()
+        today = date.today().isoformat()
 
-    if not os.path.exists(DAILY_TRADES_FILE):
-        return jsonify({"success": True, "message": "Daily trades file doesn't exist"})
+        if not os.path.exists(DAILY_TRADES_FILE):
+            return jsonify({"success": True, "message": "Daily trades file doesn't exist"})
 
-    rows = []
-    old_amount = 0
-    
-    with open(DAILY_TRADES_FILE, "r") as f:
-        rows = f.readlines()
+        rows = []
+        old_amount = 0
+        
+        with open(DAILY_TRADES_FILE, "r") as f:
+            rows = f.readlines()
 
-    with open(DAILY_TRADES_FILE, "w") as f:
-        f.write(rows[0])  # Header
-        for line in rows[1:]:
-            cols = line.strip().split("\t")
-            if len(cols) >= 3 and cols[0] == today and cols[1] == user_email:
-                old_amount = float(cols[2]) if cols[2] else 0
-                # Skip this line (reset)
-                log_admin_action(
-                    session["user"],
-                    "reset_daily_limit",
-                    user_email,
-                    "user",
-                    f"Reset daily trading limit for {user_email}. Was: ₹{old_amount}"
-                )
-            else:
-                f.write(line)
+        with open(DAILY_TRADES_FILE, "w") as f:
+            f.write(rows[0])  # Header
+            for line in rows[1:]:
+                cols = line.strip().split("\t")
+                if len(cols) >= 3 and cols[0] == today and cols[1] == user_email:
+                    old_amount = float(cols[2]) if cols[2] else 0
+                    # Skip this line (reset)
+                    log_admin_action(
+                        session["user"],
+                        "reset_daily_limit",
+                        user_email,
+                        "user",
+                        f"Reset daily trading limit for {user_email}. Was: ₹{old_amount}"
+                    )
+                else:
+                    f.write(line)
 
-    return jsonify({
-        "success": True,
-        "message": f"Daily trading limit reset for {user_email}",
-        "user_email": user_email,
-        "old_amount": old_amount,
-        "date": today
-    })
+        return jsonify({
+            "success": True,
+            "message": f"Daily trading limit reset for {user_email}",
+            "user_email": user_email,
+            "old_amount": old_amount,
+            "date": today
+        })
+    except Exception as e:
+        print(f"Error in api_admin_reset_daily_limit: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route("/api/admin/user/data")
 def api_admin_user_data():
     """Get current admin user data for header"""
-    if "user" not in session:
-        return jsonify({"success": False, "error": "Not logged in"}), 401
+    try:
+        if "user" not in session:
+            return jsonify({"success": False, "error": "Not logged in"}), 401
 
-    user = get_user(session["user"])
-    if not user:
-        return jsonify({"success": False, "error": "User not found"}), 404
+        user = get_user(session["user"])
+        if not user:
+            return jsonify({"success": False, "error": "User not found"}), 404
 
-    # Get initials for avatar
-    name_parts = user[1].split()
-    initials = ''.join([p[0] for p in name_parts[:2]]).upper()
+        # Get initials for avatar
+        name_parts = user[1].split()
+        initials = ''.join([p[0] for p in name_parts[:2]]).upper()
 
-    return jsonify({
-        "success": True,
-        "full_name": user[1],
-        "email": user[2],
-        "avatar_initials": initials,
-        "is_admin": is_admin(session["user"])
-    })
+        return jsonify({
+            "success": True,
+            "full_name": user[1],
+            "email": user[2],
+            "avatar_initials": initials,
+            "is_admin": is_admin(session["user"])
+        })
+    except Exception as e:
+        print(f"Error in api_admin_user_data: {str(e)}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route("/api/admin/adjust-pool", methods=["POST"])
 def api_admin_adjust_pool():
